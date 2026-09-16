@@ -1,0 +1,6 @@
+﻿{
+    "voice":  "Microsoft David Desktop",
+    "format":  "16000 Hz mono PCM16",
+    "corpus":  "theme5-internal-acceptance-v1",
+    "source":  "Windows synthetic speech, not human recordings"
+}

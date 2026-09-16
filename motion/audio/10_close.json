@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "Go on. Change your mind. Keep the thread.",
+  "direction": "Same warm cinematic male narrator. Understated invitation, unhurried, around 4 seconds. Very short breaths between sentences; a warm decisive finish. No shouting or whispering.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 4.76
+}

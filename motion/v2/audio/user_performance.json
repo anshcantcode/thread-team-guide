@@ -1,0 +1,8 @@
+{
+  "model": "gemini-2.5-flash-preview-tts",
+  "voice": "Aoede",
+  "transcript": "Thread. Chennai to Delhi. Tomorrow, after nine. [long pause] Actually, Mumbai. [long pause] Weather there? [long pause] Plan my morning. [long pause] Make a packing list. Save it. [long pause] Kohli's form. Just T20. [long pause] Google cat images. Videos instead. [long pause] Find sources on black holes. [long pause] Split twelve hundred by four. [long pause] Twenty-minute timer. [long pause] London and Mumbai. Make it a widget. [long pause] Back to my trip.",
+  "direction": "A single confident young adult woman, consistent medium-high register and natural lightly Indian English accent throughout. Brisk, engaged and nimble, around 210 words per minute; conversational, never breathy or cinematic slow. These are separate command lines for a fast product film. IMPORTANT: leave TWO FULL SECONDS OF SILENCE at every [long pause] marker so the editor can separate them. Do not speak the marker. Within each line keep the phrasing quick and connected, even when there is punctuation. End each line clearly. Exact transcript only, no introduction, no added words.",
+  "mimeType": "audio/L16;codec=pcm;rate=24000",
+  "seconds": 35.370958333333334
+}

@@ -75,7 +75,7 @@ motion/v2/output/THREAD-Keep-going-vertical.mp4
 motion/v2/output/THREAD-Keep-going.srt
 ```
 
-Ask Ansh for the rendered files; they are large local outputs and are not included in this guide. Use the film to introduce the experience. It is a cinematic composition, not a raw screen recording or a response-latency measurement. Its branded flight details are sample data.
+Rendered files are separate production outputs; the source and assets needed to rebuild them are included under `motion/`. Ask Ansh for existing exports when needed. Use the film to introduce the experience. It is a cinematic composition, not a raw screen recording or a response-latency measurement. Its branded flight details are sample data.
 
 ## A useful bug report
 
@@ -108,7 +108,7 @@ Do not delete checks to make a result green. Do not report an opened draft as a 
 ## Handoff checklist
 
 - [ ] Every teammate can explain the core interruption scenario in their own words.
-- [ ] Each teammate has the source or APK needed for their responsibility.
+- [ ] Each teammate has cloned the repository and completed setup for their responsibility.
 - [ ] The organizer interface and required execution environment are confirmed.
 - [ ] Current phone build, source, and evidence are tied together.
 - [ ] The live demonstration has been rehearsed with actual speech.

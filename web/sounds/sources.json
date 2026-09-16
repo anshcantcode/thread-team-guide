@@ -1,0 +1,30 @@
+[
+  {
+    "voice": "Kore",
+    "path": "web\\sounds\\ack-Kore.wav",
+    "seconds": 0.38,
+    "caption": "mm-hmm",
+    "provider": "gemini-3.1-flash-live-preview"
+  },
+  {
+    "voice": "Aoede",
+    "path": "web\\sounds\\ack-Aoede.wav",
+    "seconds": 0.67,
+    "caption": "Mmhmm.",
+    "provider": "gemini-3.1-flash-live-preview"
+  },
+  {
+    "voice": "Puck",
+    "path": "web\\sounds\\ack-Puck.wav",
+    "seconds": 0.35,
+    "caption": "Mm-hmm.",
+    "provider": "gemini-3.1-flash-live-preview"
+  },
+  {
+    "voice": "Charon",
+    "path": "web\\sounds\\ack-Charon.wav",
+    "seconds": 0.37,
+    "caption": "Mm-hmm",
+    "provider": "gemini-3.1-flash-live-preview"
+  }
+]

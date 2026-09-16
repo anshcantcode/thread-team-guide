@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="THREAD — a conversation with room to change your mind.">
+  <meta name="theme-color" content="#080d14"><title>THREAD · A live conversation</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M4 29C14 4 30 1 23 19S26 37 36 14' fill='none' stroke='%23ce623e' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/workspace.css">
+<link rel="stylesheet" href="/static/sports.css">
+<link rel="stylesheet" href="/static/galaxy.css">
+</head>
+<body>
+<svg class="symbol-library" aria-hidden="true"><defs>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="m3 3 18 18M9 9v3a3 3 0 0 0 5 2M9 5a3 3 0 0 1 6 0v5M5 10v2a7 7 0 0 0 12 5m2-5v-2M12 19v3m-4 0h8"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 4-5 5 6"/></symbol>
+  <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h.1m4 0h.1m4 0h.1m4 0h.1M6 12h.1m4 0h.1m4 0h.1m4 0h.1M7 15h10"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M3 15v-4c0-6 18-6 18 0v4h-5v-4a13 13 0 0 0-8 0v4Z"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="m9 3 1-1h4l1 3 3 1 3 2-1 3v2l1 3-3 2-3 1-1 3h-4l-1-3-3-1-3-2 1-3v-2L3 8l3-2 3-1Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-transcript" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 4h6m-6 4h4"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 15v5h16v-5"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+</defs></svg>
+<div class="studio">
+  <main class="voice-stage" aria-label="Voice conversation">
+    <header class="stage-header">
+      <a href="/" class="brand" aria-label="THREAD home"><svg viewBox="0 0 42 32" aria-hidden="true"><path d="M2 26C13 2 32-4 24 14S25 35 40 9"/></svg><span>THREAD</span></a>
+      <div class="connection-status"><span class="status-dot" id="status-dot"></span><span id="connection">Ready when you are</span></div>
+      <button class="icon-button settings-button" id="settings-toggle" aria-label="Open conversation settings" title="Settings"><svg><use href="#i-settings"/></svg></button>
+    </header>
+    <section class="conversation-focus">
+      <div class="stage-kicker" id="stage-kicker">A LITTLE SPACE TO THINK OUT LOUD</div>
+      <h1 id="voice-title">Go on.</h1>
+      <p class="stage-subtitle" id="voice-subtitle">Your day, in conversation.</p>
+      <div class="thread-visual" aria-hidden="true"><canvas id="thread-canvas"></canvas></div>
+      <div class="live-caption" id="live-caption" aria-live="off"><span class="caption-speaker" id="caption-speaker"></span><p id="caption-text"></p><p class="previous-caption" id="previous-caption"></p></div>
+    </section>
+    <section class="call-controls" aria-label="Conversation controls">
+      <form id="composer" class="composer" hidden><label for="message" class="sr-only">Say it in writing</label><textarea id="message" rows="1" placeholder="Say it in writing…" maxlength="12000"></textarea><button type="submit" class="send-text" aria-label="Send and hear a reply"><svg><use href="#i-arrow"/></svg></button></form>
+      <div class="control-dock" id="control-dock">
+        <button class="mic-button" id="mic" aria-label="Start voice conversation" title="Start voice conversation"><svg id="mic-icon"><use href="#i-mic"/></svg><span id="mic-label">Start talking</span></button>
+        <span class="dock-rule"></span>
+        <button class="dock-button" id="attach" aria-label="Share an image" title="Share an image"><svg><use href="#i-image"/></svg></button>
+        <button class="dock-button" id="keyboard" aria-label="Open keyboard" title="Type instead" aria-expanded="false"><svg><use href="#i-keyboard"/></svg></button>
+        <span class="dock-rule end-rule" hidden></span>
+        <button class="dock-button end-call" id="end-call" aria-label="End voice conversation" title="End conversation" hidden><svg><use href="#i-phone"/></svg></button>
+      </div>
+      <p class="call-note" id="call-note">Your microphone turns on when you start.</p>
+    </section>
+    <footer class="stage-footer"><span>LESS TYPING.<br>MORE CONVERSATION.</span><span id="mode-label">VOICE, WITH A LITTLE MORE ROOM.</span></footer>
+  </main>
+  <aside class="context-rail" aria-label="Current task">
+    <header class="context-header"><div><span class="eyebrow">YOUR WORKSPACE</span><small>A little order for your thoughts.</small></div><button class="icon-button" id="new-session" aria-label="Start a fresh session" title="Start a fresh session">＋</button></header>
+    <nav id="workspace-tabs" class="workspace-tabs" aria-label="Work kept in this conversation" hidden></nav>
+    <div class="context-scroll">
+      <section class="empty-context" id="empty-context"><div class="empty-art" aria-hidden="true"><span class="empty-sheet back"></span><span class="empty-sheet front"><i>t.</i><b></b><b></b><b></b></span><span class="empty-orbit"></span></div><span class="micro-label">FROM A THOUGHT, TO SOMETHING USEFUL</span><h2>Your results.<br>In one place.</h2><p>Research, plans and the details you asked for.<br>Keep talking while they take shape.</p><div class="suggestion-grid"><button data-prompt="Check the five-day weather forecast for Chennai, India."><span>↗</span><b>A look outside</b><small>Live weather</small></button><button data-prompt="Make a realistic three-day Kyoto itinerary with a quiet pace, vegetarian food and a moderate budget. Show the plan in the workspace."><span>⌁</span><b>Somewhere to go</b><small>A considered itinerary</small></button><button data-prompt="Calculate 18500 plus 18 percent, then split the total between three people."><span>∑</span><b>Work it out</b><small>Numbers, made clear</small></button><button data-prompt="Find books by Ursula K. Le Guin."><span>Aa</span><b>Follow a thought</b><small>Books &amp; research</small></button></div><div class="quiet-suggestions"><button data-prompt="Show my saved notes.">My notebook ↗</button><button id="device-demo">Share a demo image ↗</button><button data-prompt="Show demo flights from Chennai to Mumbai on October 8 after 6 PM.">Try a flight shortlist ↗</button></div><p class="demo-note">Live sources, local tools, and drafts — clearly labelled. Flight, room and device examples use demo data.</p></section>
+      <section id="active-task" hidden><div class="task-topline"><span id="domain-label">Flights</span><span id="revision" class="revision"></span></div><h2 id="task-title"></h2><div id="slots" class="slots"></div><p id="task-state" class="task-state"></p></section>
+      <section id="results-card" class="results-section" hidden><div class="section-label"><span class="eyebrow" id="result-label">RETURNED EVIDENCE</span><span id="result-count"></span></div><div id="results"></div><small id="result-source" class="source-label"></small><div id="artifact-actions" class="artifact-actions" hidden><button id="copy-artifact">Copy</button><a id="download-artifact" download>Download ↧</a></div><button id="book" class="primary-button" hidden>Reserve this demo option</button></section>
+      <div id="search-suggestions"></div>
+      <section id="media-preview" class="media-preview" hidden><img id="preview-image" alt="Image shared in this conversation"><p id="media-label"></p></section>
+      <section id="action-section" class="action-section" hidden><div id="operations"></div><div class="task-controls"><button class="text-button" id="pause">Pause task</button><button class="text-button" id="resume">Resume</button><button class="text-button danger" id="cancel-task">Cancel</button></div></section>
+    </div>
+    <footer class="context-footer"><button id="transcript-toggle" class="transcript-toggle"><svg><use href="#i-transcript"/></svg><span>Recent words</span><span class="transcript-count" id="transcript-count">0</span></button><button class="icon-button" id="export" aria-label="Download session transcript and evidence" title="Download session"><svg><use href="#i-download"/></svg></button></footer>
+  </aside>
+</div>
+<input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden>
+<dialog id="transcript-dialog" class="drawer"><div class="dialog-header"><div><span class="eyebrow">THE CONVERSATION</span><h2>Recent words.</h2></div><button class="icon-button" data-close="transcript-dialog" aria-label="Close transcript"><svg><use href="#i-close"/></svg></button></div><div id="messages" class="transcript-messages" role="log"></div><div class="drawer-footer"><span>Live captions can miss a word.</span><button class="text-button" id="inspect-toggle">View task record ↗</button></div></dialog>
+<dialog id="settings-dialog" class="settings-dialog"><div class="dialog-header"><div><span class="eyebrow">MAKE YOURSELF COMFORTABLE</span><h2>Your conversation.</h2></div><button class="icon-button" data-close="settings-dialog" aria-label="Close settings"><svg><use href="#i-close"/></svg></button></div><div class="settings-body"><label class="setting-row" for="voice-choice"><span><b>A voice to listen to</b><small>Changes apply to your next connection.</small></span><select id="voice-choice"><option value="Kore">Kore · Composed</option><option value="Aoede">Aoede · Warm</option><option value="Puck">Puck · Bright</option><option value="Charon">Charon · Measured</option></select></label><div class="setting-row"><span><b>Voice connection</b><small id="live-model">Gemini Live · Native audio</small></span><span id="live-health">Not connected</span></div><div class="setting-row"><span><b>Last spoken reply</b><small>Last voiced microphone frame → scheduled playback, in this browser.</small></span><span id="latency">Not measured</span></div><label class="setting-row" for="vad-threshold"><span><b>Microphone sensitivity</b><small>Lower the threshold for quieter speech.</small></span><input id="vad-threshold" type="range" min="0.008" max="0.06" step="0.002" value="0.018"></label><label class="setting-row" for="backchannel"><span><b>Quiet acknowledgments</b><small>A soft mm-hmm when you interrupt a spoken reply.</small></span><input id="backchannel" type="checkbox" checked></label><p class="privacy" id="privacy"></p><p class="settings-footnote">A live voice model supplies the conversation. THREAD handles tools, corrections and the workspace. Live information and local work are labelled by source.</p></div></dialog>
+<dialog id="inspector" class="inspector"><div class="dialog-header"><div><span class="eyebrow">THE TASK RECORD</span><h2>What happened.</h2></div><button class="icon-button" data-close="inspector" aria-label="Close task record"><svg><use href="#i-close"/></svg></button></div><div class="inspector-body"><details class="test-conditions"><summary>Demo service conditions</summary><label>Lookup delay <output id="delay-label"></output><input type="range" id="read-delay" min="0.05" max="10" step="0.05" value="0.35"></label><label><input type="checkbox" id="late-reads"> Deliver obsolete results after cancellation</label><label><input type="checkbox" id="duplicate-outcomes"> Repeat action outcome notifications</label><label>Action behaviour<select id="action-mode"><option value="normal">Normal</option><option value="delayed">Created, with a delayed reply</option><option value="too_late">Cancellation declined</option><option value="unverifiable">Unknown outcome</option></select></label><button class="text-button" id="status">Check action status</button><button class="text-button" id="fail-read">Fail next lookup</button><button class="text-button" id="repeat-result">Repeat last result</button></details><div id="metrics" class="metrics"></div><p class="record-note">Samsung's evaluation kit has not been supplied. This is THREAD's own event record.</p><div id="timeline"></div></div></dialog>
+<div id="toast" class="toast" role="status" hidden><span id="toast-text"></span><button id="toast-close" aria-label="Dismiss notification">×</button></div>
+<script src="/static/app.js" type="module"></script>
+</body>
+</html>

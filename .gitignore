@@ -1,16 +1,41 @@
-# Keep this repository limited to reviewed team documentation.
+# Credentials and private state
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 *.jks
 *.keystore
-*.log
+*phone-config-import*
+data/
 *.sqlite*
+.runtime/
+
+# Local environments and generated build output
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.gradle/
+android/**/build/
+android/local.properties
+node_modules/
 *.apk
-*.mp4
-*.wav
-.DS_Store
-Thumbs.db
+*.aab
+*.log
+reports/*
+!reports/README.md
+!reports/public-source-validation.json
+
+# Rendered production outputs remain outside source history
+motion/output/
+motion/v2/output/
+motion/audio/*.wav
+motion/v2/audio/*.wav
+
+# Editor and operating-system state
 .idea/
 .vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,6 @@
+﻿{
+    "voice":  "Microsoft David Desktop",
+    "format":  "16000 Hz mono PCM16",
+    "corpus":  "evaluation/native-audio.json",
+    "source":  "Windows synthetic speech, not human recordings"
+}

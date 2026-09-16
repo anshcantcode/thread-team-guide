@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "Change your mind. Keep the details. Thread stops the old task, and carries the right one forward.",
+  "direction": "Warm cinematic male narrator as in the opening. Thoughtful emphasis on keep and right. Natural pace, not booming trailer delivery. Around 7.5 seconds.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 9.12
+}

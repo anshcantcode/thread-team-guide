@@ -2,7 +2,7 @@
 
 [Home](../README.md) · [Start here](START_HERE.md) · [What works](WHAT_WORKS.md) · [Setup](RUN.md) · [Team plan](TEAM_PLAN.md)
 
-All code paths on this page are **relative to the separate application checkout**, not this documentation repository. Read one path for the behavior you care about; there is no need to open every file first.
+All code paths on this page are **relative to this repository root**. Read one path for the behavior you care about; there is no need to open every file first.
 
 ## The whole system
 
@@ -120,9 +120,9 @@ Start with `tests/test_theme5.py`, `tests/test_engine.py`, and `tests/test_autho
 | `PHONE_BACKEND.md` | Embedded runtime, configuration, storage, and phone setup. |
 | `SMART_ACTIONS.md` | Supported command flows and integration boundaries. |
 | `EVALUATION.md` | Evaluation contract and test methodology. |
-| `EVIDENCE.md` | Earlier reviewed Theme 05 candidate and precisely scoped historical evidence. |
-| `reports/android-embedded-backend.md` | Android 0.6 installation, device, release-microphone, and package checks. |
-| `reports/android-smart-actions.md` | Earlier smart-action iteration and actual-model/device checks. |
+| `docs/VALIDATION.md` | Public-source checks, historical device evidence, and explicit limits. |
+| `reports/public-source-validation.json` | Aggregate checks and hashes for the public source snapshot. |
+| `reports/README.md` | How to generate and interpret local verification output. |
 | `features.md` | Feature/card backlog; not a shipping-status document. |
 | `THREAD_Product_Specification.md` | Product direction and design intent. |
 | `motion/v2/SCRIPT.md` | Current 43-second film script. |
@@ -131,4 +131,4 @@ Start with `tests/test_theme5.py`, `tests/test_engine.py`, and `tests/test_autho
 
 For current Android setup, prefer `android/README.md` and `PHONE_BACKEND.md` over older demo instructions describing a laptop relay. A historical report or design document may accurately describe an earlier state without describing today's build.
 
-`reports/` contains both successes and retained failures. `data/`, `.env`, `.runtime/`, and device-private storage are local state, not material to upload wholesale into a team guide.
+`reports/` receives generated verification output; raw historical device/provider logs are retained separately by the team. `data/`, `.env`, `.runtime/`, and device-private storage are local state, not material to upload wholesale into a team guide.

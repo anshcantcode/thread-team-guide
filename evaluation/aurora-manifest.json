@@ -1,0 +1,11 @@
+{
+  "id":"aurora","title":"Aurora field laboratories",
+  "description":"Availability of research lab slots at a field site. This is a fictional internal test service; no real reservations occur.",
+  "slots":{"type":"object","properties":{"site":{"type":"string","description":"Exact named field site"},"researchers":{"type":"integer","minimum":1,"maximum":12},"day":{"type":"string","format":"date"},"microscope":{"type":"boolean"}},"additionalProperties":false},
+  "defaults":{},
+  "tools":[
+    {"name":"aurora.available_slots","description":"Find field-lab slots with capacity and the requested equipment.","purpose":"lookup","effect":"read","parameters":{"type":"object","properties":{"site":{"type":"string"},"researchers":{"type":"integer","minimum":1,"maximum":12},"day":{"type":"string","format":"date"},"microscope":{"type":"boolean"}},"required":["site","researchers","day"],"additionalProperties":false}},
+    {"name":"aurora.allocate","description":"Allocate exactly the selected slot for the researchers, with explicit authorization.","purpose":"create","effect":"write","parameters":{"type":"object","properties":{"site":{"type":"string"},"researchers":{"type":"integer"},"day":{"type":"string","format":"date"},"slot_code":{"type":"string"}},"required":["site","researchers","day","slot_code"],"additionalProperties":false},"bindings":{"slot_code":"option_id"}},
+    {"name":"aurora.release","description":"Cancel an allocation using the confirmed service reference.","purpose":"cancel","effect":"write","parameters":{"type":"object","properties":{"allocation_ref":{"type":"string"}},"required":["allocation_ref"],"additionalProperties":false},"bindings":{"allocation_ref":"reference"}}
+  ]
+}

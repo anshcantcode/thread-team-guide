@@ -75,7 +75,7 @@ These are not integrations with airlines, an office booking system, or Samsung c
 | Earlier Theme 05 deterministic replays | Six scenario families over 50 seeds; 300 scenario/seed combinations and 1,200 total repeated/fresh-process executions. | Model comprehension or Samsung's undisclosed evaluation suite. |
 | Earlier 30-case model acceptance corpus | Authored text/audio/image regression behavior on its recorded source/model. | Population accuracy, fresh holdout performance, or automatic coverage of later Android changes. |
 
-Find the exact reports through [Code map](CODE_MAP.md). Earlier reports keep their original scope; do not reuse a historical number as a fresh result for changed code.
+See [Validation](VALIDATION.md) for newly executed public-source checks. The device and historical model reports described above are team-held records, not included raw in this repository. Do not reuse a historical number as a fresh result for changed code.
 
 ## Still open
 

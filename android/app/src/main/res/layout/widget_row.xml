@@ -1,0 +1,12 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/row_root" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="53dp" android:paddingVertical="9dp" android:gravity="center_vertical">
+  <TextView android:id="@+id/row_check" android:layout_width="32dp" android:layout_height="36dp" android:gravity="center_vertical" android:textSize="21sp" android:textColor="#A9C8F8" android:visibility="gone"/>
+  <ImageView android:id="@+id/row_image" android:layout_width="26dp" android:layout_height="26dp" android:layout_marginEnd="10dp" android:visibility="gone" android:importantForAccessibility="no"/>
+  <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+   <TextView android:id="@+id/row_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#F4F6FA" android:textSize="13sp" android:lineSpacingExtra="3dp"/>
+   <TextView android:id="@+id/row_detail" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="#96A5BA" android:textSize="10sp" android:lineSpacingExtra="2dp"/>
+  </LinearLayout>
+  <TextView android:id="@+id/row_value" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxWidth="106dp" android:layout_marginStart="10dp" android:gravity="end" android:fontFamily="sans-serif-medium" android:fontFeatureSettings="tnum" android:textColor="#F5F7FC" android:textSize="17sp"/>
+ </LinearLayout>
+ <TextView android:layout_width="match_parent" android:layout_height="0.5dp" android:background="#263240"/>
+</LinearLayout>

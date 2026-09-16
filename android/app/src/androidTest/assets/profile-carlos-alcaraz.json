@@ -1,0 +1,109 @@
+{
+  "status": "completed",
+  "source": "ESPN",
+  "provenance": "live",
+  "retrieved_at": "2026-09-13T13:51:03.236315+00:00",
+  "items": [
+    {
+      "id": "tennis-3782",
+      "kind": "sports_profile",
+      "title": "Carlos Alcaraz",
+      "sport": "tennis",
+      "sport_label": "Tennis",
+      "entity_type": "player",
+      "team": "",
+      "league": "Tennis",
+      "portrait": "https://a.espncdn.com/i/headshots/tennis/players/full/3782.png",
+      "logo": "",
+      "url": "https://www.espn.com/tennis/player/_/id/3782/carlos-alcaraz",
+      "requested_count": 5,
+      "position": "",
+      "flag": "",
+      "country": "",
+      "identity_source": "ESPN player profile",
+      "records": [
+        {
+          "id": "182780",
+          "date": "2026-09-09T03:00Z",
+          "title": "Ben Shelton",
+          "subtitle": "US Open",
+          "score": "7–6  1–6  3–6  6–1  6–7",
+          "result": "L",
+          "stats": [],
+          "status": "Final",
+          "url": "https://www.espn.com/tennis/scoreboard/tournament/_/eventId/189-2026/competitionType/1"
+        },
+        {
+          "id": "182724",
+          "date": "2026-09-06T18:10Z",
+          "title": "Tommy Paul",
+          "subtitle": "US Open",
+          "score": "6–4  6–3  6–4",
+          "result": "W",
+          "stats": [],
+          "status": "Final",
+          "url": "https://www.espn.com/tennis/scoreboard/tournament/_/eventId/189-2026/competitionType/1"
+        },
+        {
+          "id": "182723",
+          "date": "2026-09-04T18:20Z",
+          "title": "Wu Yibing",
+          "subtitle": "US Open",
+          "score": "6–3  6–4  6–1",
+          "result": "W",
+          "stats": [],
+          "status": "Final",
+          "url": "https://www.espn.com/tennis/scoreboard/tournament/_/eventId/189-2026/competitionType/1"
+        },
+        {
+          "id": "182764",
+          "date": "2026-09-03T00:35Z",
+          "title": "Jaime Faria",
+          "subtitle": "US Open",
+          "score": "4–6  6–0  6–3  6–2",
+          "result": "W",
+          "stats": [],
+          "status": "Final",
+          "url": "https://www.espn.com/tennis/scoreboard/tournament/_/eventId/189-2026/competitionType/1"
+        },
+        {
+          "id": "182705",
+          "date": "2026-08-31T17:30Z",
+          "title": "Roman Safiullin",
+          "subtitle": "US Open",
+          "score": "6–4  6–4  6–4",
+          "result": "W",
+          "stats": [],
+          "status": "Final",
+          "url": "https://www.espn.com/tennis/scoreboard/tournament/_/eventId/189-2026/competitionType/1"
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Wins",
+          "value": "4"
+        },
+        {
+          "label": "Losses",
+          "value": "1"
+        },
+        {
+          "label": "Matches",
+          "value": "5"
+        }
+      ],
+      "coverage": "ATP singles · completed matches in the last 90 days · doubles excluded",
+      "coverage_status": "available",
+      "latest_record_at": "2026-09-09T03:00Z"
+    }
+  ],
+  "summary": "Carlos Alcaraz: 5 dated Tennis records. ATP singles · completed matches in the last 90 days · doubles excluded. Latest returned date: 2026-09-09T03:00Z. Use only the returned rows and sport-specific statistics. Distinguish these dates from today's retrieval date.",
+  "id": "qa-profile-carlos-alcaraz",
+  "domain": "sports",
+  "arguments": {
+    "query": "Carlos Alcaraz",
+    "sport": "tennis",
+    "entity_type": "player",
+    "limit": 5
+  }
+}

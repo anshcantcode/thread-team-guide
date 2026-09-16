@@ -1,0 +1,88 @@
+{
+  "sample_rate": 48000,
+  "duration": 58.0,
+  "cues": [
+    {
+      "take": "01_open",
+      "start": 0.85,
+      "end": 6.699999999999999,
+      "source_seconds_trimmed": 5.85,
+      "tempo_factor": 1.0,
+      "text": "A conversation never moves in a straight line. Neither should your assistant."
+    },
+    {
+      "take": "02_meet",
+      "start": 8.22,
+      "end": 10.21,
+      "source_seconds_trimmed": 1.99,
+      "tempo_factor": 1.0,
+      "text": "Meet Thread."
+    },
+    {
+      "take": "03_request",
+      "start": 11.82,
+      "end": 15.22,
+      "source_seconds_trimmed": 3.4,
+      "tempo_factor": 1.0,
+      "text": "Find flights from Chennai to Delhi tomorrow, after nine."
+    },
+    {
+      "take": "04_reply",
+      "start": 15.73,
+      "end": 17.93,
+      "source_seconds_trimmed": 3.33,
+      "tempo_factor": 1.0,
+      "text": "I found a few flights to Delhi. The\u2014"
+    },
+    {
+      "take": "05_interrupt",
+      "start": 17.9,
+      "end": 19.65,
+      "source_seconds_trimmed": 1.75,
+      "tempo_factor": 1.0,
+      "text": "Wait. Mumbai instead."
+    },
+    {
+      "take": "06_confirm",
+      "start": 20.42,
+      "end": 24.12,
+      "source_seconds_trimmed": 3.7,
+      "tempo_factor": 1.0,
+      "text": "Mumbai. Tomorrow. After nine. Got it."
+    },
+    {
+      "take": "07_core",
+      "start": 25.98,
+      "end": 34.17375,
+      "source_seconds_trimmed": 8.57,
+      "tempo_factor": 1.047677261613692,
+      "text": "Change your mind. Keep the details. Thread stops the old task, and carries the right one forward."
+    },
+    {
+      "take": "08_personal",
+      "start": 35.18,
+      "end": 43.49,
+      "source_seconds_trimmed": 8.31,
+      "tempo_factor": 1.0,
+      "text": "From a quick search, to the things you want to keep. Rich results. Your library. Your home screen."
+    },
+    {
+      "take": "09_phone",
+      "start": 45.72,
+      "end": 49.05,
+      "source_seconds_trimmed": 3.33,
+      "tempo_factor": 1.0,
+      "text": "Now, on your phone. No laptop needed."
+    },
+    {
+      "take": "10_close",
+      "start": 51.14,
+      "end": 55.44,
+      "source_seconds_trimmed": 4.3,
+      "tempo_factor": 1.0,
+      "text": "Go on. Change your mind. Keep the thread."
+    }
+  ],
+  "score": "Original procedural composition, F minor / Db / Ab / Eb, 96 BPM",
+  "synthetic_voices": true
+}

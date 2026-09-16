@@ -1,0 +1,8 @@
+{
+  "model": "gemini-2.5-flash-preview-tts",
+  "voice": "Charon",
+  "transcript": "Mumbai. Same date. Same time.",
+  "direction": "Crisp friendly assistant, brisk and responsive. Approximately two seconds. No long dramatic pauses. Bright, present, clear voice.",
+  "mimeType": "audio/L16;codec=pcm;rate=24000",
+  "seconds": 2.8909583333333333
+}

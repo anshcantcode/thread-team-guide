@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "Now, on your phone. No laptop needed.",
+  "direction": "Same warm cinematic male narrator. Confident and direct, around 3 seconds. Land gently on needed.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 3.84
+}

@@ -1,0 +1,8 @@
+{
+  "model": "gemini-2.5-flash-preview-tts",
+  "voice": "Charon",
+  "transcript": "Flights to Delhi. Your first option leaves at",
+  "direction": "Bright responsive assistant, quick conversational delivery. This sentence will be cut off by an interruption. Speak the exact transcript; no added ending. Clear dry recording, brisk pacing.",
+  "mimeType": "audio/L16;codec=pcm;rate=24000",
+  "seconds": 2.8909583333333333
+}

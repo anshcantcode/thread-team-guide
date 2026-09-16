@@ -1,0 +1,15 @@
+.git
+.venv
+.runtime
+.env
+.env.*
+data
+reports
+android
+design
+motion
+.github
+docs
+**/__pycache__
+**/*.pyc
+**/node_modules

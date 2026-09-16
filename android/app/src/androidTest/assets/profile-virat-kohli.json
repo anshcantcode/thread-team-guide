@@ -1,0 +1,172 @@
+{
+  "status": "completed",
+  "source": "Cricbuzz",
+  "provenance": "live",
+  "retrieved_at": "2026-09-13T13:50:59.221586+00:00",
+  "items": [
+    {
+      "id": "cricket-253802",
+      "kind": "sports_profile",
+      "title": "Virat Kohli",
+      "sport": "cricket",
+      "sport_label": "Cricket",
+      "entity_type": "player",
+      "team": "India",
+      "league": "Cricket",
+      "portrait": "https://a.espncdn.com/i/headshots/cricket/players/full/253802.png",
+      "logo": "https://a.espncdn.com/i/teamlogos/cricket/500/6.png",
+      "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+      "requested_count": 5,
+      "position": "Top-order batter",
+      "flag": "https://a.espncdn.com/i/teamlogos/cricket/500/6.png",
+      "country": "IND",
+      "identity_source": "ESPN player profile",
+      "records": [
+        {
+          "id": "7a1779dbd2a8ccc8",
+          "date": "2026-07-19",
+          "title": "ENG",
+          "subtitle": "ODI · India tour of England, 2026 · London",
+          "score": "74(60)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "74"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "60"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "123.3"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "ODI",
+          "record_type": "innings",
+          "not_out": false
+        },
+        {
+          "id": "3d22b4a29e0cbc98",
+          "date": "2026-07-16",
+          "title": "ENG",
+          "subtitle": "ODI · India tour of England, 2026 · Cardiff",
+          "score": "65(66)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "65"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "66"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "98.4"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "ODI",
+          "record_type": "innings",
+          "not_out": false
+        },
+        {
+          "id": "18e0c58a8950a3b7",
+          "date": "2026-07-14",
+          "title": "ENG",
+          "subtitle": "ODI · India tour of England, 2026 · Birmingham",
+          "score": "5(6)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "5"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "6"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "83.3"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "ODI",
+          "record_type": "innings",
+          "not_out": false
+        },
+        {
+          "id": "fd803ac49f390a05",
+          "date": "2026-01-18",
+          "title": "NZ",
+          "subtitle": "ODI · New Zealand tour of India, 2026 · Indore",
+          "score": "124(108)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "124"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "108"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "114.8"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "ODI",
+          "record_type": "innings",
+          "not_out": false
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Runs",
+          "value": "268"
+        },
+        {
+          "label": "Average",
+          "value": "67.0"
+        },
+        {
+          "label": "Strike rate",
+          "value": "111.7"
+        }
+      ],
+      "coverage": "Cricbuzz public batting table · ODI formats · source first page only · innings, not distinct matches · only 4 records available",
+      "coverage_status": "partial",
+      "latest_record_at": "2026-07-19"
+    }
+  ],
+  "summary": "Virat Kohli: 4 dated Cricket records. Cricbuzz public batting table · ODI formats · source first page only · innings, not distinct matches · only 4 records available. Latest returned date: 2026-07-19. Use only the returned rows and sport-specific statistics. Distinguish these dates from today's retrieval date.",
+  "id": "qa-profile-virat-kohli",
+  "domain": "sports",
+  "arguments": {
+    "query": "Virat Kohli",
+    "sport": "cricket",
+    "entity_type": "player",
+    "limit": 5,
+    "cricket_skill": "batting",
+    "cricket_format": "ODI"
+  }
+}

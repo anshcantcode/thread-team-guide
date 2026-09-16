@@ -4,7 +4,12 @@
 
 ## Before you begin
 
-This GitHub repository contains the **guide**, not the runnable source. Get the full application checkout or review APK from Ansh. There is no application clone URL in this guide yet; do not run the commands below inside `thread-team-guide`.
+This repository contains the full application source. Clone it and run the commands below from its root:
+
+```powershell
+git clone https://github.com/anshcantcode/thread-team-guide.git
+cd thread-team-guide
+```
 
 The application root contains `run.ps1`, `.env.example`, `requirements.lock`, `thread_agent/`, `android/`, `web/`, and `tests/`.
 
@@ -12,7 +17,7 @@ Choose your route:
 
 | Goal | What you need |
 |---|---|
-| Read and understand | This guide only. |
+| Read and understand | The README and docs directory. |
 | Try the already installed phone | THREAD on the S24, owner consent to use it, internet, configured Gemini key/quota. |
 | Run controller checks | Full application checkout and Python 3.11. No cloud key for the deterministic checks below. |
 | Run the browser workspace | Full checkout, Python 3.11, and Gemini configuration for model requests. |
@@ -68,7 +73,7 @@ The current APK uses a development signing certificate. It is a review build, no
 
 ### Build from source
 
-The checked-in build helper assumes these Windows defaults:
+The checked-in build helper respects `JAVA_HOME` and `ANDROID_HOME` (or `ANDROID_SDK_ROOT`), with these Windows fallback locations:
 
 - Android Studio JDK: `C:\Program Files\Android\Android Studio\jbr`
 - Android SDK: `%LOCALAPPDATA%\Android\Sdk`
@@ -76,13 +81,13 @@ The checked-in build helper assumes these Windows defaults:
 - Python **3.11** available to the build
 - Gradle wrapper distribution **8.14.3**
 
-Open the `android` directory in Android Studio and let Gradle sync/download the required SDK components. If the build helper says its Gradle distribution is missing, initialize the wrapper from the application root:
+Open the `android` directory in Android Studio and let Gradle sync/download the required SDK components. The helper uses the checked-in Gradle wrapper, which downloads its pinned distribution when needed. To inspect it separately:
 
 ```powershell
 .\android\gradlew.bat --version
 ```
 
-If your JDK/SDK lives elsewhere, inspect and adjust the local paths in `scripts/build-android.ps1` for your machine before using the helper.
+If your JDK/SDK lives elsewhere, set `JAVA_HOME` and `ANDROID_HOME` for your machine before using the helper.
 
 Connect a development phone, enable USB debugging, and accept its debugging prompt. From the application root:
 
@@ -123,13 +128,13 @@ For Android development, the app's own `android/README.md` explains the debug de
 
 | Symptom | First thing to check |
 |---|---|
-| `run.ps1` or `requirements.lock` is missing | You may be inside this guide rather than the application checkout. |
+| `run.ps1` or `requirements.lock` is missing | Check that you are at the repository root and have a complete checkout. |
 | `py -3.11` is unavailable | Install Python 3.11 and confirm the Python launcher can find it. |
 | PowerShell refuses a script | Follow your machine's execution-policy rules; do not change machine-wide policy casually. `start-thread.bat` is also supplied for the desktop launcher. |
 | Port already in use | Check the message from `run.ps1`; use `run.ps1 -Port 8770` and open the corresponding address if needed. |
 | UI opens but voice/model requests fail | Key configuration, internet, model availability, and quota. Phone and desktop settings are separate. |
 | Android cannot be found | USB debugging, authorized device prompt, cable, and Android SDK platform-tools. |
-| Gradle helper cannot find its distribution | Run `android/gradlew.bat --version`, then retry. |
+| Gradle helper cannot find its distribution | Run `android/gradlew.bat --version` and check download/network errors, then retry. |
 | APK will not update the installed app | Signing certificates may differ. Preserve local content and coordinate the build handoff. |
 | Spotify asks to connect | Expected until the Developer app/client ID and user authorization are configured. Premium alone is insufficient. |
 | A result is old or partial | Inspect source date, coverage, and refresh status. A failed refresh deliberately preserves the previous result. |

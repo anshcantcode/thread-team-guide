@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "A conversation never moves in a straight line. Neither should your assistant.",
+  "direction": "Intimate, assured, warm male cinematic narration. Thoughtful rather than dramatic. First sentence is reflective; second sentence has quiet conviction. Around 6 seconds.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 6.4
+}

@@ -1,0 +1,27 @@
+{
+  "retrieved_at": "2026-09-14T18:25:06.977223+00:00",
+  "url": "https://api.crossref.org/works/10.3847/2041-8213/ab0ec7",
+  "data": {
+    "message": {
+      "DOI": "10.3847/2041-8213/ab0ec7",
+      "title": [
+        "First M87 Event Horizon Telescope Results. I. The Shadow of the Supermassive Black Hole"
+      ],
+      "container-title": [
+        "The Astrophysical Journal Letters"
+      ],
+      "publisher": "American Astronomical Society",
+      "published": {
+        "date-parts": [
+          [
+            2019,
+            4,
+            10
+          ]
+        ]
+      },
+      "URL": "https://doi.org/10.3847/2041-8213/ab0ec7",
+      "type": "journal-article"
+    }
+  }
+}

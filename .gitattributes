@@ -1,0 +1,10 @@
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.jpg binary
+*.ttf binary
+*.wav binary
+*.pcm binary
+*.onnx binary
+*.jar binary
+web/fonts/*-OFL.txt whitespace=-blank-at-eol

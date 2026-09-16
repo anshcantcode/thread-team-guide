@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "From a quick search, to the things you want to keep. Rich results. Your library. Your home screen.",
+  "direction": "Same close-miked cinematic male narrator, a little brighter and more forward now. Crisp, inviting phrasing, approximately 7 seconds. Clear but never salesy.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 8.72
+}

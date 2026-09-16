@@ -1,0 +1,437 @@
+{
+  "version": "development-regression-v2",
+  "scope": "Frozen authored acceptance fixtures; not Samsung scenarios, user audio, or a population benchmark. Initial state is a declared test precondition. Expected values are never supplied to the model.",
+  "date": "2026-09-14",
+  "cases": [
+    {
+      "id": "t01",
+      "mode": "text",
+      "text": "I need two nonstop seats from Kochi to Pune on September 19, leaving later than 7 PM.",
+      "expect": {
+        "slots": {
+          "origin": "Kochi",
+          "destination": "Pune",
+          "date": "2026-09-19",
+          "passengers": 2,
+          "nonstop": true,
+          "after": "19:00"
+        },
+        "domain": "travel",
+        "writes": 0
+      }
+    },
+    {
+      "id": "t02",
+      "mode": "text",
+      "initial": "travel",
+      "text": "Make that Hyderabad. The date and everything else stay the same.",
+      "expect": {
+        "slots": {
+          "destination": "Hyderabad",
+          "origin": "Chennai",
+          "date": "2026-09-15",
+          "after": "18:00"
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "t03",
+      "mode": "text",
+      "initial": "travel",
+      "text": "Delhi, sorry, Pune. Actually Hyderabad is where I need to land.",
+      "expect": {
+        "slots": {
+          "destination": "Hyderabad",
+          "origin": "Chennai"
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "t04",
+      "mode": "text",
+      "initial": "travel",
+      "text": "Do not switch to Mumbai. Delhi is still correct.",
+      "expect": {
+        "slots": {
+          "destination": "Delhi",
+          "date": "2026-09-15"
+        },
+        "writes": 0,
+        "speech_muted": false
+      }
+    },
+    {
+      "id": "t05",
+      "mode": "text",
+      "initial": "travel",
+      "text": "Not after nine: arrive at the departure gate for a flight leaving before nine PM. Remove the earlier departure-time lower limit.",
+      "expect": {
+        "slots": {
+          "before": "21:00",
+          "destination": "Delhi"
+        },
+        "absent": [
+          "after"
+        ],
+        "writes": 0
+      }
+    },
+    {
+      "id": "t06",
+      "mode": "text",
+      "initial": "travel",
+      "text": "My brother texted 'cancel the booking', but I disagree. Continue the current search.",
+      "expect": {
+        "slots": {
+          "destination": "Delhi"
+        },
+        "paused": false,
+        "writes": 0,
+        "speech_muted": false
+      }
+    },
+    {
+      "id": "t07",
+      "mode": "text",
+      "initial": "selected_travel",
+      "text": "Is that ticket actually booked yet, or are we still choosing?",
+      "expect": {
+        "writes": 0,
+        "intents": [
+          "status"
+        ]
+      }
+    },
+    {
+      "id": "t08",
+      "mode": "text",
+      "initial": "selected_travel",
+      "text": "Yes, the destination on that option is correct.",
+      "expect": {
+        "writes": 0
+      }
+    },
+    {
+      "id": "t09",
+      "mode": "text",
+      "initial": "selected_travel",
+      "text": "Please reserve the selected flight for me now.",
+      "expect": {
+        "writes": 1,
+        "action_status": "completed"
+      }
+    },
+    {
+      "id": "t10",
+      "mode": "text",
+      "initial": "created_travel",
+      "text": "Please book that same option.",
+      "expect": {
+        "writes": 0,
+        "action_status": "completed"
+      }
+    },
+    {
+      "id": "t11",
+      "mode": "text",
+      "initial": "travel",
+      "text": "If I went to Jaipur instead, would it cost less? Just compare; keep my actual trip.",
+      "expect": {
+        "slots": {
+          "destination": "Delhi",
+          "date": "2026-09-15"
+        },
+        "writes": 0,
+        "lookup_calls": 1,
+        "comparison_slots": {
+          "destination": "Jaipur"
+        }
+      }
+    },
+    {
+      "id": "t12",
+      "mode": "text",
+      "text": "Find a meeting room on September 17 after 14:00 for eight people, ninety minutes, with a projector.",
+      "expect": {
+        "domain": "rooms",
+        "slots": {
+          "date": "2026-09-17",
+          "after": "14:00",
+          "people": 8,
+          "duration_minutes": 90,
+          "projector": true
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "t13",
+      "mode": "text",
+      "initial": "rooms",
+      "text": "Six attendees now, and we no longer need a projector. Keep the time and length.",
+      "expect": {
+        "slots": {
+          "people": 6,
+          "after": "14:00",
+          "duration_minutes": 60
+        },
+        "not_true": [
+          "projector"
+        ],
+        "writes": 0
+      }
+    },
+    {
+      "id": "t14",
+      "mode": "text",
+      "text": "Look for a flight to Pune; I have not decided the departure city or date yet.",
+      "expect": {
+        "domain": "travel",
+        "slots": {
+          "destination": "Pune"
+        },
+        "absent": [
+          "origin",
+          "date"
+        ],
+        "lookup_calls": 0,
+        "writes": 0
+      }
+    },
+    {
+      "id": "t15",
+      "mode": "text",
+      "text": "Find an Aurora field-lab slot at site North Ridge for three researchers on September 18. It must have a microscope.",
+      "expect": {
+        "domain": "aurora",
+        "slots": {
+          "site": "North Ridge",
+          "researchers": 3,
+          "day": "2026-09-18",
+          "microscope": true
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "a01",
+      "mode": "audio",
+      "speech": "Find me a flight from Chennai to Pune on September twentieth, after eight P M.",
+      "expect": {
+        "domain": "travel",
+        "slots": {
+          "origin": "Chennai",
+          "destination": "Pune",
+          "date": "2026-09-20",
+          "after": "20:00"
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "a02",
+      "mode": "audio",
+      "initial": "travel",
+      "speech": "Actually, Hyderabad. Keep the departure city and date.",
+      "expect": {
+        "slots": {
+          "origin": "Chennai",
+          "destination": "Hyderabad",
+          "date": "2026-09-15"
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "a03",
+      "mode": "audio",
+      "initial": "travel",
+      "speech": "Make that three passengers, not two.",
+      "expect": {
+        "slots": {
+          "passengers": 3,
+          "destination": "Delhi"
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "a04",
+      "mode": "audio",
+      "initial": "travel",
+      "speech": "No, no, Pune. Sorry. Hyderabad, please.",
+      "expect": {
+        "slots": {
+          "destination": "Hyderabad"
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "a05",
+      "mode": "audio",
+      "initial": "selected_travel",
+      "speech": "Have you already reserved it? I am only asking for the status.",
+      "expect": {
+        "writes": 0,
+        "intents": [
+          "status"
+        ]
+      }
+    },
+    {
+      "id": "a06",
+      "mode": "audio",
+      "initial": "selected_travel",
+      "speech": "Yes, that information looks correct.",
+      "expect": {
+        "writes": 0
+      }
+    },
+    {
+      "id": "a07",
+      "mode": "audio",
+      "initial": "travel",
+      "speech": "Stop speaking, but let the current search continue.",
+      "expect": {
+        "slots": {
+          "destination": "Delhi"
+        },
+        "speech_muted": true,
+        "writes": 0
+      }
+    },
+    {
+      "id": "a08",
+      "mode": "audio",
+      "speech": "I need a meeting room for six people on September eighteenth at two P M, for one hour.",
+      "expect": {
+        "domain": "rooms",
+        "slots": {
+          "people": 6,
+          "date": "2026-09-18",
+          "after": "14:00",
+          "duration_minutes": 60
+        },
+        "writes": 0
+      }
+    },
+    {
+      "id": "a09",
+      "mode": "audio",
+      "silence": true,
+      "expect": {
+        "writes": 0,
+        "lookup_calls": 0,
+        "intents": [
+          "clarify"
+        ]
+      }
+    },
+    {
+      "id": "v01",
+      "mode": "frame",
+      "image": "web/device-fixture.png",
+      "text": "Read the model label. Help with this router, but I have not picked a light yet.",
+      "expect": {
+        "domain": "device",
+        "slots": {
+          "model": "THREAD R1"
+        },
+        "absent": [
+          "indicator"
+        ],
+        "writes": 0
+      }
+    },
+    {
+      "id": "v02",
+      "mode": "frame",
+      "image": "web/device-fixture.png",
+      "text": "Please use the manual for the light below the NETWORK label.",
+      "expect": {
+        "domain": "device",
+        "slots": {
+          "model": "THREAD R1",
+          "indicator": "network"
+        },
+        "evidence_page": 3,
+        "writes": 0
+      }
+    },
+    {
+      "id": "v03",
+      "mode": "frame",
+      "image": "web/device-fixture.png",
+      "text": "Explain the indicator next to the round power button using the supplied manual.",
+      "expect": {
+        "domain": "device",
+        "slots": {
+          "model": "THREAD R1",
+          "indicator": "power"
+        },
+        "evidence_page": 2,
+        "writes": 0
+      }
+    },
+    {
+      "id": "v04",
+      "mode": "frame",
+      "image": "web/device-fixture.png",
+      "text": "This light has been blinking for ten minutes, according to me. Which light? I am not sure how to point to it.",
+      "expect": {
+        "domain": "device",
+        "slots": {
+          "model": "THREAD R1"
+        },
+        "absent": [
+          "indicator"
+        ],
+        "writes": 0
+      }
+    },
+    {
+      "id": "v05",
+      "mode": "frame",
+      "image": "web/device-fixture.png",
+      "text": "Can this single picture prove which light is blinking? Please do not guess a target.",
+      "expect": {
+        "absent": [
+          "indicator",
+          "symptom"
+        ],
+        "writes": 0,
+        "intents": [
+          "observe",
+          "clarify",
+          "unsupported"
+        ]
+      }
+    },
+    {
+      "id": "v06",
+      "mode": "frame",
+      "initial": "device_power",
+      "image": "web/device-fixture.png",
+      "text": "New view: the NETWORK indicator is what I mean now. Keep my report that it blinks amber.",
+      "expect": {
+        "domain": "device",
+        "slots": {
+          "model": "THREAD R1",
+          "indicator": "network",
+          "symptom": "blinking amber"
+        },
+        "evidence_page": 3,
+        "writes": 0
+      }
+    }
+  ],
+  "predecessor_sha256": "ef40ea8c5e9b5bccc426dbc8c2a6d48e8fba0da7c8373d191720d57d7fc23e31",
+  "changes_from_v1": [
+    "Explicit no-mute checks for t04/t06",
+    "Actual comparison read and alternative arguments required for t11",
+    "v05 accepts the new direct observe intent and forbids inventing a reported symptom; qualitative answer review remains required"
+  ]
+}

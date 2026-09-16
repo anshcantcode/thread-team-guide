@@ -1,0 +1,50 @@
+{
+  "title": "World Clock",
+  "results": [
+    {
+      "status": "completed",
+      "items": [
+        {
+          "id": "world_clocks-2ed8f09a9f39",
+          "kind": "world_clock",
+          "title": "Manchester",
+          "zone": "Europe/London",
+          "time": "2026-09-13T14:06:02.022178+01:00",
+          "value": "14:06",
+          "date": "2026-09-13",
+          "abbreviation": "BST"
+        },
+        {
+          "id": "world_clocks-476240e0441c",
+          "kind": "world_clock",
+          "title": "Barca",
+          "zone": "Europe/Madrid",
+          "time": "2026-09-13T15:06:02.022178+02:00",
+          "value": "15:06",
+          "date": "2026-09-13",
+          "abbreviation": "CEST"
+        }
+      ],
+      "source": "IANA time zones · device clock",
+      "provenance": "computed",
+      "retrieved_at": "2026-09-13T13:06:02.022178+00:00",
+      "summary": "Manchester 14:06 BST · Barca 15:06 CEST",
+      "id": "results-82e2242ae95b",
+      "call_id": "call-b41602aa4471",
+      "domain": "world_clocks",
+      "arguments": {
+        "locations": [
+          {
+            "label": "Manchester",
+            "zone": "Europe/London"
+          },
+          {
+            "label": "Barca",
+            "zone": "Europe/Madrid"
+          }
+        ]
+      },
+      "media_id": null
+    }
+  ]
+}

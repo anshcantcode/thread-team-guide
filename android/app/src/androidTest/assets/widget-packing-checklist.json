@@ -1,0 +1,51 @@
+{
+  "title": "Trip Checklist",
+  "results": [
+    {
+      "status": "completed",
+      "items": [
+        {
+          "id": "document-cd9ac3d52040",
+          "title": "Weekend Trip Packing Checklist",
+          "kind": "document",
+          "document": {
+            "title": "Weekend Trip Packing Checklist",
+            "blocks": [
+              {
+                "heading": "Basics",
+                "items": [
+                  "Passport",
+                  "Charger",
+                  "Medication"
+                ]
+              }
+            ],
+            "kind": "checklist"
+          }
+        }
+      ],
+      "source": "Composed by THREAD · AI draft",
+      "provenance": "draft",
+      "summary": "Weekend Trip Packing Checklist is ready in the workspace as an editable conversation draft.",
+      "retrieved_at": "2026-09-13T13:06:25.459325+00:00",
+      "id": "results-18d5d1328733",
+      "call_id": "call-4b2960b9fa7d",
+      "domain": "document",
+      "arguments": {
+        "title": "Weekend Trip Packing Checklist",
+        "blocks": [
+          {
+            "heading": "Basics",
+            "items": [
+              "Passport",
+              "Charger",
+              "Medication"
+            ]
+          }
+        ],
+        "kind": "checklist"
+      },
+      "media_id": null
+    }
+  ]
+}
