@@ -1,0 +1,16 @@
+# Keep this repository limited to reviewed team documentation.
+.env
+.env.*
+*.key
+*.pem
+*.jks
+*.keystore
+*.log
+*.sqlite*
+*.apk
+*.mp4
+*.wav
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
