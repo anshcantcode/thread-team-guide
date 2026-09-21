@@ -8,3 +8,32 @@
 *.onnx binary
 *.jar binary
 web/fonts/*-OFL.txt whitespace=-blank-at-eol
+
+# Frozen participant source and evidence retain their recorded bytes on every OS.
+participant/** -text
+evaluation/samsung_*/** -text
+evaluation/local_planner_round2/** -text
+docs/engineering-2026-09-21/** -text
+docs/engineering-round2-2026-09-21/** -text
+docs/submission-review-2026-09-21/** -text
+tests/test_participant* -text
+tests/fixtures/mp3/** -text
+submission.yaml -text
+requirements-submission.txt -text
+Dockerfile.submission -text
+
+.env.example -text
+scripts/check_gemini_config.py -text
+scripts/package_samsung_submission.py -text
+scripts/verify_samsung_submission.py -text
+tests/test_gemini_config.py -text
+tests/test_samsung_packaging.py -text
+tests/fixtures/submission/gemini.env.example -text
+docs/GEMINI_SETUP.md -text
+docs/submission/GEMINI_QUICKSTART.md -text
+thread_agent/server.py -text
+web/app.js -text
+web/index.html -text
+evaluation/gemini_delivery/** -text
+
+evaluation/gemini_controller_review_checkpoint/** -text

@@ -9,7 +9,7 @@
 
 <p align="center">
   <a href="docs/START_HERE.md">Product tour</a> ·
-  <a href="docs/RUN.md">Setup</a> ·
+  <a href="docs/GEMINI_SETUP.md">Gemini setup</a> ·
   <a href="docs/CODE_MAP.md">Architecture</a> ·
   <a href="docs/WHAT_WORKS.md">Capabilities</a> ·
   <a href="docs/VALIDATION.md">Validation</a>
@@ -20,6 +20,20 @@ THREAD combines a native Android app, real-time voice, useful result cards, and 
 **Android 0.6.0 · Android 12+ · Python 3.11 · Samsung PRISM Theme 05 prototype**
 
 This repository contains the application source, browser client, Android project, required runtime assets, tests, evaluation fixtures, and production sources for the product film. It also includes a guided starting point for the four-person team.
+
+## Engineering update
+
+This development branch adds the official `participant.agent:ParticipantAgent`
+entry point, stronger interruption and tool-action checks, reproducible packaging
+and simpler Gemini setup. Read the [team update](docs/ENGINEERING_UPDATE.md),
+[current evidence](docs/submission/EVIDENCE.md) and
+[evaluation quickstart](docs/submission/GEMINI_QUICKSTART.md).
+
+The integrated source passed **792 Python test methods**. The last complete
+public batch scored **62.6 weighted points**, with **6/27 mandatory completions**
+and **4/27 full acceptance checks**. A later package passed clean admission and
+one official text case; a new complete public batch is still required.
+Audio deadlines and answer correctness remain active blockers.
 
 ## The interaction
 
@@ -66,13 +80,17 @@ git clone https://github.com/anshcantcode/thread-team-guide.git
 cd thread-team-guide
 py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.lock
-Copy-Item .env.example .env
+if (!(Test-Path -LiteralPath '.env')) {
+    Copy-Item -LiteralPath '.env.example' -Destination '.env'
+}
 notepad .env
 ```
 
-Set `THREAD_API_KEY` locally, then run:
+Set `THREAD_API_KEY` locally, then check the configuration and run:
 
 ```powershell
+.\.venv\Scripts\python.exe scripts/check_gemini_config.py --profile app
+if ($LASTEXITCODE -ne 0) { throw 'Fix the configuration failures above.' }
 .\run.ps1
 ```
 
@@ -95,7 +113,7 @@ Open `android/` in Android Studio. The project targets SDK 36, requires JDK 17+ 
 
 Installation requires an authorized USB-debugging device. On a fresh phone, enter a Gemini key in THREAD Settings. Normal use runs through the phone's embedded backend and its own internet connection. The review build uses a development signing key; see [Android setup](android/README.md) before upgrading an existing installation.
 
-Full prerequisites, provider configuration, troubleshooting, and device-check instructions are in [Setup](docs/RUN.md).
+For keys, model settings, quota, and troubleshooting, use [Gemini setup](docs/GEMINI_SETUP.md). The doctor is offline; a passing check does not verify provider access or task timing. Typed browser requests also use Gemini Live. Official Samsung evaluation uses a separate queue participant and dependency file: follow the [judge quickstart](docs/submission/GEMINI_QUICKSTART.md). Device prerequisites and checks remain in [Run and explore](docs/RUN.md).
 
 ## Architecture
 
@@ -114,7 +132,7 @@ Android UI + local speech detection       Browser UI + audio
                   Voice, cards, Library, widgets
 ```
 
-The model proposes interpretations. Deterministic state and authorization checks own the current task, valid result identifiers, and permission to execute effects. The provisional Theme 05 adapter uses the same engine through asynchronous event/action queues.
+The model proposes interpretations. Deterministic state and authorization checks own the current task, valid result identifiers, and permission to execute effects. The official participant uses asynchronous event/action queues. The earlier application adapter remains a separate compatibility path.
 
 | Directory | Responsibility |
 |---|---|
@@ -150,7 +168,7 @@ The replay checks six scenario families over 50 timing seeds, including stale re
 
 Read [Start here](docs/START_HERE.md), choose a path in [Code map](docs/CODE_MAP.md), then follow [Contributing](CONTRIBUTING.md). The [team plan](docs/TEAM_PLAN.md) keeps responsibilities and the technical demonstration aligned with the core interruption problem.
 
-The [Theme 05 contract](EVALUATION.md) is provisional until checked against the organizer's exact kit. The [product specification](THREAD_Product_Specification.md) and [roadmap](docs/ROADMAP.md) describe direction; neither should be read as a list of completed integrations.
+The [older adapter contract](EVALUATION.md) is historical; use the [official participant quickstart](docs/submission/GEMINI_QUICKSTART.md) for the supplied kit. The [product specification](THREAD_Product_Specification.md) and [roadmap](docs/ROADMAP.md) describe direction; neither should be read as a list of completed integrations.
 
 ## Assets and licensing
 

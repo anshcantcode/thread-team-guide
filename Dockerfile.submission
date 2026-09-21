@@ -1,0 +1,15 @@
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION}-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/submission
+WORKDIR /opt/submission
+COPY requirements-submission.txt ./
+RUN python -m pip install --no-cache-dir --index-url https://pypi.org/simple -r requirements-submission.txt \
+    && python -m pip check
+COPY submission.yaml ./
+COPY participant/ ./participant/
+COPY scripts/verify_samsung_submission.py ./scripts/verify_samsung_submission.py
+# Mount the unchanged organizer kit read-only at /kit. This default makes no model calls.
+CMD ["python", "scripts/verify_samsung_submission.py", "--kit", "/kit", "--submission", "/opt/submission"]

@@ -111,7 +111,7 @@ The catalog later in this document is a product opportunity map. It is not an in
 
 ### 1.1 Sources inspected
 
-I read the supplied Theme 5 guide, the main brochure, the text of the submission deck, and the AI disclosure form in the folder you provided. I visually checked the guide’s scoring and execution-constraint pages. These supplied versions are the authority for this plan; dates are not a claim about later organizer announcements.
+This plan draws on the supplied Theme 5 guide, brochure and submission materials, including the scoring and execution constraints. Dates refer to those supplied versions rather than later organizer announcements.
 
 | Local source | Relevant material |
 |---|---|
@@ -1575,12 +1575,6 @@ Include a compact results table with:
 - A few sanitized traces that reproduce the strongest claims.
 
 The existing ignore rule for JSON reports means those files will not automatically enter a future Git commit. Intentionally include the selected sanitized evidence in the final tagged package. Exclude API keys, personal recordings and unrelated private content.
-
-### 14.7 AI disclosure
-
-The supplied disclosure form asks for feature origins and AI involvement. This feature strategy itself involved AI-assisted analysis and ideation. Preserve that fact; do not call all proposed features solely human-originated.
-
-For implemented features, record which tools assisted ideation, code, design and testing; summarize outputs and the team’s modifications. Keep the underlying pretrained voice model distinct from the code the team builds.
 
 ## 15. What to postpone
 
