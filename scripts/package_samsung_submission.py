@@ -15,20 +15,32 @@ import zipfile
 
 
 ROOT = Path(__file__).resolve().parents[1]
-KIT_FILES = (".gitignore", "README.md", "WALKTHROUGH.md", "run_local.py",
-             "eval_submission.py", "submission.yaml")
-KIT_DIRS = ("agent", "audio", "frames", "harness", "scenarios", "docs")
+KIT_FILES = (
+    ".gitignore", "README.md", "WALKTHROUGH.md", "run_local.py", "eval_submission.py", "submission.yaml",
+    "agent/__init__.py", "agent/agent.py", "audio/.gitkeep", "audio/pub_05_turn1.mp3",
+    "audio/pub_05_turn2.mp3", "audio/pub_06_turn1_part1.mp3", "audio/pub_06_turn1_part2.mp3",
+    "frames/.gitkeep", "frames/pub_07_f017.png", "harness/__init__.py", "harness/mock_env.py",
+    "harness/protocol.py", "harness/runner.py", "harness/scenario_gen.py", "harness/scorer.py",
+    "docs/PROTOCOL.md", "docs/SCORING.md", "docs/SUBMISSION.md", "docs/TOOLS.md",
+    "scenarios/pub_01_text_simple.json", "scenarios/pub_02_text_interrupt.json",
+    "scenarios/pub_03_text_chained_booking.json", "scenarios/pub_04_text_no_tool.json",
+    "scenarios/pub_05_audio_asr_ambiguity.json", "scenarios/pub_06_audio_disfluency.json",
+    "scenarios/pub_07_visual_port_lookup.json", "scenarios/pub_08_text_tool_failure.json",
+    "scenarios/pub_09_text_unseen_tool.json",
+)
 SOURCE_FILES = ("submission.yaml", "requirements-submission.txt", "Dockerfile.submission",
                 ".dockerignore", "scripts/package_samsung_submission.py",
                 "scripts/verify_samsung_submission.py", "scripts/check_gemini_config.py",
-                "docs/GEMINI_SETUP.md", ".env.example")
-REQUIRED_RUNTIME = ("__init__.py", "agent.py", "planner.py", "media.py")
+                "docs/GEMINI_SETUP.md", "docs/submission/README.md",
+                "docs/submission/GEMINI_QUICKSTART.md", ".env.example")
+REQUIRED_RUNTIME = ("__init__.py", "agent.py", "planner.py", "media.py", "authorization.py",
+                    "embedding.py", "schema.py")
 EXCLUDED = {"__pycache__", ".pytest_cache", ".git", ".venv", ".runtime", "node_modules"}
 SECRET = re.compile(rb"AIza[0-9A-Za-z_-]{35}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----")
 # Only this reviewed blank template may enter a package. Normalize line endings,
 # not values, so the same checkout works on Windows and Linux.
 ENV_TEMPLATE = ".env.example"
-ENV_TEMPLATE_SHA256 = "03523ed7e4afa02227c3d12e9f2247fbe25a5a3e1769dfed2c3101a3755a768d"
+ENV_TEMPLATE_SHA256 = "d51f494e0c87c5c3f8d9fa2e7d54001def693a355a53acdd4f6ad95fac97be5d"
 
 
 def digest(data: bytes) -> str:
@@ -37,7 +49,8 @@ def digest(data: bytes) -> str:
 
 def read_member(root: Path, path: Path) -> tuple[str, bytes]:
     name = path.relative_to(root).as_posix()
-    if path.is_symlink() or not path.resolve().is_relative_to(root) or not path.is_file():
+    if (any(parent.is_symlink() for parent in (path, *path.parents) if parent != root)
+            or not path.resolve().is_relative_to(root) or not path.is_file()):
         raise ValueError(f"missing, symlinked, or external package member: {name}")
     if any(p in EXCLUDED or (p.startswith(".env") and name != ENV_TEMPLATE)
            for p in path.relative_to(root).parts):
@@ -50,37 +63,17 @@ def read_member(root: Path, path: Path) -> tuple[str, bytes]:
     return name, data
 
 
-def directory_members(root: Path, directory: str, suffix: str | None = None) -> dict[str, bytes]:
-    base = root / directory
-    if not base.is_dir() or base.is_symlink():
-        raise ValueError(f"missing or symlinked directory: {base}")
-    result = {}
-    for path in sorted(base.rglob("*")):
-        relative = path.relative_to(root)
-        if any(p in EXCLUDED for p in relative.parts) or path.suffix in {".pyc", ".pyo"}:
-            continue
-        if path.is_symlink():
-            raise ValueError(f"symlinked package member: {relative}")
-        if path.is_file() and (suffix is None or path.suffix == suffix):
-            name, data = read_member(root, path)
-            result[name] = data
-    return result
-
-
 def collect(kit: Path, source: Path) -> tuple[dict[str, bytes], dict]:
     payload = dict(read_member(kit, kit / name) for name in KIT_FILES)
-    for directory in KIT_DIRS:
-        payload.update(directory_members(kit, directory))
+    for name in SOURCE_FILES:
+        if name != "submission.yaml" and (kit / name).exists():
+            raise ValueError(f"candidate would replace official files: {name}")
     original_yaml = payload.pop("submission.yaml")
     official_hashes = {name: digest(data) for name, data in sorted(payload.items())}
 
     additions = dict(read_member(source, source / name) for name in SOURCE_FILES)
-    runtime = directory_members(source, "participant", ".py")
-    for name in REQUIRED_RUNTIME:
-        if f"participant/{name}" not in runtime:
-            raise ValueError(f"participant/{name} is required; integrate runtime owners' files first")
+    runtime = dict(read_member(source, source / "participant" / name) for name in REQUIRED_RUNTIME)
     additions.update(runtime)
-    additions.update(directory_members(source, "docs/submission", ".md"))
     collision = payload.keys() & additions.keys()
     if collision:
         raise ValueError(f"candidate would replace official files: {sorted(collision)}")
@@ -101,7 +94,7 @@ def collect(kit: Path, source: Path) -> tuple[dict[str, bytes], dict]:
         "official_kit_files": official_hashes,
         "files": {name: digest(data) for name, data in sorted(payload.items())},
         "runtime_files": sorted(runtime),
-        "scope": "Official fixtures are evaluation inputs only; participant/ contains runtime Python only.",
+        "scope": "Explicit file allowlist only. Official fixtures are evaluation inputs; participant/ contains runtime Python only.",
     }
     payload["PACKAGE_MANIFEST.json"] = (json.dumps(record, indent=2, sort_keys=True) + "\n").encode()
     return payload, record

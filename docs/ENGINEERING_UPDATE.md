@@ -1,4 +1,8 @@
-# Engineering update
+# Engineering update — historical checkpoint
+
+This page preserves the **22 September** checkpoint. For the current work,
+results and next steps, read the [23 September team update](submission-2026-09-23/ENGINEERING_UPDATE.md).
+The pending repairs and blockers below describe that earlier source.
 
 Updated 22 September 2026. This is a development branch for team review.
 

@@ -3,7 +3,8 @@ import json
 from pathlib import Path
 import tempfile
 
-from .gate import coverage, evidence_hashes_match, imports_match, sha, timing_diagnostics
+from .gate import coverage, evidence_hashes_match, imports_match, import_hashes_match, sha, timing_diagnostics
+from .record import fingerprint
 
 
 def main():
@@ -26,9 +27,14 @@ def main():
     assert imports_match({"imports": imports}, manifest)
     assert not imports_match({"imports": {**imports, "participant.agent": "C:/other/participant/agent.py"}}, manifest)
     assert not imports_match({"imports": {}}, manifest)
+    manifest["fingerprints_before"] = {"submission": {"participant/agent.py": "agent", "participant/planner.py": "planner"}}
+    row = {"imports": imports, "import_sha256": {"participant.agent": "agent", "participant.planner": "planner"}}
+    assert import_hashes_match(row, manifest)
+    assert not import_hashes_match({**row, "import_sha256": {"participant.agent": "old"}}, manifest)
     with tempfile.TemporaryDirectory(prefix="acceptance-evidence-control-") as directory:
         root = Path(directory)
-        for name in ("manifest.json", "official-report.json", "attempt-index.json", "console.log", "attempt-001-public.json"):
+        for name in ("manifest.json", "official-report.json", "attempt-index.json", "console.log", "attempt-001-public.json",
+                     "process-status.json", "process-console.log"):
             (root / name).write_text("{}", encoding="utf-8")
         index = {p.name: sha(p) for p in root.iterdir()}
         index_path = root / "evidence-sha256.json"
@@ -42,7 +48,10 @@ def main():
         index_path.write_text(json.dumps(index), encoding="utf-8")
         (root / "official-report.json").write_text('{"changed":true}', encoding="utf-8")
         assert not evidence_hashes_match(root, attempts)
-    print("15 offline gate controls passed; zero participant/provider executions")
+        (root / ".env.example").write_text("BLANK=", encoding="utf-8")
+        (root / ".env.private").write_text("private fixture", encoding="utf-8")
+        assert ".env.example" in fingerprint(root) and ".env.private" not in fingerprint(root)
+    print("Offline gate controls passed; zero participant/provider executions")
 
 
 if __name__ == "__main__":

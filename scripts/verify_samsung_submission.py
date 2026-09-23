@@ -3,7 +3,7 @@
 This checks import provenance, declared dependencies, the organizer's exact two
 admission gates, and an injected queue/tool/result/final/cancellation exchange.
 It makes no cloud calls and is not a public-scenario or model-quality score.
-Setup metadata prewarming is explicitly disabled and reported as an override.
+The selected profile must disable setup prewarming without a hidden override.
 """
 from __future__ import annotations
 
@@ -27,7 +27,8 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OFFLINE_OVERRIDES = {"PARTICIPANT_PREWARM": "0"}
+OFFLINE_OVERRIDES = {}
+AUDIO_MODES = ("independent", "single_call_reads")
 
 
 def require(condition: bool, message: str) -> None:
@@ -294,11 +295,82 @@ def verify_onboarding(submission: Path):
             "doctor_help": "passed", "scope": "CLI delivery only; no key file loaded or provider access tested"}
 
 
+async def verify_configuration(submission: Path, audio_mode: str = "independent"):
+    """Compare shipped instructions to real key-only and explicit-file setup offline."""
+    import httpx
+    from dotenv import dotenv_values
+    from participant.planner import Planner
+
+    doctor = runpy.run_path(str(submission / "scripts/check_gemini_config.py"))
+    expected = doctor["PARTICIPANT_DEFAULTS"]
+    require(audio_mode in AUDIO_MODES, "unsupported audio mode for offline verification")
+    selected = {**expected, "PARTICIPANT_AUDIO_MODE": audio_mode}
+    example_path = submission / ".env.example"
+    example = dotenv_values(example_path)
+    guide = (submission / "docs/submission/GEMINI_QUICKSTART.md").read_text(encoding="utf-8")
+    for name, value in expected.items():
+        require(example.get(name) == value, f"example differs from selected profile: {name}")
+        require(f"`{name}={value}`" in guide, f"quickstart differs from selected profile: {name}")
+    require(not example.get("PARTICIPANT_THINKING_BUDGET"), "example retains a conflicting thinking budget")
+    require(not any(example.get(name) for name in doctor["KEY_NAMES"] + doctor["SDK_KEYS"]),
+            "example must contain no credentials")
+    require(expected["PARTICIPANT_PREWARM"] == "0", "submission profile must disable setup prewarming")
+
+    with tempfile.TemporaryDirectory(prefix="samsung-config-smoke-") as folder:
+        env_file = Path(folder) / "settings.env"
+        env_file.write_text(example_path.read_text(encoding="utf-8").replace(
+                            "PARTICIPANT_AUDIO_MODE=independent", f"PARTICIPANT_AUDIO_MODE={audio_mode}") +
+                            "\nTHREAD_API_KEY=offline-verification-placeholder\n", encoding="utf-8")
+        effective_modes = {}
+        for mode, values, profile in (
+            ("key_only", {"SECRET_GEMINI_API_KEY": "offline-verification-placeholder"}, expected),
+            ("explicit_process", {"SECRET_GEMINI_API_KEY": "offline-verification-placeholder",
+                                  "PARTICIPANT_AUDIO_MODE": audio_mode}, selected),
+            ("explicit_file", {"PARTICIPANT_ENV_FILE": str(env_file)}, selected),
+        ):
+            requests = []
+
+            async def respond(request):
+                requests.append(request.method)
+                return httpx.Response(200, json={})
+
+            output = io.StringIO()
+            with patch.dict(os.environ, values), redirect_stdout(output):
+                require(doctor["check"]("participant", os.environ, submission) == 0,
+                        f"doctor rejected {mode} selected profile")
+                planner = Planner(transport=httpx.MockTransport(respond))
+                try:
+                    await planner.setup()
+                    actual = {
+                        "THREAD_MODEL": planner.model,
+                        "PARTICIPANT_THINKING_LEVEL": planner.thinking,
+                        "PARTICIPANT_TIMEOUT_SECONDS": str(planner.timeout),
+                        "PARTICIPANT_IMAGE_EMBEDDING": "1" if planner.image_embedding else "0",
+                        "PARTICIPANT_AUDIO_MODE": planner.audio_mode,
+                    }
+                    for name, value in actual.items():
+                        require(value == profile[name], f"runtime {mode} differs from selected profile: {name}")
+                    effective_modes[mode] = planner.audio_mode
+                    require(planner.thinking_budget is None, f"runtime {mode} retained a thinking budget")
+                    require(bool(planner._key), f"runtime {mode} did not load the synthetic key")
+                    require(not requests, f"runtime {mode} attempted a setup provider request; prewarm must default to 0")
+                finally:
+                    await planner.close()
+            require("offline-verification-placeholder" not in output.getvalue(), "doctor displayed synthetic key")
+    return {"selected_profile": selected, "qualification": "unqualified; offline setup only",
+            "effective_audio_modes": effective_modes, "experimental_audio_mode": audio_mode == "single_call_reads",
+            "example_and_quickstart": "matched", "key_only_setup": "passed", "explicit_file_setup": "passed",
+            "explicit_process_setup": "passed",
+            "mocked_setup_requests": 0}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--kit", type=Path, required=True)
     parser.add_argument("--submission", type=Path, default=ROOT)
     parser.add_argument("--out", type=Path, help="new JSON evidence file; never overwritten")
+    parser.add_argument("--audio-mode", choices=AUDIO_MODES, default="independent",
+                        help="explicit offline setup mode; single_call_reads is experimental")
     args = parser.parse_args()
     kit, submission = args.kit.resolve(), args.submission.resolve()
     require((3, 10) <= sys.version_info[:2] <= (3, 12), "this participant supports Python 3.10-3.12; use 3.11")
@@ -336,11 +408,13 @@ def main():
             require(config.get("env") == ["SECRET_GEMINI_API_KEY"], "unexpected required environment list")
             require(Path(inspect.getfile(cls)).resolve().is_relative_to(submission / "participant"),
                     "participant was imported outside the candidate")
-            smoke_errors = evaluator.contract_smoke_test(cls, setup_cap_s=300.0)
-            require(not smoke_errors, "official stage 2: " + "; ".join(smoke_errors))
-            protocol = importlib.import_module("harness.protocol")
-            exchange = asyncio.run(exercise_contract(cls, protocol.validate_action))
-            planner_exchange = asyncio.run(exercise_real_planner())
+            configuration = asyncio.run(verify_configuration(submission, args.audio_mode))
+            with patch.dict(os.environ, {"PARTICIPANT_AUDIO_MODE": args.audio_mode}):
+                smoke_errors = evaluator.contract_smoke_test(cls, setup_cap_s=300.0)
+                require(not smoke_errors, "official stage 2: " + "; ".join(smoke_errors))
+                protocol = importlib.import_module("harness.protocol")
+                exchange = asyncio.run(exercise_contract(cls, protocol.validate_action))
+                planner_exchange = asyncio.run(exercise_real_planner())
             require(not network_attempts, "runtime attempted external network in offline gates")
             imported = {name: str(Path(module.__file__).resolve()) for name, module in sys.modules.items()
                         if name.startswith(("participant", "harness")) and getattr(module, "__file__", None)}
@@ -357,6 +431,7 @@ def main():
               "official_stage_1": "passed", "official_stage_2": "passed", "installed": installed,
               "package_manifest": manifest, "imports": imported, "exchange": exchange,
               "onboarding": onboarding,
+              "configuration": configuration,
               "runtime_sha256": {Path(path).relative_to(submission).as_posix(): sha256(Path(path))
                                  for name, path in imported.items() if name.startswith("participant")},
               "verification_script_sha256": sha256(Path(__file__)),

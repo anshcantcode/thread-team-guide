@@ -211,6 +211,56 @@ class DeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(agent._closed)
         self.assertIsNone(planner.client)
 
+    async def test_discovery_result_can_ask_for_missing_next_action_details(self):
+        # Mocked plan verifies the existing delivery contract, not model compliance.
+        captured = []
+        reply = {'observations': [], 'intent': 'reserve option', 'slots': {'region': 'Alpine'},
+                 'tool_calls': [{'api_name': 'catalog', 'args': {'region': 'Alpine'},
+                                 'response_template': 'Options: {options.0.name} and {options.1.name}. '
+                                 'Which option should I reserve, and under what name?'}],
+                 'clarification': None, 'response': None}
+
+        def handler(request):
+            captured.append(json.loads(request.content))
+            return httpx.Response(200, json={'candidates': [{'finishReason': 'STOP',
+                                  'content': {'parts': [{'text': json.dumps(reply)}]}}]})
+
+        planner = await self.make_planner(handler)
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue(), planner=planner)
+        task = asyncio.create_task(agent.run())
+
+        async def output(kind):
+            while True:
+                action = await agent.out_queue.get()
+                if action['action'] == kind:
+                    return action
+
+        try:
+            agent.in_queue.put_nowait({'event_type': 'tool_manifest', 'payload': {'tools': {
+                'catalog': {'kind': 'read_only', 'args': {'region': {'type': 'string', 'required': True}}},
+                'reserve': {'kind': 'state_modifying', 'args': {'option_id': {'type': 'string', 'required': True},
+                                                    'person': {'type': 'string', 'required': True}}}}}})
+            agent.in_queue.put_nowait({'event_type': 'user_speech_chunk', 'payload': {
+                'text': 'Reserve an option in Alpine.', 'end_of_turn': True}})
+            call = await asyncio.wait_for(output('tool_call'), 1)
+            self.assertEqual(call['payload']['api_name'], 'catalog')
+            agent.in_queue.put_nowait({'event_type': 'tool_result', 'payload': {
+                **call['payload'], 'status': 'success', 'result': {'options': [
+                    {'name': 'Delivered Cedar', 'id': 'ACTUAL-1'},
+                    {'name': 'Delivered Willow', 'id': 'ACTUAL-2'}]}}})
+            final = await asyncio.wait_for(output('final_response'), 1)
+            self.assertEqual(final['payload']['text'], 'Options: Delivered Cedar and Delivered Willow. '
+                             'Which option should I reserve, and under what name?')
+            self.assertEqual(final['state_snapshot']['intent'], 'reserve option')
+            self.assertEqual(final['state_snapshot']['slots'], {'region': 'Alpine'})
+            self.assertEqual([op['api_name'] for op in agent.operations.values()], ['catalog'])
+            self.assertEqual(len(captured), 1)
+        finally:
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+        self.assertTrue(agent._closed)
+        self.assertIsNone(planner.client)
+
     async def test_process_alias_tier_overrides_entire_file_group(self):
         self.env_file('THREAD_API_KEY=file-old-key\nSECRET_GEMINI_API_KEY=file-other-key\n'
                       'THREAD_MODEL=gemini-3.5-flash-lite\nPARTICIPANT_MODEL=gemini-2.5-flash-lite\n')

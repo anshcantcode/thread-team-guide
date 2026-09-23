@@ -14,7 +14,12 @@ import time
 import unicodedata
 
 from .authorization import authorization_grant, contains_value
-from .schema import at_path, call_key, scalar_fields, validate_args
+from .schema import at_path, call_key, scalar_fields, selected_printed_label, validate_args
+
+
+_ANSWER_FIELDS = {"answer", "instructions", "instruction", "explanation", "guidance",
+                  "warning", "warnings", "findings", "paragraphs", "steps"}
+_SOURCE_FIELDS = {"sources", "references", "citations", "pages"}
 
 
 class ParticipantAgent:
@@ -24,6 +29,7 @@ class ParticipantAgent:
         self.planner = planner
         self.tools = {}
         self.state = {"intent": "", "slots": {}}
+        self._state_current = True
         self.messages = []
         self.observations = {}
         self.operations = {}
@@ -31,6 +37,7 @@ class ParticipantAgent:
         self.revision = 0
         self._request_start = 0
         self._turn_open = False
+        self._awaiting_clarification = False
         self._latest_frame = None
         self._sequence = 0
         self._plan_task = None
@@ -111,7 +118,7 @@ class ParticipantAgent:
                 pass
 
     def snapshot(self):
-        result = deepcopy(self.state)
+        result = deepcopy(self.state) if self._state_current else {"intent": "", "slots": {}}
         result["revision"] = self.revision
         result["actions"] = [self._operation_context(op) for op in self.operations.values()
                              if op["kind"] == "state_modifying"]
@@ -119,7 +126,7 @@ class ParticipantAgent:
 
     def _operation_context(self, operation):
         return {key: deepcopy(operation[key]) for key in
-                ("call_id", "api_name", "args", "kind", "revision", "status", "result")
+                ("operation_id", "call_id", "api_name", "args", "kind", "revision", "status", "result")
                 if key in operation}
 
     def _emit(self, action, payload):
@@ -129,6 +136,8 @@ class ParticipantAgent:
 
     def _say(self, action, text):
         if isinstance(text, str) and text.strip():
+            if action == "clarification_request":
+                self._awaiting_clarification = True
             self._emit(action, {"text": text.strip()})
 
     def _filler(self, text, *, recovery_id=None):
@@ -190,10 +199,19 @@ class ParticipantAgent:
         elif kind in {"user_speech_chunk", "user_audio_chunk", "interruption"}:
             interruption = kind == "interruption"
             if not self._turn_open or interruption:
+                # Retain planning memory, but hide it before cancellation emits a snapshot.
+                self._state_current = False
                 self._invalidate()
                 self._request_start = len(self.messages)
+                self._awaiting_clarification = False
             self._append_message(kind, payload)
             self._turn_open = not (interruption or payload.get("end_of_turn") is True)
+            observe_input = getattr(self.planner, "observe_input", None)
+            if callable(observe_input):
+                try:
+                    observe_input(deepcopy(self.messages[-1]), self._request_start)
+                except Exception:
+                    pass  # Optional preparation cannot replace canonical turn processing.
             if self._turn_open:
                 return
             if interruption:
@@ -234,7 +252,7 @@ class ParticipantAgent:
                                                if self._tail_deadline is not None else None)})
 
     def _request_pending(self):
-        return not self._turn_open and (self._plan_task is not None or any(
+        return not self._turn_open and not self._awaiting_clarification and (self._plan_task is not None or any(
             op["revision"] == self.revision and op["status"] == "pending" for op in self.operations.values()))
 
     def _next_deadline(self):
@@ -264,23 +282,54 @@ class ParticipantAgent:
             task.exception()  # Consume errors from a superseded background task.
 
     async def _plan(self, context, revision):
+        task = None
         try:
-            decision = await asyncio.wait_for(self.planner.plan(context), timeout=5.0)
+            # Keep the configured planner budget, plus the existing cleanup margin.
+            # wait_for can accept a late decision when a planner swallows cancellation.
+            timeout = getattr(self.planner, "timeout", 4.5) + 0.5
+            deadline = time.monotonic() + timeout
+            task = asyncio.create_task(self.planner.plan(context))
+            self._tasks.add(task)
+            task.add_done_callback(self._finished)
+            done, _ = await asyncio.wait({task}, timeout=timeout)
+            if not done or time.monotonic() >= deadline:
+                raise asyncio.TimeoutError
+            decision = task.result()
             if not isinstance(decision, dict):
                 raise ValueError("The planner did not return an object")
         except asyncio.CancelledError:
             raise
         except Exception:
             decision = {"clarification": "I could not reliably interpret that request. Please clarify what you want me to do."}
+        finally:
+            if task is not None and not task.done():
+                task.cancel()
         return revision, decision
 
     def _apply(self, decision):
+        if self._awaiting_clarification:
+            return
+        if getattr(self.planner, "audio_mode", "independent") == "single_call_reads":
+            from .planner import _joint_audio_key
+            for row in decision.get("observations", []):
+                if not isinstance(row, dict) or row.get("type") != "audio":
+                    continue
+                index = row.get("message_index")
+                marker = _joint_audio_key(row.get("_audio_joint_only"))
+                valid_index = type(index) is int and 0 <= index < len(self.messages)
+                if (not valid_index or ("_audio_joint_only" in row and
+                        (marker is None or marker[:2] != (index, self.messages[index].get("revision"))))
+                        or "_audio_joint_only" not in row and not self._verified_audio_row(index, row)):
+                    self._say("clarification_request", "I could not verify the recording's source. Please repeat the request.")
+                    return
         intent, slots = decision.get("intent"), decision.get("slots")
         if isinstance(intent, str):
             self.state["intent"] = intent
         if isinstance(slots, dict):
             self.state["slots"] = {key: deepcopy(value) for key, value in slots.items()
                                    if isinstance(key, str) and value is not None}
+        if isinstance(intent, str) and isinstance(slots, dict):
+            self._state_current = True
         for observation in decision.get("observations", []) if isinstance(decision.get("observations", []), list) else []:
             if not isinstance(observation, dict):
                 continue
@@ -291,6 +340,11 @@ class ParticipantAgent:
             expected = {"audio": "user_audio_chunk", "image": "video_frame"}.get(media_type) if isinstance(media_type, str) else None
             if expected == self.messages[index]["event_type"]:
                 self.observations[index] = deepcopy(observation)
+                if media_type == "audio" and getattr(self.planner, "audio_mode", "independent") == "single_call_reads":
+                    key = _joint_audio_key(observation.get("_audio_joint_only"))
+                    pending = self.planner._pending_audio_sources
+                    if key is not None and pending.get(index) == key:
+                        pending.pop(index)
         question = decision.get("clarification")
         uncertain_audio = any(
             index >= self._request_start and observation.get("type") == "audio" and observation.get("uncertain") is True
@@ -329,6 +383,12 @@ class ParticipantAgent:
         else:
             self._say("clarification_request", "Please clarify what you would like me to do.")
 
+    def _verified_audio_row(self, index, observation):
+        return any(key[:2] == (index, self.messages[index].get("revision"))
+                   and all(observation.get(field) == cached[field]
+                           for field in ("message_index", "type", "transcript", "uncertain"))
+                   for key, cached in getattr(self.planner, "_audio_cache", {}).items())
+
     def _user_texts(self):
         texts = []
         for index in range(self._request_start, len(self.messages)):
@@ -339,7 +399,11 @@ class ParticipantAgent:
                     texts.append((index, text))
             elif message["event_type"] == "user_audio_chunk":
                 observation = self.observations.get(index, {})
-                if observation.get("uncertain") is False and isinstance(observation.get("transcript"), str):
+                # Joint-native read context may support questions, never write authority.
+                if (observation.get("uncertain") is False and "_audio_joint_only" not in observation
+                        and isinstance(observation.get("transcript"), str)
+                        and (getattr(self.planner, "audio_mode", "independent") != "single_call_reads"
+                             or self._verified_audio_row(index, observation))):
                     texts.append((index, observation["transcript"]))
         return texts
 
@@ -385,7 +449,7 @@ class ParticipantAgent:
         return ""
 
     def _dispatch(self, step, *, retry=0, depth=0, selection=None):
-        if self._closed or self._turn_open:
+        if self._closed or self._turn_open or self._awaiting_clarification:
             return
         if not isinstance(step, dict) or not isinstance(step.get("api_name"), str):
             self._say("clarification_request", "I could not identify a valid tool for that action.")
@@ -410,28 +474,33 @@ class ParticipantAgent:
             self._say("clarification_request", binding_error)
             return
         key = call_key(name, args, write=tool["kind"] == "state_modifying")
+        # A fresh explicit user instruction can authorize the same effect again.
+        # Reperceiving the same recording can change its transcript, not its user turn.
+        authority_key = (self._request_start, grant) if grant is not None else None
         same = [op for op in self.operations.values() if op["key"] == key and
-                (tool["kind"] == "state_modifying" or op["revision"] == self.revision)]
+                (op["request_start"] == self._request_start if grant is not None else op["revision"] == self.revision)]
         if same:
             last = same[-1]
             if not (tool["kind"] == "read_only" and retry == 1 and last["status"] == "error" and last["retry"] == 0):
                 if last["status"] == "success":
-                    self._final(self._render(last))
+                    if last["revision"] == self.revision:
+                        self._final(self._render(last))
                 elif tool["kind"] == "state_modifying" and last["status"] != "pending":
                     self._final("That action was already submitted. Its recorded outcome must be checked before trying again.")
                 return last["status"] in {"pending", "success"}
         if grant is not None:
             # Perception/schema revisions change evidence, never user permission.
-            authority_key = (self._request_start, grant)
             if authority_key in self._consumed_grants:
                 self._say("clarification_request", "I have already used that instruction for one action. Please explicitly authorize an additional action.")
                 return
             self._consumed_grants.add(authority_key)
         self._sequence += 1
         call_id = f"call-{self._sequence}"
-        operation = {"call_id": call_id, "api_name": name, "args": deepcopy(args), "kind": tool["kind"],
+        operation_id = same[-1]["operation_id"] if same else f"operation-{self._sequence}"
+        operation = {"operation_id": operation_id, "call_id": call_id, "api_name": name, "args": deepcopy(args), "kind": tool["kind"],
+                     "request_start": self._request_start,
                      "revision": self.revision, "status": "pending", "key": key, "step": deepcopy(step),
-                     "retry": retry, "depth": depth, "selection": deepcopy(selection)}
+                     "retry": retry, "depth": depth, "selection": deepcopy(selection), "authority_key": authority_key}
         if tool["kind"] == "state_modifying":
             delay = tool.get("delay_range_ms", [0, 3000])
             upper = delay[1] if isinstance(delay, list) and len(delay) == 2 and type(delay[1]) in (int, float) else 3000
@@ -464,8 +533,8 @@ class ParticipantAgent:
         operation["status"], operation["result"] = status, deepcopy(result)
         if status == "error" and operation["kind"] == "state_modifying" and error_code not in {"invalid_args", "not_found", "unknown_tool"}:
             operation["status"] = "unknown"
-        if operation["revision"] != self.revision or self._turn_open:
-            return  # Keep the durable write outcome, but never revive its old task.
+        if operation["revision"] != self.revision or self._turn_open or self._awaiting_clarification:
+            return  # Keep the durable outcome without speaking or resuming suspended work.
         self.tool_results.append({**self._operation_context(operation), "status": status})
         if status == "error":
             if (operation["kind"] == "read_only" and operation["retry"] == 0 and
@@ -499,7 +568,12 @@ class ParticipantAgent:
             if not self._dispatch(continuation, depth=operation["depth"] + 1, selection=selection):
                 self._final(self._render(operation))
         else:
+            question = self._flight_booking_question(operation)
+            if question:
+                self.state["intent"] = "book_flight"
             self._final(self._render(operation))
+            if question:
+                self._say("clarification_request", question)
 
     def _continuation(self, step, operation):
         if not isinstance(step, dict):
@@ -512,9 +586,14 @@ class ParticipantAgent:
             where = selector["where"]
             if not isinstance(values, list) or not isinstance(where, dict) or not where:
                 raise ValueError("Selection needs an array and explicit conditions")
-            matches = [(index, value) for index, value in enumerate(values)
-                       if all(type(at_path(value, path)) is type(expected) and at_path(value, path) == expected
-                              for path, expected in where.items())]
+            matches = []
+            for index, value in enumerate(values):
+                try:
+                    if all(type(at_path(value, path)) is type(expected) and at_path(value, path) == expected
+                           for path, expected in where.items()):
+                        matches.append((index, value))
+                except (KeyError, IndexError, TypeError, ValueError):
+                    continue  # An incomplete row cannot satisfy the selection.
             if len(matches) != 1:
                 raise ValueError("The selection is not unique")
             index, root = matches[0]
@@ -542,12 +621,87 @@ class ParticipantAgent:
             sources[argument] = {"call_id": operation["call_id"], "path": prefix + path}
         return step, selector["where"] if selector is not None else None
 
+    def _flight_booking_question(self, operation):
+        """Recover only a verified, unfinished documented flight-booking goal."""
+        from datetime import date
+        from .planner import _flight_discovery_search, _flight_text_goal, _literal_name_words
+        args, step = operation["args"], operation["step"]
+        if (operation["api_name"] != "flight_search" or operation["kind"] != "read_only" or operation["depth"] != 0
+                or operation["request_start"] != self._request_start or not self.messages or self._latest_frame is not None
+                or set(args) - {"destination", "date"} or self.state["slots"] != args
+                or "?" in str(step.get("response_template", ""))
+                or len({op["operation_id"] for op in self.operations.values() if op["revision"] == self.revision}) != 1):
+            return None
+        search = _flight_discovery_search(self.tools, args)
+        if search is None:
+            return None
+        row_shape = {"flight_id": "string", "depart": "string", "price_usd": "number"}
+        result, rows = operation["result"], operation["result"].get("flights")
+        row_contract = {"kind": "read_only", "args": {k: {"type": v, "required": True} for k, v in row_shape.items()}}
+        if (set(result) - {"status", "flights"} or not isinstance(rows, list) or not rows
+                or any(validate_args(row_contract, row) or not row["flight_id"] or re.search(r"\s", row["flight_id"]) for row in rows)):
+            return None
+        if self.messages[self._request_start]["event_type"] in {"user_speech_chunk", "interruption"}:
+            goal = _flight_text_goal(self._context(), completed_read_args=args)
+            if (goal is None
+                    or any(validate_args(search, prefix["args"]) for prefix in goal["prefixes"])
+                    or any(op["kind"] == "state_modifying" and op["request_start"] >= goal["start"]
+                           for op in self.operations.values())):
+                return None
+            return "Which returned flight should I book, and what passenger name should I use?"
+        atom = r"[^\W\d_]+(?:[-'][^\W\d_]+)*"
+        name = rf"({atom}(?: +{atom})*?)"
+        repair = rf"(?:(?:wait,? +)?actually,? +)?make +(?:that|it) +{name}[.!?]?"
+        # Audio still requires every source to belong to this verified current turn.
+        start = self._request_start
+        if any(op["kind"] == "state_modifying" and op["request_start"] >= start for op in self.operations.values()):
+            return None
+        utterances = []
+        for index in range(start, len(self.messages)):
+            message = self.messages[index]
+            payload, kind = message["payload"], message["event_type"]
+            observation = self.observations.get(index, {})
+            if (kind != "user_audio_chunk" or message["revision"] != self.revision
+                    or observation.get("type") != "audio" or type(observation.get("message_index")) is not int
+                    or observation["message_index"] != index or observation.get("uncertain") is not False
+                    or payload.get("end_of_turn") is not (index == len(self.messages) - 1)):
+                return None
+            utterances.append(observation.get("transcript"))
+        if not utterances or any(not isinstance(text, str) or any(ord(c) < 32 for c in text) for text in utterances):
+            return None
+        suffix = ""
+        if "date" in args:
+            literal_date = args["date"]
+            if re.fullmatch(r"today|tomorrow|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday", literal_date, re.I) is None:
+                try:
+                    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", literal_date) is None:
+                        return None
+                    date.fromisoformat(literal_date)
+                except ValueError:
+                    return None
+            suffix = rf" +(?:on|for) +{re.escape(literal_date)}"
+        command = rf"(?:(?:uh|um),? +)?(?:can +you +)?(?:please +)?(?:book|reserve) +a +flight +to +{name}{suffix}[.!?]?"
+        destination = None
+        for index, text in enumerate(utterances):
+            match = re.fullmatch(repair if index else command, text.strip(), re.I)
+            if match is None:
+                return None
+            destination = match[1]
+            if not _literal_name_words(destination) or validate_args(search, {**args, "destination": destination}):
+                return None
+        if destination == args.get("destination"):
+            return "Which returned flight should I book, and what passenger name should I use?"
+        return None
+
     def _render(self, operation):
         template = operation["step"].get("response_template")
         if operation["step"].get("result_evidence") is not None and not self._source_matches(operation, template):
             return "The returned source does not confirm the requested target, so I cannot support that explanation with this result."
         result, quoted_paths = self._presentation_result(operation)
         omitted = result != operation["result"]
+        cited_answer = self._cited_answer(operation, result, quoted_paths, omitted)
+        if cited_answer is not None:
+            return cited_answer
         if isinstance(template, str) and template.strip():
             try:
                 consumed, selected_omissions = [], []
@@ -563,7 +717,7 @@ class ParticipantAgent:
                            for path in quoted_paths):
                         return "quoted tool data: " + json.dumps(value, ensure_ascii=False)
                     return json.dumps(value, ensure_ascii=False) if isinstance(value, (dict, list)) else str(value)
-                pattern = r"\{([a-zA-Z0-9_.]+)\}"
+                pattern = r"\{([^{}]+)\}"
                 literals = re.sub(pattern, "", template)
                 text = re.sub(pattern, substitute, template).strip()
                 if "{" not in literals and "}" not in literals and not self._unconfirmed_claim(text):
@@ -573,10 +727,183 @@ class ParticipantAgent:
                 pass
         return self._compact_result(result, quoted_paths, omitted)
 
+    def _cited_answer(self, operation, result, quoted_paths, omitted):
+        """Keep returned answer content with its source, never template claims."""
+        if operation.get("kind", "read_only") != "read_only":
+            return None
+        template = operation["step"].get("response_template")
+        evidence = operation["step"].get("result_evidence")
+        paths = re.findall(r"\{([^{}]+)\}", template) if isinstance(template, str) else []
+        source_paths = {evidence["path"]} if isinstance(evidence, dict) else set()
+        for path in paths:
+            parent, _, field = path.rpartition(".")
+            try:
+                record = at_path(result, parent)
+            except (KeyError, IndexError, TypeError, ValueError):
+                continue
+            if (field in {"title", "name", "doc", "page", "url", "answer"} and isinstance(record, dict) and
+                    (set(parent.split(".")) & _SOURCE_FIELDS or
+                     "doc" in record or "url" in record)):
+                source_paths.add(path)
+        if not source_paths:
+            # Missing citation placeholders cannot lend returned sources to
+            # static template prose. Preserve the projected result instead.
+            def has_source(value, depth=0):
+                if depth > 20:
+                    return False
+                if isinstance(value, dict):
+                    return (bool(set(value) & _SOURCE_FIELDS) or
+                            bool(set(value) & {"doc", "url"} and set(value) & {"title", "name"}) or
+                            any(has_source(item, depth + 1) for item in value.values()))
+                return isinstance(value, list) and any(has_source(item, depth + 1) for item in value)
+            if not has_source(operation["result"]):
+                return None
+            selected = {}
+            for path in paths:
+                parts = path.split(".")
+                answer_index = next((index for index, field in enumerate(parts) if field in _ANSWER_FIELDS), None)
+                if answer_index is None:
+                    continue
+                parent = ".".join(parts[:answer_index])
+                try:
+                    at_path(result, path)
+                    record = at_path(result, parent)
+                except (KeyError, IndexError, TypeError, ValueError):
+                    continue
+                # Unwrap the selected answer up to its sources, but never cross
+                # a list boundary into a different returned record.
+                while isinstance(record, dict) and parent and not set(record) & _SOURCE_FIELDS:
+                    ancestor = parent.rpartition(".")[0]
+                    owner = at_path(result, ancestor)
+                    if not isinstance(owner, dict):
+                        break
+                    parent, record = ancestor, owner
+                if isinstance(record, dict):
+                    selected[parent] = record
+            return " ".join(self._compact_result(record, quoted_paths, omitted, path=parent + "." if parent else "")
+                            for parent, record in selected.items()) if selected else self._compact_result(result, quoted_paths, omitted)
+        parents = {path.rpartition(".")[0] for path in source_paths}
+        if len(parents) != 1:
+            return "The response cites multiple records. Please clarify which returned reference to use."
+        parent = parents.pop()
+        try:
+            record = at_path(result, parent)
+        except (KeyError, IndexError, TypeError, ValueError):
+            return self._compact_result(result, quoted_paths, omitted)
+        if not isinstance(record, dict):
+            return self._compact_result(result, quoted_paths, omitted)
+        if any(parent == path or parent.startswith(path + ".") for path in quoted_paths):
+            return self._compact_result(result, quoted_paths, omitted)
+
+        # Explicit answer fields and one structural source association;
+        # a title match establishes relevance, not entailment of generated prose.
+        def answers(value, prefix="", primary=False):
+            if prefix in quoted_paths:
+                return []
+            if not primary:
+                if not isinstance(value, dict):
+                    return []
+                keys = [key for key in value if key in _ANSWER_FIELDS]
+                if not keys:
+                    keys = [key for key in value if key in {"payload", "data", "body", "content", "result", "response"}]
+                    if len(keys) != 1:
+                        return []
+                return [text for key in keys for text in answers(
+                    value[key], f"{prefix}.{key}" if prefix else key, key in _ANSWER_FIELDS)]
+            if isinstance(value, str):
+                return [value] if value.strip() else []
+            if isinstance(value, list):
+                return [text for index, item in enumerate(value)
+                        for text in answers(item, f"{prefix}.{index}", True)]
+            if isinstance(value, dict):
+                entries = []
+                for key, item in value.items():
+                    parts = answers(item, f"{prefix}.{key}", True)
+                    if parts:
+                        entries.append(str(key) + ": " + " ".join(parts))
+                return ["{" + "; ".join(entries) + "}"] if entries else []
+            return [] if value is None else [json.dumps(value)]
+
+        content = answers(record, parent)
+        returned_answer = bool(content)
+        # A sibling answer can cite a single source in the same wrapper. Never
+        # take an answer from another row, another call, or an ambiguous list.
+        parts = parent.split(".") if parent else []
+        if not content and len(parts) >= 2 and parts[-1].isdigit() and parts[-2] in _SOURCE_FIELDS:
+            owner_path = ".".join(parts[:-2])
+            owner = at_path(result, owner_path)
+            sources = owner[parts[-2]]
+            sibling_answer = answers(owner, owner_path)
+            returned_answer = returned_answer or bool(sibling_answer)
+            if (parts[-2] != "pages" and isinstance(sources, list) and len(sources) == 1 and
+                    not any(owner.get(field) for field in _SOURCE_FIELDS - {parts[-2]})):
+                content = sibling_answer
+        locator = {key: record[key] for key in ("doc", "page", "title", "name", "url")
+                   if key in record and isinstance(record[key], (str, int, float)) and not isinstance(record[key], bool)}
+        if not locator:
+            return self._compact_result(record, quoted_paths, omitted, path=parent + "." if parent else "")
+        general = self._general_function(operation)
+        function = general if not returned_answer else ""
+        unclassified = function and set(at_path(operation["result"], parent)) - (set(locator) | {"status"})
+        wrapper_data = {}
+        if general and len(parts) >= 2 and parts[-1].isdigit() and parts[-2] in _SOURCE_FIELDS:
+            owner = at_path(result, ".".join(parts[:-2]))
+            # Keep lookup-level facts separate from the selected reference. Do
+            # not attach another source list or another result row to its citation.
+            wrapper_data = {key: value for key, value in owner.items()
+                            if key not in _SOURCE_FIELDS | _ANSWER_FIELDS
+                            and not (key in {"status", "search_mode"} and isinstance(value, str))}
+            if wrapper_data:
+                function = ""
+        prefix = ""
+        if isinstance(evidence, dict) and evidence.get("target_basis") == "printed_text":
+            prefix = "If you mean the item labelled " + json.dumps(evidence["contains"], ensure_ascii=False) + ", "
+        if unclassified:
+            # A pre-result generalization must not replace unfamiliar actual
+            # content, including capability flags outside the named prose roles.
+            text = self._compact_result(record, quoted_paths, omitted, path=parent + "." if parent else "")
+            function = ""
+        elif function:
+            text = "That type of item is generally used to " + function.removesuffix(".") + "."
+        else:
+            text = ("The returned reference states: " + " ".join(content) if content else
+                    "The lookup returned a reference, but no answer text establishing the requested explanation.")
+        text = prefix + text[0].lower() + text[1:] if prefix else text
+        text += (" The lookup returned this reference: " if function else " Reference: ")
+        text += "; ".join(key + " " + str(value) for key, value in locator.items()) + "."
+        if wrapper_data:
+            text += " The lookup also returned: " + json.dumps(wrapper_data, ensure_ascii=False) + "."
+        for path in sorted(quoted_paths):
+            text += " Quoted tool data (" + path + "): " + json.dumps(at_path(result, path), ensure_ascii=False)
+        return text + (" Some tool metadata was omitted." if omitted else "")
+
+    def _general_function(self, operation):
+        """Admit separately attributed background knowledge, not a truth check."""
+        step = operation["step"]
+        value, evidence = step.get("general_function"), step.get("result_evidence")
+        if (not isinstance(value, str) or not value.strip() or len(value) > 240 or
+                not any(char.isalpha() for char in value) or value.splitlines() != [value] or
+                re.search(r"[{}\[\]`]|\b[a-z][a-z0-9+.-]*://|www\.", value, re.I)):
+            return ""
+        if (operation.get("kind") != "read_only" or operation.get("status") != "success" or
+                operation.get("revision") != self.revision or step.get("after_result") is not None or
+                step.get("authorization") is not None or not isinstance(evidence, dict) or
+                evidence.get("target_basis") != "printed_text" or
+                not isinstance(evidence.get("path"), str) or evidence["path"].rsplit(".", 1)[-1] not in {"title", "name"}):
+            return ""
+        index = self._latest_frame
+        if (type(index) is not int or not 0 <= index < len(self.messages) or
+                self.messages[index].get("event_type") != "video_frame"):
+            return ""
+        label = selected_printed_label(self.observations.get(index), index)
+        if label is None or evidence.get("contains") != label:
+            return ""
+        return value.strip()
+
     def _presentation_result(self, operation):
         """Project ancillary fields for output only; raw evidence keeps its shape.
 
-        ponytail: named field roles are a bounded policy, not a prose classifier.
+        Named field roles are a bounded policy, not a prose classifier.
         A return schema with explicit presentation roles could replace this list.
         """
         ancillary = {"auxiliary", "metadata", "annotation", "annotations", "commentary",
@@ -705,44 +1032,48 @@ class ParticipantAgent:
         return any(char.isalnum() for char in wanted) and " " + wanted + " " in " " + words(actual) + " "
 
     @staticmethod
-    def _compact_result(result, quoted_paths=(), omitted=False):
+    def _compact_result(result, quoted_paths=(), omitted=False, *, path=""):
         """Bounded factual fallback for unfamiliar schemas, without another model call."""
         def render(value, depth=0, path=""):
             prefix = ""
+            primary = bool(set(path.split(".")) & (_ANSWER_FIELDS | _SOURCE_FIELDS))
             if path[:-1] in quoted_paths:
                 depth = 0
                 if path[:-1].rsplit(".", 1)[-1].isdigit():
                     prefix = "quoted tool data: "
             if isinstance(value, dict):
-                if depth > 4:
+                if depth > 20:
                     return "additional nested details"
                 items = list(value.items())
-                if any(isinstance(item, (dict, list)) and key not in {"sources", "references", "citations"}
-                       for key, item in items):
+                if not primary and any(isinstance(item, (dict, list)) and key not in _SOURCE_FIELDS
+                                       for key, item in items):
                     # A structured response's records are the fallback answer.
                     # Do not volunteer prose metadata alongside those records;
                     # primary prose and explicitly requested metadata still belong.
                     items = [(key, item) for key, item in items if not isinstance(item, str)
                              or item and not re.search(r"\s", item)
-                             or key in {"answer", "instructions", "instruction", "explanation", "guidance", "warning", "warnings"}
+                             or key in _ANSWER_FIELDS
                              or path + str(key) in quoted_paths]
+                selected = [item for index, item in enumerate(items)
+                            if primary or index < 6 or item[0] in _ANSWER_FIELDS | _SOURCE_FIELDS]
                 text = "; ".join(str(key).replace("_", " ") +
                                  (" (quoted tool data)" if path + str(key) in quoted_paths else "") + ": " +
                                  render(item, depth + 1, path + str(key) + ".")
-                                 for key, item in items[:6])
-                return prefix + (text + (f"; {len(items) - 6} more fields" if len(items) > 6 else "") or "empty object")
+                                 for key, item in selected)
+                return prefix + (text + (f"; {len(items) - len(selected)} more fields" if len(items) > len(selected) else "") or "empty object")
             if isinstance(value, list):
                 if not value:
                     return prefix + "no entries"
-                count = min(6, len(value)) if all(isinstance(item, str) for item in value) else 1
+                count = len(value) if primary else min(6, len(value)) if all(isinstance(item, str) for item in value) else 1
                 requested = sorted({int(chosen[len(path):].split(".")[0]) for chosen in quoted_paths
                                     if chosen.startswith(path) and chosen[len(path):].split(".")[0].isdigit()})
                 indices = requested[:6] if requested else range(count)
                 first = "; ".join(render(value[index], depth + 1, path + str(index) + ".") for index in indices)
                 return prefix + first + (f"; {len(value) - len(indices)} additional entries returned" if len(value) > len(indices) else "")
             if isinstance(value, str):
-                text = " ".join(value.split())
-                text = text[:180] + ("..." if len(text) > 180 else "")
+                text = value.strip() if primary else " ".join(value.split())
+                if not primary:
+                    text = text[:180] + ("..." if len(text) > 180 else "")
                 return prefix + (json.dumps(text, ensure_ascii=False) if any(path.startswith(parent + ".") for parent in quoted_paths) else text)
             return prefix + json.dumps(value, ensure_ascii=False)
         body = {key: value for key, value in result.items() if key != "status"}
@@ -750,7 +1081,7 @@ class ParticipantAgent:
             if omitted:
                 return "The tool completed successfully. Its metadata was omitted from this answer."
             return "The tool completed successfully and returned no additional details."
-        return "Returned information: " + render(body) + "." + (" Some tool metadata was omitted." if omitted else "")
+        return "Returned information: " + render(body, path=path) + "." + (" Some tool metadata was omitted." if omitted else "")
 
     def _unconfirmed_claim(self, text):
         # Completion words are tied to available write descriptors, not domains.

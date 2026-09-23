@@ -199,15 +199,12 @@ def invalid_media_attempts(record, trace):
     return {"passed": expected <= observed, "expected_refs": sorted(expected), "observed_refs": sorted(observed)}
 
 
-@contextmanager
-def observe_media_reads(driver, record, loader):
+def media_read_observer(driver, record, loader):
     """Observe validated candidate read returns, including asyncio worker threads.
 
     No loader patch or input event is introduced. Timestamps mean evidence receipt,
     not a fabricated file-open time. Profiling and hashing overhead is disclosed.
     """
-    if sys.getprofile() is not None or threading.getprofile() is not None:
-        raise RuntimeError("Media observer refuses to replace an existing profiler")
     expected = {str(Path(a["staged"]).resolve()): a for a in record["assets"]}
     code = loader._read.__code__
 
@@ -235,6 +232,14 @@ def observe_media_reads(driver, record, loader):
         except Exception as exc:
             driver.log(kind="adapter_error", error=f"Media-read observer: {type(exc).__name__}: {exc}")
 
+    return observe
+
+
+@contextmanager
+def observe_media_reads(driver, record, loader):
+    if sys.getprofile() is not None or threading.getprofile() is not None:
+        raise RuntimeError("Media observer refuses to replace an existing profiler")
+    observe = media_read_observer(driver, record, loader)
     sys.setprofile(observe)
     threading.setprofile(observe)
     try:

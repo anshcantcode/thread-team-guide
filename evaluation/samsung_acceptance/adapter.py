@@ -229,7 +229,12 @@ class Driver:
         baseline = set(asyncio.all_tasks())
         agent = (self.cls(self.in_q, self.out_q, planner=self.planner) if self.injected
                  else self.cls(self.in_q, self.out_q))
-        await agent.setup()
+        try:
+            await agent.setup()
+        except BaseException:
+            # A capped/failed warmup exits before run_agent's normal cleanup.
+            await agent.planner.close()
+            raise
         self.planner = agent.planner
         self.started = time.monotonic()
 
@@ -308,8 +313,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate", type=Path, required=True)
     parser.add_argument("--kit", type=Path, required=True)
-    parser.add_argument("--cases", type=Path, required=True)
-    parser.add_argument("--oracle", type=Path, required=True)
+    parser.add_argument("--cases", type=Path)
+    parser.add_argument("--oracle", type=Path)
+    parser.add_argument("--bundle", type=Path, help="Unchanged private mixed-modality bundle; no case selection")
+    parser.add_argument("--freeze-sha256")
+    parser.add_argument("--reference-kit", type=Path)
+    parser.add_argument("--archive-sha256", help="Separately reviewed candidate ZIP identity")
+    parser.add_argument("--max-generation-requests", type=int)
+    parser.add_argument("--max-embedding-requests", type=int)
+    parser.add_argument("--cap-generation-model")
+    parser.add_argument("--review-evidence", type=Path, help="Read-only private bundle review; no participant imports")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--partition", choices=("development", "holdout"))
     parser.add_argument("--family", action="append")
@@ -326,6 +339,14 @@ def main():
     parser.add_argument("--block-family", action="append", default=[],
                         help="Retain a blocked row for an independently identified fixture validity issue")
     args = parser.parse_args()
+    if args.bundle:
+        from .blind import main as bundle_main
+        return bundle_main(args, parser)
+    if any(value is not None for value in (args.freeze_sha256, args.reference_kit, args.archive_sha256,
+            args.max_generation_requests, args.max_embedding_requests, args.cap_generation_model, args.review_evidence)):
+        parser.error("bundle options require --bundle")
+    if args.cases is None or args.oracle is None:
+        parser.error("--cases and --oracle are required without --bundle")
     if args.settle_turns < 20:
         parser.error("at least 20 scheduler settle turns required")
     if not 1 <= args.provider_case_limit <= 60:

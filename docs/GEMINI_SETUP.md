@@ -37,7 +37,7 @@ notepad .env
 
 Set `THREAD_API_KEY` in the editor. Keep the other sample settings for the first
 try. If you already have a `.env`, compare its settings with `.env.example` rather
-than overwriting it. The example pins `THREAD_MODEL=gemini-2.5-flash` and a separate
+than overwriting it. The example pins `THREAD_MODEL=gemini-3.5-flash-lite` and a separate
 Live model; it is a configuration candidate, not a guarantee of quota or timing.
 
 On macOS or Linux, use the same files:
@@ -73,7 +73,11 @@ Open [the local workspace](http://127.0.0.1:8766/). Use the address reported by
 
 The doctor checks which file is loaded, key presence, alias conflicts, provider,
 and model-name syntax. It prints no configured values and makes no network
-requests. It does not validate every optional runtime setting. A pass does not
+requests. The app profile does not validate every optional runtime setting; the
+participant profile additionally checks the selected thinking level, deadline,
+prewarm, image-embedding, audio-mode and media-root settings. The default audio mode
+is `independent`; `single_call_reads` is an explicit experiment pending native
+evidence. A pass does not
 verify that Google accepts the key or that the chosen model meets task deadlines.
 Server startup likewise establishes only that the local app is reachable.
 
@@ -105,9 +109,11 @@ Settings; the desktop `.env` does not configure the phone. See
 | `THREAD_MODEL` | Planning and owned-audio verification | Shared planning-model setting |
 | `PARTICIPANT_MODEL` | Not read | Optional alias; must agree with `THREAD_MODEL` within the same configuration tier |
 | `THREAD_LIVE_MODEL` | Live voice, including typed browser conversations | Not used |
-| `PARTICIPANT_THINKING_BUDGET=0` | Not read | Explicit no-thinking-budget option for `gemini-2.5-flash` |
+| `PARTICIPANT_THINKING_LEVEL=minimal` | Not read | Selected candidate's explicit thinking level |
+| `PARTICIPANT_TIMEOUT_SECONDS=4.5` | Not read | Whole planning deadline |
 | `PARTICIPANT_PREWARM=0` | Not read | Disables setup metadata requests |
-| `PARTICIPANT_IMAGE_EMBEDDING=0` | Not read | Disables the separate image-embedding request; image bytes still go to Gemini |
+| `PARTICIPANT_IMAGE_EMBEDDING=1` | Not read | Enables eligible current-image embedding without delaying planning |
+| `PARTICIPANT_AUDIO_MODE=independent` | Not read | Default audio mode; `single_call_reads` is experimental |
 
 The app's process environment overrides file values for the same name. The
 participant first chooses the process environment or the file for each complete
@@ -121,8 +127,8 @@ or `unset THREAD_API_KEY` in a POSIX shell, then rerun the doctor. Do not print
 the environment to debug keys. Configure one key alias and one model alias when
 possible, and avoid keeping stale process overrides.
 
-If you switch away from `gemini-2.5-flash`, remove `PARTICIPANT_THINKING_BUDGET=0`
-and use the selected model's supported settings. Do not substitute a Live model
+Remove an old `PARTICIPANT_THINKING_BUDGET` override when using the checked-in
+participant profile. Do not substitute a Live model
 for a structured planning model. The consumer app has its own generation settings;
 participant options do not tune the app.
 
@@ -152,9 +158,11 @@ media requests. Published capacity is not guaranteed. See
 | Browser works, phone fails | Configure the phone separately and check its internet and microphone permission. |
 
 Google's [current model list](https://ai.google.dev/gemini-api/docs/models) was
-checked on 2026-09-21. It lists 2.5 Flash and 3.5 Flash-Lite, as well as newer
-3.8 models. The repository retains its implemented Live configuration. Updating
+checked on 2026-09-23. It limits 2.5 access to prior users and directs new projects
+to 3.5 Flash-Lite or 3.8 Flash. Both have free standard input/output access in the
+[official pricing table](https://ai.google.dev/gemini-api/docs/pricing).
+The repository retains its implemented Live configuration. Updating
 to [3.8 Live](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live) requires
 checking changed function-call and interruption behavior, not only changing a name.
-The selected 2.5 planning candidate has limited timely text evidence; native audio,
-images, and full acceptance require their own recorded checks.
+The selected 3.5 Flash-Lite setup profile is unqualified; native audio, images,
+deadlines and full acceptance require their own recorded checks.

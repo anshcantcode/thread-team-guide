@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 import httpx
 
-from participant.planner import DEFAULT_MODEL, Planner, PlannerError, _simple_capabilities, _simple_flight_search, planner_trace
+from participant.planner import DEFAULT_MODEL, TRANSCRIPTION_STYLE, VISUAL_GUIDANCE, Planner, PlannerError, _simple_capabilities, _simple_flight_search, planner_trace
 
 
 MP3_FIXTURES = Path(__file__).parent / 'fixtures' / 'mp3'
@@ -338,9 +338,12 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         (self.root / 'old.mp3').write_bytes(MP3_BYTES)
         (self.root / 'new.mp3').write_bytes(OTHER_MP3_BYTES)
         requests = []
+        acoustic_verified = asyncio.Event()
         async def handler(request):
             body = json.loads(request.content)
             requests.append(body)
+            if 'perception only' not in body['systemInstruction']['parts'][0]['text']:
+                await acoustic_verified.wait()
             response = audio_completion(body, main_unclear={0})
             payload = response.json()
             output = json.loads(payload['candidates'][0]['content']['parts'][0]['text'])
@@ -350,7 +353,8 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
                     observation['transcript'] = 'Guessed words.'
             return completion(output)
         planner = await self.make_planner(handler)
-        first = await planner.plan(self.audio_context())
+        with planner_trace(lambda row: acoustic_verified.set() if row['phase'] == 'acoustic' else None):
+            first = await planner.plan(self.audio_context())
         self.assertTrue(first['observations'][0]['uncertain'])
         self.assertEqual(first['observations'][0]['transcript'], 'Keep Lima as origin; destination [unclear].')
         # Neither returned objects nor controller-supplied objects own the cache.
@@ -605,6 +609,32 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):
             Planner._validate(decision(observations=[{'message_index': 99, 'type': 'audio', 'transcript': 'Invented', 'uncertain': False}]), planner.evidence[-1]['input_media'])
 
+    async def test_both_native_requests_share_formatting_and_keep_ordered_original_media(self):
+        import base64
+        (self.root / 'old.mp3').write_bytes(MP3_BYTES)
+        (self.root / 'new.mp3').write_bytes(OTHER_MP3_BYTES)
+        requests = []
+
+        def handler(request):
+            body = json.loads(request.content)
+            requests.append(body)
+            return audio_completion(body)
+
+        planner = await self.make_planner(handler)
+        context = self.audio_context(correction=True)
+        context['current_turn_start'] = 0
+        await planner.plan(context)
+        self.assertEqual(len(requests), 2)
+        for body in requests:
+            system = body['systemInstruction']['parts'][0]['text']
+            self.assertEqual(system.count(TRANSCRIPTION_STYLE), 1)
+            parts = body['contents'][0]['parts']
+            self.assertEqual([base64.b64decode(part['inlineData']['data']) for part in parts if 'inlineData' in part],
+                             [MP3_BYTES, OTHER_MP3_BYTES])
+            if 'perception only' in system:
+                self.assertNotIn('lookup', json.dumps(body))
+        self.assertEqual((planner.timeout, planner.acoustic_timeout), (4.5, 3.5))
+
     async def test_api_error_not_retried_or_leaked(self):
         calls = []
         async def handler(_):
@@ -616,8 +646,8 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(calls), 1)
         self.assertNotIn('private provider detail', str(failure.exception) + repr(planner.evidence))
 
-    async def test_default_warmup_uses_one_read_only_get_then_same_client_for_planning(self):
-        os.environ.pop('PARTICIPANT_PREWARM')
+    async def test_explicit_warmup_uses_one_read_only_get_then_same_client_for_planning(self):
+        os.environ['PARTICIPANT_PREWARM'] = '1'
         requests = []
         async def handler(request):
             requests.append((request.method, request.url.path))
@@ -641,6 +671,12 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([r['phase'] for r in evidence], ['warmup', 'planning'])
         self.assertEqual(evidence[0]['status'], 200)
         self.assertNotIn('test-private-key', repr(evidence))
+
+    async def test_default_setup_makes_no_provider_request(self):
+        os.environ.pop('PARTICIPANT_PREWARM')
+        planner = await self.make_planner(lambda _: self.fail('Default setup must stay offline.'))
+        self.assertEqual(planner.evidence, [])
+        self.assertIsNotNone(planner.client)
 
     async def test_warmup_failure_or_swallowed_timeout_does_not_block_planning(self):
         os.environ['PARTICIPANT_PREWARM'] = '1'
@@ -707,9 +743,12 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         planner = await self.make_planner(lambda _: completion(reply))
         context = {'current_turn_start': 0, 'state': {'slots': {'date': 'next week'}},
                    'messages': [{'message_index': 0, 'event_type': 'user_audio_chunk', 'payload': {'audio_ref': 'clip.mp3'}}]}
+        retained = deepcopy(context)
         result = await planner.plan(context)
         self.assertEqual(result['tool_calls'], [])
-        self.assertEqual(result['slots'], {'date': 'next week'})
+        self.assertNotIn('intent', result)
+        self.assertNotIn('slots', result)
+        self.assertEqual(context, retained)
         self.assertTrue(result['clarification'])
         self.assertIn('confirm', result['clarification'])
         context['current_turn_start'] = 1
@@ -764,6 +803,7 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
     def test_image_citation_requires_nonempty_matching_named_record_evidence(self):
         media = [{'message_index': 0, 'mime_type': 'image/png'}]
         observations = [{'message_index': 0, 'type': 'image', 'visible_text': ['Ethernet'], 'observation': 'A labelled Ethernet port on the left.', 'uncertain': False}]
+        observations[0]['selected_label'] = {'text': 'Ethernet', 'recognition': 'clear', 'referent': 'ambiguous'}
         step = {'api_name': 'find_reference', 'args': {'query': 'Ethernet'},
                 'response_template': 'The labelled Ethernet port connects a network cable. Reference: {sections.0.title}.'}
         for evidence in (None, {}, [], {'path': 'sections.0.title', 'contains': ''},
@@ -777,7 +817,8 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(ValueError, 'named-record evidence'):
             Planner._validate(decision(observations=observations, tool_calls=[step], response=None), media)
         step['result_evidence'] = {'path': 'sections.0.title', 'contains': 'Ethernet', 'target_basis': 'printed_text'}
-        Planner._validate(decision(observations=observations, tool_calls=[step], response=None), media)
+        Planner._validate(decision(observations=observations, tool_calls=[step], response=None), media,
+                          {'find_reference': {'kind': 'read_only'}}, latest_frame_index=0)
 
     def test_frame_context_does_not_require_document_evidence_for_measurements_or_receipts(self):
         media = [{'message_index': 0, 'mime_type': 'image/png'}]
@@ -794,6 +835,7 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         from PIL import Image
         Image.new('RGB', (4, 4), 'gray').save(self.root / 'frame.png')
         observation = {'message_index': 0, 'type': 'image', 'visible_text': ['', 'LAN', '\u26a1', '  '], 'observation': 'LAN is readable on the left; the intended referent is unspecified.', 'uncertain': True}
+        observation['selected_label'] = {'text': 'LAN', 'recognition': 'clear', 'referent': 'ambiguous'}
         step = {'api_name': 'find_reference', 'args': {'query': 'LAN connector'},
                 'response_template': 'If you mean the labelled LAN connector on the left, it connects a network cable. Reference: {entries.0.title}. Point out another if that was intended.',
                 'result_evidence': {'path': 'entries.0.title', 'contains': 'LAN', 'target_basis': 'printed_text'}}
@@ -804,6 +846,7 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
             return completion(reply)
         planner = await self.make_planner(handler)
         context = {'tools': {'find_reference': {'kind': 'read_only', 'args': {'query': {'type': 'string'}}}},
+                   'latest_frame_index': 0,
                    'messages': [{'message_index': 0, 'event_type': 'video_frame', 'payload': {'image_ref': 'frame.png'}},
                                 {'message_index': 1, 'event_type': 'user_speech_chunk', 'payload': {'text': 'What is this used for?', 'end_of_turn': True}}]}
         result = await planner.plan(context)
@@ -815,10 +858,10 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('authorization', result['tool_calls'][0])
         self.assertEqual(planner.evidence[-1]['image_text'], [{'message_index': 0, 'visible_text': ['LAN']}])
         self.assertEqual(planner.evidence[-1]['image_root_evidence'], [step['result_evidence']])
-        self.assertIn('Image-only exception', payloads[-1]['systemInstruction']['parts'][0]['text'])
+        self.assertIn(VISUAL_GUIDANCE, payloads[-1]['systemInstruction']['parts'][0]['text'])
         reply = decision(clarification='Which item?', response=None)
         await planner.plan({'messages': [context['messages'][1]]})
-        self.assertNotIn('Image-only exception', payloads[-1]['systemInstruction']['parts'][0]['text'])
+        self.assertNotIn(VISUAL_GUIDANCE, payloads[-1]['systemInstruction']['parts'][0]['text'])
 
     async def test_explicit_visual_location_is_preserved_without_retargeting(self):
         from PIL import Image
@@ -862,13 +905,14 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
     def test_printed_image_subject_must_match_literal_text_without_rewriting_identifiers(self):
         media = [{'message_index': 0, 'mime_type': 'image/png'}]
         observation = {'message_index': 0, 'type': 'image', 'visible_text': ['AUX'],
+                       'selected_label': {'text': 'AUX', 'recognition': 'clear', 'referent': 'ambiguous'},
                        'observation': 'AUX text and a separate power symbol.', 'uncertain': False}
         step = {'api_name': 'find_reference', 'args': {'filters': [{'text': 'Use the aux input'}]},
                 'response_template': 'If you mean AUX, see {entries.0.title}.',
                 'result_evidence': {'path': 'entries.0.title', 'contains': 'AUX', 'target_basis': 'printed_text'}}
         original = decision(observations=[observation], tool_calls=[step], response=None)
         tools = {'find_reference': {'kind': 'read_only'}}
-        Planner._validate(original, media, tools)
+        Planner._validate(original, media, tools, latest_frame_index=0)
         for text, subject, arguments, basis, error in [
             (['AUX'], 'Power', {'query': 'Power'}, 'printed_text', 'not literal visible text'),
             (['AUX'], 'AUX', {'query': 'AUX'}, None, 'lacks target basis'),
@@ -885,13 +929,14 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
                 bad['tool_calls'][0]['args'] = arguments
                 bad['tool_calls'][0]['result_evidence'].update(contains=subject, target_basis=basis)
                 with self.assertRaisesRegex(ValueError, error):
-                    Planner._validate(bad, media, tools)
+                    Planner._validate(bad, media, tools, latest_frame_index=0)
         # The same boundary applies to a proposed dependent lookup.
         bad = deepcopy(original)
         bad['tool_calls'][0]['after_result'] = deepcopy(step)
+        bad['tool_calls'][0]['result_evidence']['target_basis'] = 'explicit_target'
         bad['tool_calls'][0]['after_result']['result_evidence']['contains'] = 'Power'
         with self.assertRaisesRegex(ValueError, 'not literal visible text'):
-            Planner._validate(bad, media, tools)
+            Planner._validate(bad, media, tools, latest_frame_index=0)
         # Numeric, opaque-ID and parameterless APIs need not accept a label as text.
         for args, declaration in [({'channel': 2}, {'channel': {'type': 'integer', 'required': True}}),
                                   ({'record_id': 'known-record'}, {'record_id': {'type': 'string', 'required': True}}),
@@ -899,13 +944,14 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(args=args):
                 typed = deepcopy(original)
                 typed['observations'][0]['visible_text'] = ['2']
+                typed['observations'][0]['selected_label']['text'] = '2'
                 typed['tool_calls'][0]['args'] = args
                 typed['tool_calls'][0]['result_evidence']['contains'] = '2'
-                Planner._validate(typed, media, {'find_reference': {'kind': 'read_only', 'args': declaration}})
+                Planner._validate(typed, media, {'find_reference': {'kind': 'read_only', 'args': declaration}}, latest_frame_index=0)
                 self.assertEqual(typed['tool_calls'][0]['args'], args)
         for metadata in (None, [], {}, {'kind': 'state_modifying'}):
             with self.subTest(metadata=metadata), self.assertRaisesRegex(ValueError, 'read-only'):
-                Planner._validate(original, media, {'find_reference': metadata})
+                Planner._validate(original, media, {'find_reference': metadata}, latest_frame_index=0)
 
     def test_image_text_normalization_preserves_literals_and_rejects_malformed_lists(self):
         media = [{'message_index': 0, 'mime_type': 'image/png'}]
@@ -936,6 +982,7 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
     def test_image_context_preserves_mixed_nonvisual_citations_and_labelled_reads(self):
         media = [{'message_index': 0, 'mime_type': 'image/png'}]
         observation = {'message_index': 0, 'type': 'image', 'visible_text': ['PHONO'],
+                       'selected_label': {'text': 'PHONO', 'recognition': 'clear', 'referent': 'ambiguous'},
                        'observation': 'A labelled input beside an unlabelled dial.', 'uncertain': False}
         calls = [
             {'api_name': 'manual', 'args': {'query': 'PHONO'}, 'response_template': '{entries.0.title}',
@@ -946,12 +993,13 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
              'result_evidence': {'path': 'entries.0.title', 'contains': 'dial', 'target_basis': 'explicit_target'}},
         ]
         Planner._validate(decision(observations=[observation], tool_calls=calls, response=None), media,
-                          {'manual': {'kind': 'read_only'}, 'directory': {'kind': 'read_only'}})
+                          {'manual': {'kind': 'read_only'}, 'directory': {'kind': 'read_only'}}, latest_frame_index=0)
 
     async def test_conditional_image_label_cannot_authorize_a_write(self):
         from PIL import Image
         Image.new('RGB', (4, 4), 'gray').save(self.root / 'frame.png')
         reply = decision(observations=[{'message_index': 0, 'type': 'image', 'visible_text': ['RESET'],
+                         'selected_label': {'text': 'RESET', 'recognition': 'clear', 'referent': 'ambiguous'},
                          'observation': 'Several controls; RESET is readable.', 'uncertain': True}],
                          tool_calls=[{'api_name': 'change_control', 'args': {'target': 'RESET'},
                                       'response_template': 'Changed {control.name}.',
@@ -959,11 +1007,12 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
                          response=None)
         planner = await self.make_planner(lambda _: completion(reply))
         context = {'tools': {'change_control': {'kind': 'state_modifying', 'args': {'target': {'type': 'string'}}}},
+                   'latest_frame_index': 0,
                    'messages': [{'event_type': 'video_frame', 'payload': {'image_ref': 'frame.png'}},
                                 {'event_type': 'user_speech_chunk', 'payload': {'text': 'Reset that control.', 'end_of_turn': True}}]}
         with self.assertRaises(PlannerError):
             await planner.plan(context)
-        self.assertEqual(planner.evidence[-1]['validation_error'], 'conditional image target is read-only')
+        self.assertEqual(planner.evidence[-1]['validation_error'], 'conditional image target is a terminal read-only call')
         context['tools']['change_control']['kind'] = 'read_only'
         reply['tool_calls'][0]['authorization'] = {'quote': 'Reset that control.', 'message_index': 1}
         with self.assertRaises(PlannerError):
@@ -1012,9 +1061,71 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(output['tool_calls'], [])
         self.assertTrue(output['clarification'])
 
+    async def test_uncertain_main_clarifies_without_waiting_or_caching_unverified_audio(self):
+        (self.root / 'old.mp3').write_bytes(MP3_BYTES)
+        arrived, cancelled = asyncio.Event(), asyncio.Event()
+
+        async def handler(request):
+            body = json.loads(request.content)
+            if 'perception only' in body['systemInstruction']['parts'][0]['text']:
+                arrived.set()
+                try:
+                    await asyncio.Future()
+                except asyncio.CancelledError:
+                    cancelled.set()
+                    return audio_completion(body)  # Late transport success cannot undo the veto.
+            await arrived.wait()
+            return audio_completion(body, main_unclear={0})
+
+        planner = await self.make_planner(handler)
+        context = self.audio_context()
+        retained = deepcopy(context)
+        output = await asyncio.wait_for(planner.plan(context), .5)
+        await asyncio.wait_for(cancelled.wait(), .5)
+        self.assertTrue(output['clarification'])
+        self.assertEqual(output['tool_calls'], [])
+        self.assertNotIn('intent', output)
+        self.assertNotIn('slots', output)
+        self.assertEqual(context, retained)
+        self.assertEqual(output['observations'], [])
+        self.assertEqual(planner._audio_cache, {})
+        self.assertTrue(any(row['status'] == 'main_audio_uncertain' for row in planner.evidence))
+        await planner.close()
+        self.assertEqual(planner._pending_tasks, set())
+
+    async def test_clear_main_waits_for_acoustic_agreement_before_authorizing(self):
+        (self.root / 'old.mp3').write_bytes(MP3_BYTES)
+        main_done, release = asyncio.Event(), asyncio.Event()
+
+        async def handler(request):
+            body = json.loads(request.content)
+            if 'perception only' in body['systemInstruction']['parts'][0]['text']:
+                await release.wait()
+                return completion({'observations': [{'message_index': 0, 'type': 'audio',
+                                    'transcript': 'Do not act.', 'uncertain': False}]})
+            main_done.set()
+            return audio_completion(body)
+
+        planner = await self.make_planner(handler)
+        task = asyncio.create_task(planner.plan(self.audio_context()))
+        try:
+            await asyncio.wait_for(main_done.wait(), .5)
+            await asyncio.sleep(.02)
+            self.assertFalse(task.done())
+            self.assertEqual(planner._audio_cache, {})
+            release.set()
+            output = await asyncio.wait_for(task, .5)
+            self.assertTrue(output['clarification'])
+            self.assertEqual(output['tool_calls'], [])
+            self.assertEqual(planner.evidence[-1]['audio_transcript_conflicts'], [0])
+        finally:
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+
     async def test_conflicting_clear_transcripts_cannot_authorize_the_main_plan_or_future_history(self):
         (self.root / 'old.mp3').write_bytes(MP3_BYTES)
-        for main, acoustic in [('Find Oslo.', 'Find Bergen.'),
+        for main, acoustic in [('Use Oslo', 'Use Oslo.'),
+                               ('Find Oslo.', 'Find Bergen.'),
                                ('Book Oslo.', 'Do not book Oslo.'),
                                ('Find Pune.', 'Find pun.'),
                                ('Set 5.', 'Set -5.'),
@@ -1039,10 +1150,14 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
                                                tool_calls=[{'api_name': 'lookup', 'args': {'destination': 'Oslo'}}],
                                                response=None))
                 planner = await self.make_planner(handler)
-                result = await planner.plan(self.audio_context())
+                context = self.audio_context()
+                retained = deepcopy(context)
+                result = await planner.plan(context)
                 self.assertEqual(result['tool_calls'], [])
                 self.assertTrue(result['clarification'])
-                self.assertEqual(result['slots'], {'origin': 'Lima'})
+                self.assertNotIn('intent', result)
+                self.assertNotIn('slots', result)
+                self.assertEqual(context, retained)
                 self.assertTrue(result['observations'][0]['uncertain'])
                 self.assertEqual(result['observations'][0]['transcript'], acoustic)
                 self.assertEqual(planner.evidence[-1]['audio_transcript_conflicts'], [0])

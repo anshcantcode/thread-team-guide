@@ -11,5 +11,9 @@ RUN python -m pip install --no-cache-dir --index-url https://pypi.org/simple -r 
 COPY submission.yaml ./
 COPY participant/ ./participant/
 COPY scripts/verify_samsung_submission.py ./scripts/verify_samsung_submission.py
+COPY scripts/check_gemini_config.py ./scripts/check_gemini_config.py
+COPY .env.example ./
+COPY docs/GEMINI_SETUP.md ./docs/GEMINI_SETUP.md
+COPY docs/submission/GEMINI_QUICKSTART.md ./docs/submission/GEMINI_QUICKSTART.md
 # Mount the unchanged organizer kit read-only at /kit. This default makes no model calls.
 CMD ["python", "scripts/verify_samsung_submission.py", "--kit", "/kit", "--submission", "/opt/submission"]

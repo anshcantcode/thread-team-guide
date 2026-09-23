@@ -4,6 +4,7 @@ from copy import deepcopy
 import inspect
 import time
 import unittest
+from unittest.mock import patch
 
 from participant.agent import ParticipantAgent
 from participant.authorization import authorized, authorization_grant
@@ -52,6 +53,19 @@ def chain():
 
 
 class ConstructorAndSchemaTests(unittest.TestCase):
+    def test_complete_snapshot_keeps_sets_and_clears_without_losing_false_values(self):
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
+        slots = {"city": "Oslo", "budget": 0, "accessible": False, "tags": [], "note": ""}
+        agent._apply({"intent": "search", "slots": slots, "response": "Ready."})
+        agent._apply({"response": "Still ready."})
+        self.assertEqual(agent.state, {"intent": "search", "slots": slots})
+        agent._apply({"slots": {**slots, "city": "Rome", "note": None}, "response": "Updated."})
+        self.assertEqual(agent.state, {"intent": "search", "slots": {key: value for key, value in
+                         {**slots, "city": "Rome"}.items() if key != "note"}})
+        agent._apply({"intent": "", "slots": {}, "response": "Cleared."})
+        self.assertEqual(agent.snapshot()["slots"], {})
+        self.assertEqual(agent.snapshot()["intent"], "")
+
     def test_constructor_is_loop_and_configuration_independent(self):
         agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
         self.assertIsNone(agent.planner)
@@ -184,6 +198,84 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         messages = agent.planner.contexts[0]["messages"]
         self.assertEqual([item["payload"]["audio_ref"] for item in messages], ["audio/first.mp3", "audio/correction.mp3"])
 
+    async def test_optional_input_observer_receives_isolated_user_events_and_stable_turn(self):
+        agent = await self.start(lambda _: {"response": "Ready."})
+        received = asyncio.Queue()
+        def observe(message, turn_start):
+            received.put_nowait((deepcopy(message), turn_start, agent._turn_open))
+            message["payload"]["audio_ref"] = "mutated-by-observer.mp3"
+        agent.planner.observe_input = observe
+        await self.event(agent, "user_audio_chunk", {"audio_ref": "first.mp3", "end_of_turn": False})
+        first, first_turn, first_open = await asyncio.wait_for(received.get(), 0.6)
+        self.assertEqual((first["message_index"], first_turn, first_open), (0, 0, True))
+        self.assertFalse(agent.planner.contexts)
+        self.assertFalse(agent.operations)
+        self.assertEqual(self.drain(agent), [])
+        await self.event(agent, "video_frame", {"frame_id": "frame", "image_ref": "frame.png"})
+        await self.event(agent, "tool_manifest", {"tools": {**TOOLS, "journeys": {**READ, "delay_range_ms": [100, 400]}}})
+        await self.event(agent, "user_audio_chunk", {"audio_ref": "last.mp3", "end_of_turn": True})
+        last, last_turn, last_open = await asyncio.wait_for(received.get(), 0.6)
+        self.assertEqual((last["message_index"], last_turn, last_open), (2, 0, False))
+        self.assertGreater(last["revision"], first["revision"])
+        await self.output(agent, "final_response")
+        self.assertEqual([message["payload"]["audio_ref"] for message in agent.planner.contexts[0]["messages"]
+                          if message["event_type"] == "user_audio_chunk"], ["first.mp3", "last.mp3"])
+        await self.event(agent, "interruption")
+        interruption, interrupted_turn, interrupted_open = await asyncio.wait_for(received.get(), 0.6)
+        self.assertEqual((interruption["event_type"], interrupted_turn, interrupted_open), ("interruption", 3, False))
+        self.assertEqual(interruption["payload"], {})
+        await self.output(agent, "filler_speech")
+        self.assertEqual(len(agent.planner.contexts), 1)
+        await self.speak(agent, "A new typed request.")
+        typed, new_turn, new_open = await asyncio.wait_for(received.get(), 0.6)
+        self.assertEqual((typed["event_type"], new_turn, new_open), ("user_speech_chunk", 4, False))
+        await self.output(agent, "final_response")
+        self.assertTrue(received.empty())
+        self.assertNotIn("audio_ref", agent.messages[4]["payload"])
+
+    async def test_partial_input_background_job_is_closed_by_its_planner(self):
+        agent = await self.start(lambda _: {"response": "Ready."})
+        started, stopped = asyncio.Event(), asyncio.Event()
+        jobs = []
+        async def background():
+            started.set()
+            try:
+                await asyncio.Event().wait()
+            finally:
+                stopped.set()
+        def observe(message, turn_start):
+            jobs.append(asyncio.create_task(background()))
+        close = agent.planner.close
+        async def close_with_jobs():
+            for job in jobs:
+                job.cancel()
+            await asyncio.gather(*jobs, return_exceptions=True)
+            await close()
+        agent.planner.observe_input, agent.planner.close = observe, close_with_jobs
+        await self.event(agent, "user_audio_chunk", {"audio_ref": "first.mp3", "end_of_turn": False})
+        await asyncio.wait_for(started.wait(), 0.6)
+        self.assertEqual(len(jobs), 1)
+        self.assertFalse(agent.planner.contexts)
+        self.assertEqual(self.drain(agent), [])
+        await agent.close()
+        self.assertTrue(stopped.is_set())
+        self.assertTrue(all(job.done() for job in jobs))
+        self.assertEqual(agent.planner.closed, 1)
+
+    async def test_optional_input_observer_failure_does_not_replace_canonical_planning(self):
+        agent = await self.start(lambda _: lookup())
+        observed = []
+        def observe(message, turn_start):
+            observed.append((message, turn_start))
+            raise RuntimeError("optional observer failure")
+        agent.planner.observe_input = observe
+        await self.speak(agent, "Find journeys to Oslo.")
+        call = await self.output(agent, "tool_call")
+        self.assertEqual(call["payload"]["args"], {"city": "Oslo", "day": "Friday"})
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(agent.planner.contexts[0]["messages"][0]["payload"]["text"], "Find journeys to Oslo.")
+        self.assertFalse(any(item["action"] == "clarification_request" for item in self.drain(agent)))
+
     async def test_frame_is_context_not_an_automatic_request(self):
         agent = await self.start(lambda _: {"response": "I can inspect the current image.", "slots": {}, "intent": "help"})
         await self.event(agent, "video_frame", {"frame_id": "current", "image_ref": "frames/current.png"})
@@ -261,6 +353,42 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         await asyncio.sleep(0.01)
         self.assertFalse(any(op["args"]["city"] == "Obsolete" for op in agent.operations.values()))
 
+    async def test_outer_deadline_rejects_a_planner_that_returns_after_cancellation(self):
+        cancelled = asyncio.Event()
+        async def handler(context):
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cancelled.set()
+                return lookup("Too late")
+        agent = await self.start(handler)
+        agent.planner.timeout = 0.01
+        await self.speak(agent, "Find journeys.")
+        await self.output(agent, "clarification_request", timeout=1)
+        await asyncio.wait_for(cancelled.wait(), 0.2)
+        self.assertFalse(agent.operations)
+        self.assertFalse(any(row["action"] == "tool_call" for row in self.drain(agent)))
+
+    async def test_outer_deadline_honors_existing_configured_planner_budget(self):
+        async def handler(context):
+            await asyncio.sleep(5.1)
+            return lookup()
+        agent = await self.start(handler)
+        agent.planner.timeout = 5.5
+        await self.speak(agent, "Find journeys to Oslo.")
+        call = await self.output(agent, "tool_call", timeout=6)
+        self.assertEqual(call["payload"]["args"]["city"], "Oslo")
+
+    async def test_outer_deadline_boundary_is_exclusive(self):
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue(), planner=ScriptedPlanner(lambda _: lookup()))
+        for finished_at in (14.999, 15.0, 15.001):
+            with self.subTest(finished_at=finished_at), patch("participant.agent.time") as clock:
+                clock.monotonic.side_effect = (10.0, finished_at)
+                revision, decision = await agent._plan({}, 1)
+            self.assertEqual(revision, 1)
+            self.assertEqual("tool_calls" in decision, finished_at < 15.0)
+            self.assertEqual("clarification" in decision, finished_at >= 15.0)
+
     async def test_authorized_chain_uses_selected_actual_result_once(self):
         agent = await self.start(lambda _: chain())
         await self.speak(agent, "Find a journey to Oslo and reserve the 8 AM one for Mina.")
@@ -305,6 +433,8 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         await self.result(agent, first, {"error": "timeout"}, status="error")
         retry = await self.output(agent, "tool_call")
         self.assertNotEqual(first["payload"]["call_id"], retry["payload"]["call_id"])
+        self.assertEqual(agent.operations[first["payload"]["call_id"]]["operation_id"],
+                         agent.operations[retry["payload"]["call_id"]]["operation_id"])
         self.assertEqual(first["payload"]["args"], retry["payload"]["args"])
         await self.result(agent, retry, {"error": "timeout"}, status="error")
         await self.output(agent, "final_response")
@@ -384,17 +514,300 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_normalized_duplicate_write_is_not_dispatched(self):
         tool = {"kind": "state_modifying", "description": "Create a note.", "args": {"text": {"type": "string", "required": True}}}
-        def handler(context):
-            return {"tool_calls": [{"api_name": "create_note", "args": {"text": "hello" if context["revision"] == 1 else " HELLO "},
+        decision = {"tool_calls": [{"api_name": "create_note", "args": {"text": "hello"},
                                     "authorization": {"quote": "Create a note"}}]}
+        def handler(context):
+            return decision
         agent = await self.start(handler, tools={"create_note": tool})
         await self.speak(agent, "Create a note saying hello.")
         call = await self.output(agent, "tool_call")
         await self.result(agent, call, {"note_id": "NOTE-41"})
         await self.output(agent, "final_response")
-        await self.speak(agent, "Create a note saying HELLO.")
-        await self.output(agent, "final_response")
+        decision["tool_calls"][0]["args"]["text"] = " HELLO "
+        agent._apply(decision)
+        self.assertFalse(any(item["action"] == "tool_call" for item in self.drain(agent)))
         self.assertEqual(len(agent.operations), 1)
+
+    async def test_fresh_authorization_can_create_an_identical_write(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.", "args": {"text": {"type": "string", "required": True}}}
+        decision = {"intent": "create_note", "slots": {"text": "hello"},
+                    "tool_calls": [{"api_name": "create_note", "args": {"text": "hello"},
+                                   "authorization": {"quote": "Create a note"}}]}
+        for outcome in ("success", "unknown", "error", "pending"):
+            with self.subTest(outcome=outcome):
+                agent = await self.start(lambda _: decision, tools={"create_note": tool})
+                await self.speak(agent, "Create a note saying hello.")
+                first = await self.output(agent, "tool_call")
+                if outcome != "pending":
+                    await self.result(agent, first, {"note_id": "FIRST"} if outcome == "success" else
+                                      {"error": "timeout" if outcome == "unknown" else "invalid_args"},
+                                      status="success" if outcome == "success" else "error")
+                    await self.output(agent, "final_response")
+                await self.speak(agent, "Create a note saying hello.")
+                second = await self.output(agent, "tool_call")
+                first_op, second_op = [agent.operations[call["payload"]["call_id"]] for call in (first, second)]
+                self.assertNotEqual(first_op["operation_id"], second_op["operation_id"])
+                self.assertNotEqual(first_op["call_id"], second_op["call_id"])
+                self.assertEqual(first_op["args"], second_op["args"])
+                # Replanning/retrying the second permission cannot create a third effect.
+                agent._dispatch(decision["tool_calls"][0], retry=1)
+                self.assertEqual(len(agent.operations), 2)
+                await self.result(agent, first, {"note_id": "FIRST-LATE"})
+                await self.result(agent, second, {"note_id": "SECOND"})
+                final = await self.output(agent, "final_response")
+                self.assertNotIn("FIRST-LATE", final["payload"]["text"])
+                self.assertEqual(final["state_snapshot"]["slots"]["note_id"], "SECOND")
+                self.assertEqual(len(final["state_snapshot"]["actions"]), 2)
+                if outcome in {"unknown", "pending"}:
+                    self.assertEqual(first_op["result"]["note_id"], "FIRST-LATE")
+                    self.assertEqual(first_op["status"], "success")
+                self.assertEqual(self.drain(agent), [])
+
+    async def test_reinterpreted_audio_cannot_repeat_a_write_on_frame_or_manifest_replan(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.", "args": {"text": {"type": "string", "required": True}}}
+        for change in ("frame", "manifest"):
+            for success_before_plan in (False, True):
+                with self.subTest(change=change, success_before_plan=success_before_plan):
+                    release = asyncio.Event()
+                    async def handler(context):
+                        if context["revision"] > 1:
+                            await release.wait()
+                        index = max(message["message_index"] for message in context["messages"]
+                                    if message["event_type"] == "user_audio_chunk")
+                        transcript = "Create a note saying hello." if context["revision"] == 1 else "Create a new note saying hello."
+                        return {"observations": [{"message_index": index, "type": "audio", "transcript": transcript, "uncertain": False}],
+                                "tool_calls": [{"api_name": "create_note", "args": {"text": "hello"},
+                                                "response_template": "OBSOLETE ANSWER {note_id}: {explanation}",
+                                                "authorization": {"quote": transcript, "message_index": index}}]}
+                    agent = await self.start(handler, tools={"create_note": tool})
+                    await self.event(agent, "user_audio_chunk", {"audio_ref": "first.mp3", "end_of_turn": True})
+                    first = await self.output(agent, "tool_call")
+                    applied, reconciled = asyncio.Event(), asyncio.Event()
+                    apply, result = agent._apply, agent._result
+                    def observe_plan(decision):
+                        apply(decision)
+                        applied.set()
+                    def observe_result(payload):
+                        result(payload)
+                        reconciled.set()
+                    agent._apply, agent._result = observe_plan, observe_result
+                    if change == "frame":
+                        await self.event(agent, "video_frame", {"frame_id": "new", "image_ref": "new.png"})
+                    else:
+                        await self.event(agent, "tool_manifest", {"tools": {"create_note": {**tool, "delay_range_ms": [100, 400]}}})
+                    await self.output(agent, "cancel_tool")
+                    if success_before_plan:
+                        await self.result(agent, first, {"note_id": "LATE", "explanation": "Old user-facing explanation."})
+                        await asyncio.wait_for(reconciled.wait(), 0.6)
+                    release.set()
+                    await asyncio.wait_for(applied.wait(), 0.6)
+                    self.assertEqual(len(agent.operations), 1)
+                    self.assertEqual(agent.operations[first["payload"]["call_id"]]["status"],
+                                     "success" if success_before_plan else "cancel_requested")
+                    output = self.drain(agent)
+                    self.assertFalse(any(item["action"] == "tool_call" for item in output))
+                    spoken = str([item["payload"].get("text") for item in output])
+                    self.assertNotIn("OBSOLETE ANSWER", spoken)
+                    self.assertNotIn("Old user-facing explanation", spoken)
+                    if success_before_plan:
+                        self.assertEqual(output, [])
+                    if not success_before_plan:
+                        await self.result(agent, first, {"note_id": "LATE"})
+                        await asyncio.wait_for(reconciled.wait(), 0.6)
+                    self.assertEqual(agent.snapshot()["actions"][0]["result"]["note_id"], "LATE")
+                    self.assertNotIn("note_id", agent.state["slots"])
+                    self.assertEqual(self.drain(agent), [])
+                    # Another actual recording is fresh authority, even with identical text/args.
+                    await self.event(agent, "user_audio_chunk", {"audio_ref": "second.mp3", "end_of_turn": True})
+                    second = await self.output(agent, "tool_call")
+                    self.assertEqual(len(agent.operations), 2)
+                    self.assertNotEqual(agent.operations[first["payload"]["call_id"]]["operation_id"],
+                                        agent.operations[second["payload"]["call_id"]]["operation_id"])
+
+    async def test_additive_chunks_with_retraction_cannot_authorize_a_write(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.", "args": {"text": {"type": "string", "required": True}}}
+        decision = {"tool_calls": [{"api_name": "create_note", "args": {"text": "hello"},
+                                   "authorization": {"quote": "Create a note"}}]}
+        agent = await self.start(lambda _: decision, tools={"create_note": tool})
+        await self.speak(agent, "Create a note", end=False)
+        await self.speak(agent, "saying hello. Actually, do not create it.")
+        await self.output(agent, "clarification_request")
+        self.assertFalse(agent.operations)
+        self.assertEqual(len(agent.planner.contexts), 1)
+        self.assertEqual(len(agent._user_texts()), 2)
+
+    async def test_wordless_interruption_cancels_retry_without_replacement_or_continuation(self):
+        agent = await self.start(lambda _: chain())
+        await self.speak(agent, "Find a journey and reserve the 8 AM one for Mina.")
+        first = await self.output(agent, "tool_call")
+        await self.result(agent, first, {"error": "timeout"}, status="error")
+        retry = await self.output(agent, "tool_call")
+        agent.in_queue.put_nowait({"event_type": "tool_result", "payload": {**retry["payload"], "status": "success",
+            "result": {"status": "success", "journeys": [{"ref": "LATE", "start": "08:00"}]}}})
+        await self.event(agent, "interruption")
+        cancel = await self.output(agent, "cancel_tool")
+        await self.output(agent, "filler_speech")
+        self.assertEqual(cancel["payload"]["call_id"], retry["payload"]["call_id"])
+        self.assertEqual(len(agent.planner.contexts), 1)
+        self.assertEqual(agent.operations[retry["payload"]["call_id"]]["status"], "success")
+        self.assertFalse(any(op["kind"] == "state_modifying" for op in agent.operations.values()))
+        self.assertEqual(self.drain(agent), [])
+
+    async def test_clarification_then_late_write_reconciles_without_old_slots_or_continuation(self):
+        def handler(context):
+            return chain() if context["revision"] == 1 else {"intent": "clarify", "slots": {}, "clarification": "Which city?"}
+        agent = await self.start(handler)
+        await self.speak(agent, "Find a journey and reserve the 8 AM one for Mina.")
+        read = await self.output(agent, "tool_call")
+        await self.result(agent, read, {"journeys": [{"ref": "FIRST", "start": "08:00"}]})
+        write = await self.output(agent, "tool_call")
+        await self.speak(agent, "Actually find a journey elsewhere.")
+        await self.output(agent, "clarification_request")
+        processed = asyncio.Event()
+        result = agent._result
+        def observe(payload):
+            result(payload)
+            processed.set()
+        agent._result = observe
+        await self.result(agent, write, {"receipt_id": "COMPLETED-LATE"})
+        await asyncio.wait_for(processed.wait(), 0.6)
+        self.assertEqual(agent.snapshot()["actions"][0]["result"]["receipt_id"], "COMPLETED-LATE")
+        self.assertEqual(agent.state, {"intent": "clarify", "slots": {}})
+        self.assertEqual(self.drain(agent), [])
+        self.assertTrue(agent._awaiting_clarification)
+
+    async def test_write_success_during_current_clarification_or_open_turn_is_ledger_only(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.",
+                "args": {"text": {"type": "string", "required": True}}}
+        step = {"api_name": "create_note", "args": {"text": "hello"},
+                "authorization": {"quote": "Create a note"}, "response_template": "OLD ANSWER {note_id}",
+                "after_result": {"api_name": "create_note", "args": {"text": "extra"}}}
+        for suspended in ("clarification", "open_turn"):
+            with self.subTest(suspended=suspended):
+                agent = await self.start(lambda _: {"intent": "create_note", "slots": {"text": "hello"},
+                                                    "tool_calls": [step]}, tools={"create_note": tool})
+                await self.speak(agent, "Create a note saying hello.")
+                call = await self.output(agent, "tool_call")
+                op = agent.operations[call["payload"]["call_id"]]
+                if suspended == "clarification":
+                    agent._apply({"intent": "clarify_note", "slots": {"text": "hello"},
+                                  "clarification": "What else should it say?"})
+                    await self.output(agent, "clarification_request")
+                    self.assertEqual(op["revision"], agent.revision)
+                else:
+                    await self.speak(agent, "Actually, ", end=False)
+                    await self.output(agent, "cancel_tool")
+                    self.assertTrue(agent._turn_open)
+                state, visible = deepcopy(agent.state), agent.snapshot()
+                grants, results = deepcopy(agent._consumed_grants), deepcopy(agent.tool_results)
+                status = op["status"]
+                payload = {**call["payload"], "status": "success",
+                           "result": {"status": "success", "note_id": "RECORDED-ONLY"}}
+                agent._result({**payload, "api_name": "wrong_tool"})
+                agent._result({**payload, "call_id": "wrong_call"})
+                self.assertEqual(op["status"], status)
+                agent._result(payload)
+                self.assertEqual(op["status"], "success")
+                self.assertEqual(agent.snapshot()["actions"][0]["result"], payload["result"])
+                agent._result({**payload, "result": {"note_id": "CONFLICTING-DUPLICATE"}})
+                agent._dispatch(step)
+                self.assertEqual(agent.snapshot()["actions"][0]["result"], payload["result"])
+                self.assertEqual(self.drain(agent), [])
+                self.assertEqual(agent.state, state)
+                self.assertEqual({k: agent.snapshot()[k] for k in ("intent", "slots")},
+                                 {k: visible[k] for k in ("intent", "slots")})
+                self.assertEqual(agent._consumed_grants, grants)
+                self.assertEqual(agent.tool_results, results)
+                self.assertEqual(len(agent.operations), 1)
+                self.assertEqual(agent._awaiting_clarification, suspended == "clarification")
+                self.assertEqual(agent._turn_open, suspended == "open_turn")
+
+    async def test_late_write_is_recorded_once_without_speaking_or_resuming_a_question(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.", "args": {"text": {"type": "string", "required": True}}}
+        step = {"api_name": "create_note", "args": {"text": "hello"}, "authorization": {"quote": "Create a note"},
+                "response_template": "OBSOLETE ANSWER {note_id}", "after_result": {"api_name": "create_note", "args": {"text": "extra"}}}
+        def handler(context):
+            return {"tool_calls": [step]} if context["revision"] == 1 else {
+                "intent": "inspect", "slots": {"panel": "current"}, "clarification": "Which control?"}
+        agent = await self.start(handler, tools={"create_note": tool})
+        await self.speak(agent, "Create a note saying hello.")
+        call = await self.output(agent, "tool_call")
+        await self.speak(agent, "Help inspect this panel.")
+        await self.output(agent, "clarification_request")
+        processed = asyncio.Queue()
+        result = agent._result
+        def observe(payload):
+            result(payload)
+            processed.put_nowait(None)
+        agent._result = observe
+        await self.result(agent, call, {"error": "timeout"}, status="error")
+        await asyncio.wait_for(processed.get(), 0.6)
+        self.assertEqual(self.drain(agent), [])
+        await self.result(agent, call, {"note_id": "FOREIGN"}, api_name="wrong_tool")
+        await asyncio.wait_for(processed.get(), 0.6)
+        self.assertEqual(self.drain(agent), [])
+        await self.result(agent, call, {"note_id": "CONFIRMED-LATE"})
+        await asyncio.wait_for(processed.get(), 0.6)
+        self.assertEqual(self.drain(agent), [])
+        self.assertEqual(agent.state, {"intent": "inspect", "slots": {"panel": "current"}})
+        self.assertEqual(agent.snapshot()["actions"][0]["result"]["note_id"], "CONFIRMED-LATE")
+        await self.result(agent, call, {"note_id": "CONFIRMED-LATE"})
+        await asyncio.wait_for(processed.get(), 0.6)
+        agent._apply({"tool_calls": [step]})
+        agent._dispatch(step)
+        self.assertEqual(self.drain(agent), [])
+        self.assertTrue(agent._awaiting_clarification)
+        self.assertEqual(len(agent.operations), 1)
+
+    async def test_unanswered_clarification_blocks_late_sibling_until_new_user_input(self):
+        for continuation in (False, True):
+            with self.subTest(continuation=continuation):
+                fast_step = chain()["tool_calls"][0]
+                slow_step = deepcopy(fast_step)
+                slow_step["args"]["city"] = "Rome"
+                if not continuation:
+                    slow_step.pop("after_result")
+                def handler(context):
+                    if context["revision"] > 1:
+                        return lookup("Berlin")
+                    if context.get("planning_error"):
+                        return {"clarification": "Which departure should I use?", "slots": {}}
+                    return {"tool_calls": [fast_step, slow_step]}
+                agent = await self.start(handler)
+                await self.speak(agent, "Find journeys to Oslo and Rome and reserve the 8 AM one for Mina.")
+                fast = await self.output(agent, "tool_call")
+                slow = await self.output(agent, "tool_call")
+                await self.result(agent, fast, {"journeys": []})
+                await self.output(agent, "clarification_request")
+                self.drain(agent)
+                reconciled = asyncio.Event()
+                result = agent._result
+                def observe(payload):
+                    result(payload)
+                    reconciled.set()
+                agent._result = observe
+                await self.result(agent, slow, {"query_id": "LATE-QUERY", "journeys": [{"ref": "LATE", "start": "08:00"}]})
+                await asyncio.wait_for(reconciled.wait(), 0.6)
+                self.assertEqual(agent.operations[slow["payload"]["call_id"]]["status"], "success")
+                self.assertEqual(agent.state["slots"], {})
+                self.assertEqual(self.drain(agent), [])
+                self.assertFalse(any(op["kind"] == "state_modifying" for op in agent.operations.values()))
+                agent._apply(lookup("Unanswered"))
+                self.assertEqual(self.drain(agent), [])
+                await self.speak(agent, "Find journeys to Berlin instead.")
+                new = await self.output(agent, "tool_call")
+                self.assertEqual(new["payload"]["args"]["city"], "Berlin")
+
+    async def test_result_selection_skips_rows_missing_the_requested_field(self):
+        agent = await self.start(lambda _: chain())
+        await self.speak(agent, "Find a journey and reserve the 8 AM one for Mina.")
+        read = await self.output(agent, "tool_call")
+        await self.result(agent, read, {"journeys": [{"ref": "INCOMPLETE"},
+                                                    {"ref": "SELECTED", "start": "08:00"}]})
+        write = await self.output(agent, "tool_call")
+        self.assertEqual(write["payload"]["args"]["journey_id"], "SELECTED")
+        self.assertEqual(agent.operations[write["payload"]["call_id"]]["step"]["result_bindings"]["journey_id"]["path"],
+                         "journeys.1.ref")
 
     async def test_singular_instruction_cannot_authorize_two_distinct_bound_writes(self):
         decision = chain()
@@ -506,7 +919,8 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
     async def test_missing_write_result_gets_real_clock_unknown_outcome(self):
         tool = {"kind": "state_modifying", "description": "Create a note.", "delay_range_ms": [0, 10],
                 "args": {"text": {"type": "string", "required": True}}}
-        agent = await self.start(lambda _: {"tool_calls": [{"api_name": "create_note", "args": {"text": "hi"},
+        agent = await self.start(lambda _: {"intent": "create_note", "slots": {"text": "hi"},
+                                           "tool_calls": [{"api_name": "create_note", "args": {"text": "hi"},
                                                             "authorization": {"quote": "Create a note"}}]}, tools={"create_note": tool})
         await self.speak(agent, "Create a note saying hi.")
         call = await self.output(agent, "tool_call")
@@ -553,6 +967,7 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.drain(agent), [])
         self.assertEqual(agent.state["slots"], {})
         self.assertEqual(agent.snapshot()["actions"][0]["status"], "success")
+        self.assertEqual(agent.snapshot()["actions"][0]["result"]["note_id"], "COMMITTED-AFTER-RETRACTION")
         self.assertEqual(len(agent.operations), 1)
 
     async def test_frame_or_manifest_revision_cannot_renew_spent_user_authority(self):
@@ -699,7 +1114,8 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
                     {"title": title, "page": 14}, {"title": "Rotary valve", "page": 25}]})
                 final = await self.output(agent, "final_response")
                 if matched:
-                    self.assertIn("regulates flow", final["payload"]["text"])
+                    self.assertNotIn("regulates flow", final["payload"]["text"])
+                    self.assertIn("no answer text", final["payload"]["text"])
                     self.assertIn(title, final["payload"]["text"])
                 else:
                     self.assertNotIn("regulates flow", final["payload"]["text"])

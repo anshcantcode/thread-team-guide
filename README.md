@@ -25,15 +25,23 @@ This repository contains the application source, browser client, Android project
 
 This development branch adds the official `participant.agent:ParticipantAgent`
 entry point, stronger interruption and tool-action checks, reproducible packaging
-and simpler Gemini setup. Read the [team update](docs/ENGINEERING_UPDATE.md),
-[current evidence](docs/submission/EVIDENCE.md) and
-[evaluation quickstart](docs/submission/GEMINI_QUICKSTART.md).
+and simpler Gemini setup. Start with the [short team handoff](docs/submission-2026-09-23/TEAM_HANDOFF.md),
+then read the [23 September team update](docs/submission-2026-09-23/ENGINEERING_UPDATE.md),
+[evidence summary](docs/submission/EVIDENCE.md) and
+[evaluation quickstart](docs/submission/GEMINI_QUICKSTART.md). The
+[next round plan](docs/submission-2026-09-23/NEXT_ROUND_PLAN.md) defines the
+remaining qualification work; the
+[readiness report](docs/submission-2026-09-23/READINESS_REPORT.md) explains confidence.
 
-The integrated source passed **792 Python test methods**. The last complete
-public batch scored **62.6 weighted points**, with **6/27 mandatory completions**
-and **4/27 full acceptance checks**. A later package passed clean admission and
-one official text case; a new complete public batch is still required.
-Audio deadlines and answer correctness remain active blockers.
+The current participant source passes **352 offline test methods**. The latest
+complete nine-case public diagnostic scored **71.5/100 weighted, with 4/9 passes**;
+its model requests did not return before cancellation or the planning deadline.
+An older build passed all nine once, but its unchanged repeat batch had failures
+and stopped on the free API limit. **Repeated qualification is still incomplete.**
+A fresh archive of the current runtime passes Windows/Linux offline setup
+checks. Its state-freshness and stale-result speech repairs pass local checks
+but have no live result yet. These
+participant results do not qualify the separate browser or Android runtime.
 
 ## The interaction
 

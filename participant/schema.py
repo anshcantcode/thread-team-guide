@@ -5,6 +5,21 @@ import json
 import math
 
 
+def selected_printed_label(observation: object, frame_index: object) -> str | None:
+    """Read a provider's scoped attestation; never infer category or confidence."""
+    if (type(frame_index) is not int or frame_index < 0 or not isinstance(observation, dict) or
+            observation.get("type") != "image" or type(observation.get("message_index")) is not int or
+            observation["message_index"] != frame_index or type(observation.get("uncertain")) is not bool):
+        return None
+    selected, labels = observation.get("selected_label"), observation.get("visible_text")
+    if (not isinstance(selected, dict) or selected.get("recognition") != "clear" or
+            selected.get("referent") != "ambiguous" or not isinstance(labels, list) or
+            any(not isinstance(label, str) for label in labels)):
+        return None
+    label = selected.get("text")
+    return label if isinstance(label, str) and any(char.isalnum() for char in label) and label in labels else None
+
+
 def validate_args(tool: dict, args: object) -> list[str]:
     """Fail closed on unknown effects, fields, malformed schemas and bad values."""
     errors: list[str] = []
