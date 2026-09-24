@@ -559,7 +559,7 @@ class ParticipantAgent:
                     explicit = _explicit_boolean_field_values(argument, command)
                     if explicit and explicit != {actual}:
                         return "A proposed argument does not match the explicit user value."
-                elif isinstance(actual, str):
+                elif tool["kind"] == "state_modifying" and isinstance(actual, str):
                     explicit = _explicit_string_field_values(argument, authorized_text)
                     if explicit and explicit != {" ".join(actual.casefold().split())}:
                         return "A proposed argument does not match the explicit user value."
