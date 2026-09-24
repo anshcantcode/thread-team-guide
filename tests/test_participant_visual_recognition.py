@@ -189,6 +189,28 @@ class VisualRecognitionTests(unittest.IsolatedAsyncioTestCase):
                          'conditional image target lacks clear current label evidence')
         self.assertTrue(self.reply['observations'][0]['uncertain'])
 
+    async def test_failed_current_image_preparation_cannot_supply_printed_text_evidence(self):
+        self.reply = decision(observations=[], tool_calls=[deepcopy(self.step)], response=None)
+        for image_ref, corrupt in (('missing-frame.png', False), ('corrupt-frame.png', True)):
+            with self.subTest(image_ref=image_ref):
+                if corrupt:
+                    (self.root / image_ref).write_bytes(b'not an image')
+                context = {'tools': deepcopy(self.tools), 'latest_frame_index': 0,
+                           'messages': [
+                               {'message_index': 0, 'event_type': 'video_frame',
+                                'payload': {'image_ref': image_ref}},
+                               {'message_index': 1, 'event_type': 'user_speech_chunk',
+                                'payload': {'text': 'What is this used for?', 'end_of_turn': True}}]}
+
+                with self.assertRaises(PlannerError):
+                    await self.planner.plan(context)
+
+                prepared = json.loads(self.requests[-1]['contents'][0]['parts'][0]['text'])
+                self.assertTrue(prepared['messages'][0]['payload']['image_unavailable'])
+                self.assertEqual(self.planner.evidence[-1]['input_media'], [])
+                self.assertEqual(self.planner.evidence[-1]['validation_error'],
+                                 'conditional image target lacks clear current label evidence')
+
     async def test_unreadable_frame_does_not_block_a_later_text_turn(self):
         prepared_requests = []
 

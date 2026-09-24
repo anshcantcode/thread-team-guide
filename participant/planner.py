@@ -1643,8 +1643,9 @@ class Planner:
         if observed != sources:
             raise ValueError('missing media evidence')
         has_image = any(source['mime_type'].startswith('image/') for source in media)
+        current_frame_prepared = type(latest_frame_index) is int and (latest_frame_index, 'image') in sources
         current_image = next((o for o in decision['observations'] if o['type'] == 'image'
-                              and o['message_index'] == latest_frame_index), None)
+                              and o['message_index'] == latest_frame_index), None) if current_frame_prepared else None
         current_label = selected_printed_label(current_image, latest_frame_index)
         for call in decision['tool_calls']:
             if not isinstance(call, dict) or not isinstance(call.get('api_name'), str) or not isinstance(call.get('args'), dict):
@@ -1664,8 +1665,11 @@ class Planner:
                         step.pop('general_function')
                 if 'image_embedding' in step['args']:
                     raise ValueError('model-generated embedding')
+                evidence = step.get('result_evidence')
+                if isinstance(evidence, dict) and evidence.get('target_basis') == 'printed_text':
+                    if not current_frame_prepared:
+                        raise ValueError('conditional image target lacks clear current label evidence')
                 if has_image:
-                    evidence = step.get('result_evidence')
                     named_paths = {path for path in re.findall(r'\{([A-Za-z0-9_.]+)\}', step.get('response_template') or '')
                                    if path.rsplit('.', 1)[-1].casefold() in ('title', 'name')}
                     if named_paths:
