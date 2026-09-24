@@ -609,7 +609,19 @@ def _flight_read_audio_format_agreement(context, decision, heard, *, repair_plan
     for index in range(start, len(messages)):
         pair = [main[index], heard[index]]
         texts = [unicodedata.normalize('NFC', o['transcript']) for o in pair]
-        matches = [re.fullmatch(speech, text) for text in texts]
+        clauses = [re.split(r'(?<![Aa]ctually)(?<![Aa]ctually,)[.;,]? '
+                            r'(?=(?:[Aa]ctually,? make that|[Mm]ake that) )', text)
+                   for text in texts]
+        tail = []
+        if any(len(parts) > 1 for parts in clauses):
+            # ponytail: inline repairs require exact independent transcripts;
+            # add clause-level formatting equivalence only with its own evidence.
+            if start != 0 or texts[0] != texts[1]:
+                return None
+            tail = [re.fullmatch(speech, text) for text in clauses[0][1:]]
+            if any(match is None or match['repair'] is None for match in tail):
+                return None
+        matches = [re.fullmatch(speech, parts[0]) for parts in clauses]
         confirmation_role = (start > 0 and len(messages) == start + 1 and matches[0] is None
             and matches[1] is not None and matches[1]['confirmation'] is not None
             and texts[0] == matches[1]['name'])
@@ -618,7 +630,7 @@ def _flight_read_audio_format_agreement(context, decision, heard, *, repair_plan
             # the same bare entity; this is word omission, not formatting.
             matches = [matches[1], matches[1]]
         if not all(matches):
-            return {}
+            return None if tail else {}
         canonical, roles, heads = [], [], []
         for match in matches:
             role = next(role for role in ('request', 'confirmation', 'repair') if match[role] is not None)
@@ -640,19 +652,20 @@ def _flight_read_audio_format_agreement(context, decision, heard, *, repair_plan
         if (canonical[0] != canonical[1] or roles[0] == 'confirmation' and not start
                 or index == start and roles[0] not in {'request', 'confirmation'}
                 or index > start and (roles[0] != 'repair' or start > 0 and texts[0] != texts[1])):
-            return {}
-        destination = matches[0]['name']
-        if any(word.casefold() in literal_words for word in destination.split()):
-            return {}
-        destinations.append(unicodedata.normalize('NFC', destination))
-        # Reuse existing name/manifest validation only; never execute this probe
-        # or send synthetic text to the provider. Native audio remains unchanged.
-        probe = {'revision': revision, 'current_turn_start': 0, 'tools': context.get('tools'),
-                 'messages': [{'message_index': 0, 'revision': revision,
-                               'event_type': 'user_speech_chunk', 'payload': {
-                                   'text': f'Find flights to "{destination}"', 'end_of_turn': True}}]}
-        if _simple_flight_search(probe) is None:
-            return {}
+            return None if tail else {}
+        for match in [matches[0], *tail]:
+            destination = match['name']
+            if any(word.casefold() in literal_words for word in destination.split()):
+                return None if tail else {}
+            destinations.append(unicodedata.normalize('NFC', destination))
+            # Validate every clause, not just the final destination. Never execute
+            # this probe or send synthetic text to a provider; keep native evidence.
+            probe = {'revision': revision, 'current_turn_start': 0, 'tools': context.get('tools'),
+                     'messages': [{'message_index': 0, 'revision': revision,
+                                   'event_type': 'user_speech_chunk', 'payload': {
+                                       'text': f'Find flights to "{destination}"', 'end_of_turn': True}}]}
+            if _simple_flight_search(probe) is None:
+                return None if tail else {}
         tool = probe['tools']['flight_search']
         if (tool.get('description') != 'Search flights to a destination city on a given date.'
                 or tool['args']['destination'].get('description') != 'Destination city name or airport code.'

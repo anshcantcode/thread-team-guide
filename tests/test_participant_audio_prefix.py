@@ -50,6 +50,17 @@ def agrees(candidate=None, main=None, acoustic=None, *, destination='Reykjavík'
 
 
 class PrefixContractTests(unittest.TestCase):
+    def test_inline_corrections_follow_source_order_not_observation_order(self):
+        texts = ['Uh, book a flight to Funchal; actually, make that San José.',
+                 'Make that Kuopio; actually make that Valparaíso.']
+        planned = read_decision(list(reversed(observations(texts))), 'San José')
+        heard = {row['message_index']: row for row in reversed(observations(texts))}
+        original = deepcopy((planned['observations'], heard))
+        self.assertEqual(_flight_read_audio_format_agreement(context(), planned, heard, repair_plan=True), {})
+        self.assertEqual(planned['slots'], {'destination': 'Valparaíso'})
+        self.assertEqual(planned['tool_calls'][0]['args'], {'destination': 'Valparaíso'})
+        self.assertEqual((planned['observations'], heard), original)
+
     def test_leading_filler_omission_has_distinct_evidence_and_preserves_native_strings(self):
         pairs = [
             ('Uh, book a flight to Funchal.', 'Book a flight to Funchal', 'Funchal'),
@@ -787,6 +798,58 @@ class PrefixPlannerTests(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(all(row['uncertain'] for row in planner._audio_cache.values()))
                 await planner.close()
                 self.assertEqual(planner._pending_tasks, set())
+
+    async def test_correction_tail_replaces_only_superseded_destinations_before_returning_calls(self):
+        cases = [
+            (['uh, book a flight to Funchal', 'actually, make that San José'], 'San José'),
+            (['uh, book a flight to Funchal; actually, make that San José.'], 'San José'),
+            (['Um, find flights to Funchal. Actually make that San José. Make that Kuopio.'], 'Kuopio'),
+            (['Search flights to Funchal, actually make that San José', 'Make that Kuopio.'], 'Kuopio'),
+            (['Book a flight to Funchal actually make that San José.'], 'San José'),
+            (['Uh, book a flight to Funchal.'], 'Funchal'),
+        ]
+        for transcripts, destination in cases:
+            with self.subTest(transcripts=transcripts):
+                native = []
+                planner, requests = await self.planner(transcripts, transcripts, destination='Funchal', native=native)
+                candidate = context(len(transcripts))
+                original = deepcopy(candidate)
+                result = await planner.plan(candidate)
+                self.assertEqual(result['slots'], {'destination': destination})
+                self.assertEqual([call['args'] for call in result['tool_calls']], [{'destination': destination}])
+                self.assertEqual(result['observations'], observations(transcripts))
+                self.assertIsNone(result['clarification'])
+                self.assertEqual(candidate, original)
+                self.assertEqual([reply['observations'] for reply in native], [observations(transcripts)] * 2)
+                self.assertEqual(len(requests), 2)
+                await planner.close()
+
+    async def test_inline_correction_cannot_override_uncertainty_disagreement_or_unsupported_constraints(self):
+        text = 'Uh, book a flight to Funchal; actually, make that San José.'
+        cases = [
+            ([text], [text], 'Funchal', (False, 0)),
+            ([text], [text], 'Funchal', (True, 0)),
+            ([text], [text.replace('San José', 'Kuopio')], 'Funchal', None),
+            ([text], ['Uh, book a flight to Funchal.'], 'Funchal', None),
+            ([text], [text.replace(';', ',')], 'Funchal', None),
+            ([text], [text], 'Unmentioned', None),
+        ]
+        for unsupported in (
+            'Uh, book a flight to Funchal if refundable; actually, make that San José.',
+            'Uh, book a flight to Funchal; actually, make that San José if refundable.',
+            'Uh, book a flight to Funchal; actually, make that [unclear].',
+            'Uh, book a flight to Funchal; actually, make that San José and reserve it.',
+            'Uh, book a flight to Funchal; actually, make that San José; make that.',
+        ):
+            cases.append(([unsupported], [unsupported], 'Funchal', None))
+        for main, heard, destination, uncertain in cases:
+            with self.subTest(main=main, heard=heard, uncertain=uncertain, destination=destination):
+                planner, requests = await self.planner(main, heard, destination=destination, uncertain=uncertain)
+                result = await planner.plan(context(len(main)))
+                self.assertEqual(result['tool_calls'], [])
+                self.assertTrue(result['clarification'])
+                self.assertEqual(len(requests), 2)
+                await planner.close()
 
 
 if __name__ == '__main__':
