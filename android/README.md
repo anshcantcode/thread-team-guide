@@ -26,13 +26,24 @@ Captures belong to a random sharing session, local input ID and relay-issued con
 
 Focused checks: `python -m unittest tests.test_live_camera tests.test_live tests.test_native_authority tests.test_noise_recovery tests.test_android_backend tests.test_samsung_packaging`, plus Android `:app:testDebugUnitTest` (capture ownership, stop/restart, correction/interruption, acknowledgment, age, size and backlog guards). These use synthetic JPEGs and a fake upstream; they do not prove real-camera or Gemini visual quality.
 
-Remaining device verification on the S24:
+On 24 September 2026, the opt-in `CameraLiveDeviceTest` passed on the USB-connected SM-S921B using the actual embedded phone backend and Gemini. It checked initial camera-off state, runtime permission denial/grant, rear-camera JPEG acknowledgment alongside a recording AudioRecord, fresh delivery after a typed correction, real AudioTrack output, the indicator on a result screen, Stop/restart, sheet coverage, Home/return and End. The local enqueue counter remained unchanged for 2.5 seconds after each stop checkpoint, with the camera controller released. Eighteen frames were queued across the run; this is not a cumulative provider acceptance count. Given a user-supplied cat picture, an unhinted visual request produced a cat identification; the inspected portrait preview was upright. Local evidence: `reports/android-camera-live-device.json` and `reports/android-camera-live-device.png`.
 
-- Grant/deny/revoke camera permission; verify voice continues and capture never starts without the explicit Start camera flow.
-- In portrait and landscape, verify an upright rear-camera preview, continuous microphone/audio playback, the active strip on voice and result screens, and a usable stop control.
-- Ask Gemini about two different visible objects while correcting/interruption occurs; verify a fresh scene is used and no obsolete action is performed.
-- Stop during capture, wait several seconds, then restart. Verify no new camera-frame messages are queued after Stop; repeat with Home, screen lock, a phone-app handoff, covered sheets, End and connection loss. Already-sent data cannot be retracted.
-- Exercise a slow connection and Android's camera privacy toggle; verify bounded delivery, automatic stop on failure, and recovery only through another explicit start. Run the optimized release microphone check after device installation.
+The test intentionally captures from the physical rear camera and sends images to the configured Gemini account. It is excluded from the default device suite. For an explicitly authorized rerun with camera permission initially denied:
+
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" shell am instrument -w -e class com.thread.app.CameraLiveDeviceTest -e expected_object cat com.thread.app.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Omit `expected_object` to skip semantic recognition, or set it to the main object deliberately placed in view. The expected word is used only in the test assertion, never in the model's request. A debug app and matching test APK, saved Gemini configuration, internet and an unlocked phone are required. Test diagnostics retain counts/check results, not microphone audio or camera frames; the separate QA screenshot above was captured manually for visual inspection.
+
+The optimized release APK was then installed and checked independently through the companion UI probe. `scripts/check_android_camera_release.py` verified explicit Start camera, sustained camera ownership reported by Android, Stop releasing the camera while voice remained connected, and End. `scripts/check_android_release.py` passed two microphone/mute/unmute/end/cold-start cycles with 28.64 and 28.13 seconds of PCM processed, using the embedded phone backend without a laptop server or USB backend forwarding. The installed APK hash matched the built release artifact. An initial release connection attempt timed out before these successful cycles; its cause was not established, so these checks do not establish startup reliability across networks. Evidence is in `reports/android-camera-release-device.json`, `reports/android-release-microphone-check.json` and `reports/android-release-first-start.json`. The phone was left with the optimized release installed and camera/microphone inactive.
+
+Remaining device coverage beyond that run:
+
+- Revoke camera permission while sharing, and exercise Android's camera privacy toggle.
+- Check landscape orientation, screen lock, external phone-app handoff and connection loss.
+- Change between two physical scenes during a spoken interruption; transport ownership races have automated coverage, but this real visual/acoustic correction scenario remains unmeasured.
+- Exercise a slow connection for automatic stop and explicitly restart. Already-sent data cannot be retracted.
 
 ## Build and run
 
