@@ -45,6 +45,23 @@ def _has_exact_field_value(path, value, command):
     return found == {expected}
 
 
+def _explicit_numeric_field_values(path, command):
+    parts = path.split(".")
+    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    found = set()
+    for alias in aliases:
+        field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
+        pattern = (field +
+                   r"\s*(?:(?:=|:)\s*|\b(?:to|is|equals?|of)\b(?:\s+exactly)?\s+)?" +
+                   r"(?P<value>" + _NUMBER_LITERAL.pattern + r")")
+        for match in re.finditer(pattern, command, re.I):
+            try:
+                found.add(Decimal(match["value"]))
+            except InvalidOperation:
+                pass
+    return found
+
+
 def _proposed_primitive_values(values):
     formatted = ", ".join(f"{path}={json.dumps(value, allow_nan=False)}" for path, value in values)
     return ("Please confirm the proposed values exactly: " + formatted +
@@ -467,6 +484,10 @@ class ParticipantAgent:
                 actual, bound = at_path(args, argument), at_path(result, binding["path"])
                 if type(actual) is not type(bound) or actual != bound:
                     return "A proposed argument does not match the tool result."
+                if type(actual) in (int, float):
+                    explicit = _explicit_numeric_field_values(argument, command)
+                    if explicit and explicit != {Decimal(str(actual))}:
+                        return "A proposed argument does not match the explicit user value."
                 if source["revision"] != self.revision and not (isinstance(actual, str) and contains_value(actual, supplied)):
                     return "An earlier result needs an explicit current reference before I can use it for this action."
             except (KeyError, IndexError, TypeError, ValueError):
@@ -485,8 +506,8 @@ class ParticipantAgent:
             if tool["kind"] == "state_modifying" and isinstance(value, str) and value and not bound:
                 field = path.rsplit(".", 1)[-1].replace("_", " ")
                 descriptive = bool(re.search(r"\b(summary|description|message|note|text|comment|query)\b", field + " " + description, re.I))
-                declared = value in spec.get("enum", []) or "default" in spec and value == spec["default"]
-                if not descriptive and not declared and not contains_value(value, supplied):
+                # An enum/default validates a value; it does not authorize the write.
+                if not descriptive and not contains_value(value, command):
                     return f"Please supply {path}; I cannot invent that value for a state-changing action."
             if not (required_source or identifier and tool["kind"] == "state_modifying"):
                 continue
