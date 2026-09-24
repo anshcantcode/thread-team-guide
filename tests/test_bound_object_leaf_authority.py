@@ -52,6 +52,46 @@ class BoundObjectLeafAuthorityTests(unittest.TestCase):
 
         self.assertEqual([event["action"] for event in events], ["tool_call"])
 
+    def dispatch_nested_array(self, command):
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
+        agent.messages = [{"event_type": "user_speech_chunk", "payload": {"text": command}}]
+        agent.revision = 1
+        settings = {"rules": [{"limit": 2000, "enabled": False}]}
+        agent.operations["lookup"] = {
+            "kind": "read_only", "status": "success", "revision": 1, "key": "lookup-key",
+            "result": {"settings": settings},
+        }
+        agent.tools["set_settings"] = {
+            "kind": "state_modifying", "description": "Set settings for a customer.", "args": {
+                "settings": {"type": "object", "required": True, "properties": {
+                    "rules": {"type": "array", "required": True, "items": {"type": "object", "properties": {
+                        "limit": {"type": "integer", "required": True},
+                        "enabled": {"type": "boolean", "required": True},
+                    }}},
+                }},
+                "customer": {"type": "string", "required": True},
+            },
+        }
+        agent._dispatch({
+            "api_name": "set_settings", "args": {"settings": settings, "customer": "Nia"},
+            "authorization": {"quote": command, "message_index": 0},
+            "result_bindings": {"settings": {"call_id": "lookup", "path": "settings"}},
+        })
+        return [agent.out_queue.get_nowait() for _ in range(agent.out_queue.qsize())]
+
+    def test_bound_array_cannot_override_bracket_notation_leaf(self):
+        events = self.dispatch_nested_array("Set settings.rules[0].limit=2 for Nia.")
+        self.assertEqual([event["action"] for event in events], ["clarification_request"])
+
+    def test_bound_array_cannot_override_unindexed_leaf(self):
+        events = self.dispatch_nested_array("Set settings.rules.limit=2 for Nia.")
+        self.assertEqual([event["action"] for event in events], ["clarification_request"])
+
+    def test_matching_bound_array_leaf_is_allowed(self):
+        events = self.dispatch_nested_array(
+            "Set settings.rules[0].limit=2000 and settings.rules[0].enabled=false for Nia.")
+        self.assertEqual([event["action"] for event in events], ["tool_call"])
+
 
 if __name__ == "__main__":
     unittest.main()

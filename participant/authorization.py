@@ -25,7 +25,7 @@ def _language_only(source):
     decoder = json.JSONDecoder()
     chars, index = list(source), 0
     while index < len(source):
-        if source[index] in "[{":
+        if source[index] in "[{" and (index == 0 or not re.match(r"[\w.\]]", source[index - 1])):
             try:
                 _, length = decoder.raw_decode(source[index:])
                 chars[index:index + length] = " " * length
@@ -109,7 +109,7 @@ def authorization_grant(step: dict, tool: dict, texts: list[tuple[int, str]], *,
     matches = []
     for start_match in re.finditer(prefix + "(" + verb + r")\s+", language):
         start = start_match.start(1)
-        command = re.match(verb + r"\s+(?:[^.!?;]|(?<=\w)\.(?=\w))+", language[start:])
+        command = re.match(verb + r"\s+(?:[^.!?;]|(?<=[\w\]])\.(?=\w))+", language[start:])
         if not command or start >= quote_end or start + command.end() <= quote_start:
             continue
         # A quote may be concise, but it cannot cut through a numeric literal.

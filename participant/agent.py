@@ -28,9 +28,16 @@ _NUMBER_LITERAL = re.compile(
     r"(?<![\w.-])[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?(?![\w.-])")
 
 
-def _has_exact_field_value(path, value, command):
+def _field_aliases(path):
     parts = path.split(".")
-    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    return {path,
+            " ".join(part.replace("_", " ") for part in parts),
+            re.sub(r"\.(\d+)(?=\.|$)", r"[\1]", path),
+            re.sub(r"\.\d+(?=\.|$)", "", path)}
+
+
+def _has_exact_field_value(path, value, command):
+    aliases = _field_aliases(path)
     literal = (r"(?P<value>true|false)\b" if type(value) is bool
                else r"(?P<value>" + _NUMBER_LITERAL.pattern + r")")
     found = set()
@@ -49,8 +56,7 @@ def _has_exact_field_value(path, value, command):
 
 
 def _explicit_numeric_field_values(path, command):
-    parts = path.split(".")
-    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    aliases = _field_aliases(path)
     found = set()
     for alias in aliases:
         field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
@@ -66,8 +72,7 @@ def _explicit_numeric_field_values(path, command):
 
 
 def _explicit_boolean_field_values(path, command):
-    parts = path.split(".")
-    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    aliases = _field_aliases(path)
     found = set()
     for alias in aliases:
         field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
@@ -81,10 +86,10 @@ def _explicit_boolean_field_values(path, command):
 
 def _explicit_string_field_values(path, command):
     parts = path.split(".")
-    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    aliases = _field_aliases(path)
     found = set()
     for alias in aliases:
-        field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
+        field = r"(?<![\w.-])" + re.escape(alias) + r"(?![\w.-])"
         pattern = (field +
                    r"\s*(?:(?:=|:)\s*|\b(?:to|is|equals?|of)\b(?:\s+exactly)?\s+)?" +
                    r"(?P<value>(?!\s*\b(?:for|to|and|but|then|with|from|using|based|selected|"
@@ -119,8 +124,7 @@ def _explicit_string_field_values(path, command):
 
 
 def _field_scoped_result_delegation(path, command):
-    parts = path.split(".")
-    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    aliases = _field_aliases(path)
     qualifier = r"(?:returned|selected|chosen|result|lookup)"
     for alias in aliases:
         field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
