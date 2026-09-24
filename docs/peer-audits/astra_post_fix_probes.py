@@ -134,11 +134,15 @@ async def visual_probe():
                 'event_type': 'video_frame', 'payload': {'image_ref': 'missing.png'}})
             agent.messages[1]['message_index'] = 1
             agent._latest_frame = 0
-            planned = await planner.plan(agent._context())
-            agent._apply(planned)
-            event(agent, 'tool_result', call_id='call-1', api_name='manual', status='success',
-                  result={'records': [{'title': 'LAN connector manual'}]})
-            outputs['missing_without_basis'] = drain(agent)
+            try:
+                planned = await planner.plan(agent._context())
+            except PlannerError:
+                outputs['missing_without_basis'] = 'rejected'
+            else:
+                agent._apply(planned)
+                event(agent, 'tool_result', call_id='call-1', api_name='manual', status='success',
+                      result={'records': [{'title': 'LAN connector manual'}]})
+                outputs['missing_without_basis'] = drain(agent)
             step['result_evidence'] = {'path': 'records.0.title', 'contains': 'LAN',
                                        'target_basis': 'printed_text'}
             try:
@@ -206,9 +210,12 @@ async def duplicate_key_probe():
         try:
             agent = agent_for({'read_record': {'kind': 'read_only',
                 'args': {'name': {'type': 'string'}}}}, 'Read sample.')
-            planned = await planner.plan(agent._context())
+            try:
+                planned = await planner.plan(agent._context())
+            except PlannerError:
+                return {'raw': output, 'decision': 'rejected', 'actions': drain(agent)}
             agent._apply(planned)
-            return {'raw': output, 'actions': drain(agent)}
+            return {'raw': output, 'decision': 'accepted', 'actions': drain(agent)}
         finally:
             await planner.close()
 
