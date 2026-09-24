@@ -492,35 +492,6 @@ class ParticipantAgent:
                 return f"The value for {path} needs a successful result or an explicit user reference."
         return ""
 
-    def _read_matches_current_slots(self, operation):
-        text = " ".join(value for _, value in self._user_texts())
-        explicit_sort = (re.search(r"\b(?:sort|order)\b(?:\s+[\w-]+){0,4}\s+by\b", text, re.I) and
-                         not re.search(r"\b(?:current|live|latest|again|now|refresh|recheck)\b", text, re.I) and
-                         (re.search(r"\b(?:(?:those|these|previous|prior|existing|returned|earlier)|the\s+returned)\s+(?:search\s+)?"
-                                    r"(?:results?|options?|records?|journeys?|flights?)\b", text, re.I) or
-                          re.search(r"\bkeep\b.{0,120}\band\s+(?:sort|order)\s+by\b", text, re.I | re.S)))
-        args, slots = operation.get("args"), self.state.get("slots")
-        if (not explicit_sort or not isinstance(args, dict) or not args or not isinstance(slots, dict) or
-                any(key not in slots or type(slots[key]) is not type(value) or slots[key] != value
-                    for key, value in args.items())):
-            return False
-        bindings = operation.get("step", {}).get("result_bindings", {})
-        if not isinstance(bindings, dict):
-            return False
-        successes = {key: op for key, op in self.operations.items() if op["status"] == "success"}
-        for argument, binding in bindings.items():
-            try:
-                source = successes[binding["call_id"]]
-                current = at_path(slots, argument)
-                actual = at_path(args, argument)
-                bound = at_path(source["result"], binding["path"])
-                if (type(actual) is not type(current) or actual != current or
-                        type(actual) is not type(bound) or actual != bound):
-                    return False
-            except (KeyError, IndexError, TypeError, ValueError):
-                return False
-        return True
-
     def _dispatch(self, step, *, retry=0, depth=0, selection=None):
         if self._closed or self._turn_open or self._awaiting_clarification:
             return
@@ -560,18 +531,6 @@ class ParticipantAgent:
             return False
         same = [op for op in self.operations.values() if op["key"] == key and
                 (op["request_start"] == self._request_start if grant is not None else op["revision"] == self.revision)]
-        if not same and tool["kind"] == "read_only":
-            completed = next((op for op in reversed(self.operations.values())
-                              if op["key"] == key and op["kind"] == "read_only" and
-                              op["status"] == "success" and op["revision"] != self.revision and
-                              self._read_matches_current_slots(op)), None)
-            if completed is not None:
-                # Keep the original call and revision as the evidence source.
-                reused = {**completed, "step": deepcopy(step), "depth": depth,
-                          "selection": deepcopy(selection)}
-                self.tool_results.append({**self._operation_context(reused), "status": "success"})
-                self._continue_result(reused)
-                return True
         if same:
             last = same[-1]
             if not (tool["kind"] == "read_only" and retry == 1 and last["status"] == "error" and last["retry"] == 0):

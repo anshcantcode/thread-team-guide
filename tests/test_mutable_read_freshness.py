@@ -62,6 +62,19 @@ class MutableReadFreshnessTests(unittest.TestCase):
         self.assertEqual(self.agent.operations[second["call_id"]]["revision"], self.agent.revision)
         self.assertEqual(self.agent.operations[second["call_id"]]["result"]["temperature_c"], 23)
 
+    def test_same_turn_duplicate_read_stays_idempotent(self):
+        self.new_turn("Check Seattle's current temperature.")
+        first = self.dispatch_read()
+        self.succeed(first, 18)
+        self.drain()
+
+        self.assertTrue(self.agent._dispatch(deepcopy(STEP)))
+        events = self.drain()
+
+        self.assertFalse(any(event["action"] == "tool_call" for event in events))
+        self.assertEqual(len(self.agent.operations), 1)
+        self.assertEqual([row["call_id"] for row in self.agent.tool_results], [first["call_id"]])
+
     def test_late_superseded_read_cannot_supply_a_later_request(self):
         self.new_turn("Check Seattle's current temperature.")
         old = self.dispatch_read()
@@ -70,6 +83,8 @@ class MutableReadFreshnessTests(unittest.TestCase):
         current = self.dispatch_read()
         self.succeed(old, 18)
         self.drain()
+        self.assertEqual(self.agent.operations[old["call_id"]]["result"]["temperature_c"], 18)
+        self.assertFalse(any(row["call_id"] == old["call_id"] for row in self.agent.tool_results))
 
         self.new_turn("Read the current temperature once more.")
         latest = self.dispatch_read()
@@ -93,24 +108,31 @@ class MutableReadFreshnessTests(unittest.TestCase):
         self.assertNotEqual(old["call_id"], current["call_id"])
         self.assertEqual(self.agent.operations[current["call_id"]]["revision"], self.agent.revision)
 
-    def test_explicit_prior_result_sort_keeps_original_call_and_revision(self):
+    def test_updated_results_with_a_proposed_read_use_a_fresh_result(self):
         self.new_turn("Check Seattle's temperature.")
         old = self.dispatch_read()
         self.succeed(old, 18)
         self.drain()
-        original_revision = self.agent.operations[old["call_id"]]["revision"]
 
         self.agent.state["slots"]["sort"] = "temperature"
-        self.new_turn("Sort the returned results by temperature.")
+        self.new_turn("Fetch updated results for Seattle and sort those results by temperature.")
         step = {**deepcopy(STEP), "response_template": "Sorted result: {temperature_c} C."}
         self.assertTrue(self.agent._dispatch(step))
         events = self.drain()
 
-        self.assertFalse(any(event["action"] == "tool_call" for event in events))
-        self.assertEqual(len(self.agent.operations), 1)
-        self.assertEqual(self.agent.tool_results[-1]["call_id"], old["call_id"])
-        self.assertEqual(self.agent.tool_results[-1]["revision"], original_revision)
-        self.assertEqual(self.agent.operations[old["call_id"]]["revision"], original_revision)
+        calls = [event["payload"] for event in events if event["action"] == "tool_call"]
+        self.assertEqual(len(calls), 1, events)
+        current = calls[0]
+        self.assertNotEqual(old["call_id"], current["call_id"])
+        self.succeed(current, 23)
+
+        self.assertEqual(self.agent.operations[current["call_id"]]["revision"], self.agent.revision)
+        self.assertEqual(self.agent.operations[current["call_id"]]["result"]["temperature_c"], 23)
+        self.assertEqual(self.agent.tool_results[-1]["call_id"], current["call_id"])
+        self.assertEqual(self.agent.tool_results[-1]["revision"], self.agent.revision)
+        final = self.drain()
+        self.assertTrue(any(event["action"] == "final_response" and "23" in event["payload"]["text"]
+                            for event in final), final)
 
 
 if __name__ == "__main__":

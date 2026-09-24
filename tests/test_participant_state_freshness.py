@@ -352,7 +352,7 @@ class CompletedReadFreshnessTests(unittest.IsolatedAsyncioTestCase):
         await self.event('tool_result', {**call['payload'], 'status': 'success',
                                           'result': {'status': 'success', **result}})
 
-    async def test_correction_reuses_read_when_args_and_source_still_match_slots(self):
+    async def test_correction_dispatches_a_fresh_read_when_args_still_match_slots(self):
         await self.event('user_speech_chunk', {'text': 'Find journeys to Oslo on Friday.', 'end_of_turn': True})
         source = await self.output('tool_call')
         self.source_call_id = source['payload']['call_id']
@@ -363,11 +363,17 @@ class CompletedReadFreshnessTests(unittest.IsolatedAsyncioTestCase):
         await self.output('final_response')
 
         await self.event('user_speech_chunk', {'text': 'Keep Oslo and sort by price.', 'end_of_turn': True})
+        fresh_read = await self.output('tool_call')
+        self.assertEqual(fresh_read['payload']['api_name'], 'journeys')
+        self.assertNotEqual(read['payload']['call_id'], fresh_read['payload']['call_id'])
+        await self.result(fresh_read, {'journeys': [{'ref': 'R-OSLO-FRESH'}]})
         final = await self.output('final_response')
 
-        self.assertIn('R-OSLO', final['payload']['text'])
+        self.assertIn('R-OSLO-FRESH', final['payload']['text'])
+        self.assertNotIn('R-OSLO.', final['payload']['text'])
         self.assertIn('sorted by price', final['payload']['text'])
-        self.assertEqual(len(self.agent.operations), 2)
+        self.assertEqual(len(self.agent.operations), 3)
+        self.assertEqual(self.agent.tool_results[-1]['call_id'], fresh_read['payload']['call_id'])
         self.assertEqual(self.agent.state['slots'], {'city': 'Oslo', 'day': 'Friday', 'sort': 'price'})
 
 
