@@ -1073,11 +1073,11 @@ class Planner:
             self._stop_audio_jobs()
             self._audio_turn, self._audio_stopped = current_turn_start, False
 
-    async def _current_audio(self, current_audio, context, started):
+    async def _current_audio(self, current_audio, context, started, raw_audio=None):
         """Join one source-bound full-turn job without restarting its deadline."""
         turn = context.get('current_turn_start', 0)
         if self._audio_turn is None:
-            return await self._perceive_audio(current_audio, context.get('revision'), started)
+            return await self._perceive_audio(current_audio, context.get('revision'), started, raw_audio)
         if self._audio_turn != turn:
             raise asyncio.CancelledError
         try:
@@ -1088,7 +1088,7 @@ class Planner:
                 raise PlannerError('The recording source identity is invalid.')
             job = self._audio_jobs.get('turn')
             if job is None:
-                task = asyncio.create_task(self._perceive_audio(current_audio, context.get('revision'), started))
+                task = asyncio.create_task(self._perceive_audio(current_audio, context.get('revision'), started, raw_audio))
                 job = self._audio_jobs['turn'] = {'keys': keys, 'task': task}
                 self._pending_tasks.add(task)
                 task.add_done_callback(self._task_finished)
@@ -1118,7 +1118,13 @@ class Planner:
         epoch = (context.get('revision'), self._audio_turn)
         current_start = context.get('current_turn_start', 0)
         single_audio = self.audio_mode == 'single_call_reads'
-        messages, media_parts, record['input_media'] = await self.media.prepare(context.get('messages', []))
+        if self._local_asr is None:
+            messages, media_parts, record['input_media'] = await self.media.prepare(context.get('messages', []))
+            raw_audio = None
+        else:
+            messages, media_parts, record['input_media'], audio_rows = await self.media.prepare(
+                context.get('messages', []), include_audio_bytes=True)
+            raw_audio = {row['message_index']: row for row in audio_rows}
         latest_image_index = next((source['message_index'] for source in record['input_media']
                                    if source['mime_type'].startswith('image/')), None)
         context = {**context, 'observations': [row for row in context.get('observations', [])
@@ -1208,7 +1214,7 @@ class Planner:
             except ImportError:
                 record['embedding'] = {'status': 'unavailable'}
         if current_audio and not single_audio:
-            acoustic = asyncio.create_task(self._current_audio(current_audio, context, started))
+            acoustic = asyncio.create_task(self._current_audio(current_audio, context, started, raw_audio))
             self._pending_tasks.add(acoustic)
             acoustic.add_done_callback(self._task_finished)
         try:
@@ -1229,7 +1235,7 @@ class Planner:
                         self._stop_audio_jobs()
                     decision = self._audio_clarification(context, decision['observations'])
                 else:
-                    acoustic = asyncio.create_task(self._current_audio(current_audio, context, started))
+                    acoustic = asyncio.create_task(self._current_audio(current_audio, context, started, raw_audio))
                     self._pending_tasks.add(acoustic)
                     acoustic.add_done_callback(self._task_finished)
             elif acoustic is not None:
@@ -1387,10 +1393,64 @@ class Planner:
             if not task.done():
                 task.cancel()
 
-    async def _perceive_audio(self, current_audio, revision, started):
+    async def _perceive_local_audio(self, sources, revision, started, raw_audio):
+        from .local_asr import LocalASRError, MODEL_ID, MODEL_REVISION
+
+        loop = asyncio.get_running_loop()
+        deadline = started + min(self.acoustic_timeout, self.timeout)
+        record = {'request_id': uuid4().hex, 'revision': revision, 'model': MODEL_ID,
+                  'model_revision': MODEL_REVISION, 'phase': 'acoustic',
+                  'provider': 'local_whisper_cuda', 'input_media': sources, 'status': 'preparing'}
+        observations = []
+        try:
+            if not isinstance(raw_audio, dict):
+                raise PlannerError('Validated recording bytes are unavailable.')
+            for source in sources:
+                row = raw_audio.get(source['message_index'])
+                if (not isinstance(row, dict) or type(row.get('audio_bytes')) is not bytes
+                        or row.get('sha256') != source['sha256']
+                        or hashlib.sha256(row['audio_bytes']).hexdigest() != source['sha256']):
+                    raise PlannerError('The recording bytes changed before transcription.')
+                remaining = deadline - loop.time()
+                if remaining <= 0:
+                    raise asyncio.TimeoutError
+                result = await self._bounded(asyncio.to_thread(
+                    self._local_asr.transcribe, row['audio_bytes'], source['mime_type'],
+                    timeout=remaining), remaining)
+                if (self._closed or getattr(asyncio.current_task(), 'cancelling', lambda: 0)()
+                        or loop.time() >= deadline):
+                    raise asyncio.TimeoutError
+                evidence = result.get('evidence', {})
+                if (evidence.get('sha256') != source['sha256']
+                        or evidence.get('mime_type') != source['mime_type']
+                        or evidence.get('bytes') != source['bytes']):
+                    raise PlannerError('The transcript does not match its recording source.')
+                transcript = result.get('transcript', '').strip()
+                if not transcript:
+                    raise PlannerError('The recording has no reliable transcript.')
+                observations.append({'message_index': source['message_index'], 'type': 'audio',
+                                     'transcript': transcript, 'uncertain': False})
+            record['status'] = 200
+            return observations
+        except asyncio.CancelledError:
+            record['status'] = 'cancelled'
+            raise
+        except (TimeoutError, asyncio.TimeoutError):
+            record['status'] = 'timeout'
+            raise PlannerError('I could not finish checking the recording in time. Please repeat or type your request.') from None
+        except (LocalASRError, PlannerError, KeyError, TypeError, ValueError):
+            record['status'] = 'local_error'
+            raise PlannerError('The recording could not be verified reliably.') from None
+        finally:
+            record['elapsed_ms'] = round((loop.time() - started) * 1000, 2)
+            self._record(record)
+
+    async def _perceive_audio(self, current_audio, revision, started, raw_audio=None):
         sources = [source for source, _ in current_audio]
         if not sources or len({source['message_index'] for source in sources}) != len(sources):
             raise PlannerError('Transcription targets must match the ordered recording context.')
+        if self._local_asr is not None:
+            return await self._perceive_local_audio(sources, revision, started, raw_audio)
         record = {'request_id': uuid4().hex, 'revision': revision, 'model': self.model, 'phase': 'acoustic',
                   'thinking_level': self.thinking, 'input_media': sources, 'status': 'preparing'}
         schema = {'type': 'object', 'properties': {'observations': _schema(sources)['properties']['observations']}, 'required': ['observations']}
