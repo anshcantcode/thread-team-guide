@@ -605,14 +605,13 @@ class ParticipantAgent:
         self._continue_result(operation)
 
     def _continue_result(self, operation):
-        result_announced = operation.get("result_announced")
+        if operation.get("result_announced"):
+            return
         next_step = operation["step"].get("after_result")
         if next_step is not None:
             try:
                 continuation, selection = self._continuation(next_step, operation)
             except (KeyError, IndexError, TypeError, ValueError):
-                if result_announced:
-                    return
                 self._final(self._render(operation))
                 if not self._repair_used:
                     self._repair_used = True
@@ -622,15 +621,13 @@ class ParticipantAgent:
                     self._say("clarification_request", "The returned options do not identify one safe next action. Please clarify your selection.")
                 return
             if not self._dispatch(continuation, depth=operation["depth"] + 1, selection=selection):
-                if not result_announced:
-                    self._final(self._render(operation))
+                self._final(self._render(operation))
         else:
             question = self._flight_booking_question(operation)
             if question:
                 self.state["intent"] = "book_flight"
-            if not result_announced:
-                self._final(self._render(operation))
-            if question and not result_announced:
+            self._final(self._render(operation))
+            if question:
                 self._say("clarification_request", question)
 
     def _continuation(self, step, operation):

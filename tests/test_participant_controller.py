@@ -547,6 +547,32 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(agent.state["slots"]["receipt_id"], "LATE-SUCCESS")
         self.assertEqual(self.drain(agent), [])
 
+    async def test_late_success_after_ambiguous_write_does_not_run_continuation(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.",
+                "args": {"text": {"type": "string", "required": True}}}
+        text = "Create a note saying hello. Then create another note saying extra."
+        step = {"api_name": "create_note", "args": {"text": "hello"},
+                "authorization": {"quote": "Create a note saying hello"},
+                "after_result": {"api_name": "create_note", "args": {"text": "extra"},
+                                 "authorization": {"quote": "create another note saying extra"}}}
+        agent = await self.start(lambda _: {"tool_calls": [step]}, tools={"create_note": tool})
+        await self.speak(agent, text)
+        call = await self.output(agent, "tool_call")
+        await self.result(agent, call, {"error": "timeout"}, status="error")
+        await self.output(agent, "final_response")
+        await self.result(agent, call, {"note_id": "LATE-SUCCESS"})
+
+        async def reconciled():
+            while agent.operations[call["payload"]["call_id"]]["status"] != "success":
+                await asyncio.sleep(0)
+
+        await asyncio.wait_for(reconciled(), 0.5)
+        action = agent.snapshot()["actions"][0]
+        self.assertEqual(action["status"], "success")
+        self.assertEqual(action["result"]["note_id"], "LATE-SUCCESS")
+        self.assertEqual(len(agent.operations), 1)
+        self.assertEqual(self.drain(agent), [])
+
     async def test_ambiguous_write_is_not_retried_after_interruption(self):
         tool = {"kind": "state_modifying", "description": "Create a note.",
                 "args": {"text": {"type": "string", "required": True}}}
