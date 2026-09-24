@@ -53,6 +53,21 @@ class CameraFrameGateTest {
         assertNull(gate.deliver(old, 999, 10000, 0))
         assertNull(gate.deliver(old, 1100, 131073, 0))
         assertNull(gate.deliver(old, 1100, 10000, 32769))
-        assertNotNull(gate.deliver(gate.capture(3000)!!, 3000, 131072, 32768))
+        val bounded = gate.capture(3000)!!
+        assertNull(gate.deliver(bounded, 3000, 131072, 32768))
+        assertNotNull(gate.deliver(bounded, 3000, 10000, 32768))
+    }
+
+    @Test fun slowSocketKeepsOneBoundedFrameAndStopRejectsLateUpload() {
+        val gate = gate()
+        val frame = gate.capture(1000)!!
+        assertNull(gate.deliver(frame, 1000, 75000, 20000))
+
+        val sequence = gate.deliver(frame, 1000, 50000, 20000)!!
+        repeat(3) { assertNull(gate.capture(3000 + it * 1000L)) }
+        gate.stop()
+        assertNull(gate.deliver(frame, 1100, 50000, 20000))
+        gate.acknowledge("stream", sequence)
+        assertNull(gate.capture(6000))
     }
 }
