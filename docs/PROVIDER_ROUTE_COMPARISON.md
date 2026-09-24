@@ -6,7 +6,7 @@ Checked 24 September 2026. The experiment uses the reviewed checkpoint `f45f0b1`
 
 | Route and model | Cases run | Result | Interpretation |
 |---|---:|---:|---|
-| Gemini API, `gemini-3.5-flash-lite`, minimal thinking | Five correctly configured 9-case × 3-repeat official runs, including four frozen packages | **94.0 source**, **90.6 package**, **78.0 fenced package**, **78.9 first safety-fixed package**, **74.1 newest package** weighted | Only complete free route measured here, but audio, visual and interruption scores vary. The [newest evidence](peer-audits/final-public-evidence.md) records provider timeouts and HTTP 503 responses; no result is a stable guarantee. |
+| Gemini API, `gemini-3.5-flash-lite`, minimal thinking | Six correctly configured 9-case × 3-repeat official runs, including five frozen packages | **94.0 source**, **90.6 package**, **78.0 fenced package**, **78.9 first safety-fixed package**, **74.1 prior package**, **72.3 newest package** weighted | Only complete free route measured here, but audio, visual and interruption scores vary. The [newest evidence](peer-audits/release-candidate-public-evidence.md) records provider timeouts and HTTP 503 responses; no result is a stable guarantee. |
 | Gemini API, `gemini-3.5-flash`, minimal thinking | Visual 07 × 3 on the post-review source | **47.7, 47.7, 100** | Two MAIN calls timed out at 4.5 seconds; one accepted conditional HDMI lookup. The [official model](https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash) has a [free Standard tier](https://ai.google.dev/gemini-api/docs/pricing), but this focused trial does not support promotion. |
 | Gemini API, `gemini-3.6-flash`, minimal thinking | Visual 07 × 3 on the post-review source | **47.7, 47.7, 56.9** | Two MAIN calls timed out at 4.5 seconds; the third returned in 3.9 seconds and called the lookup too late for a final answer. Its [Standard free tier](https://ai.google.dev/gemini-api/docs/pricing) permits a focused trial without enabling billing, but this sample does not support promotion. |
 | Gemini API, `gemini-3.1-flash-lite`, minimal thinking | Focused audio × 2, visual × 1, unseen tool × 1 | 66.4 weighted over those four cases | One visual HTTP 503 and repeated audio timeouts. One pass, so no reliable quality ranking. |
@@ -30,6 +30,16 @@ I separately sent the four **public** audio clips to Groq's Whisper Large V3 Tur
 Two Gemini audio tuning checks did not establish an improvement. With `single_call_reads`, audio 05 scored 53.8/100/72.3 and audio 06 scored 100/100/100; the two-case weighted score was 86.1 versus 78.5 for those cases in the official independent-mode run. This is a different three-repeat sample, so it is a follow-up candidate, not a proven gain. Raising the independent acoustic timeout to 4.3 seconds left audio 06's median at 56.9 (56.9/56.9/76.9).
 
 On the newest `197b671` source, a later `single_call_reads` audio-06 replay scored **56.9/56.9/56.9**: two HTTP 503 planning responses and one timeout. The mode remains experimental. Raising the supported planning limit from 4.5 to 5.5 seconds on unseen-tool text 09 yielded three 47.7 scores, all planning timeouts. This was a focused configuration probe, not a new official full-batch score. A separate full evaluation initially omitted the required media root and scored 71.5; it is excluded. The corrected, frozen 27-attempt run scored **74.1**; see [exact evidence](peer-audits/final-public-evidence.md).
+
+The later `8bbe8e2` frozen 27-attempt run scored **72.3 weighted**. Separate
+focused replays of the same runtime recorded three MAIN 4.5-second timeouts on
+unseen-tool text 09, three on visual 07, three corrected-turn timeouts on text
+02, and two HTTP 503 plus four timeout acoustic checks on audio 05. A separate
+visual trial with image embedding disabled also timed out on all three
+attempts and scored 24.6 each time. These results do not justify switching
+off embedding or claiming a model-quality ranking. See the [new release-candidate
+evidence](peer-audits/release-candidate-public-evidence.md). The user deferred
+Gemini Priority billing for now; no paid route was enabled.
 
 At the integrated `be11e82` source, a correctly configured second full public 9 × 3 evaluation again scored **94.0 weighted**: text and visual medians 100, audio 05 median 100, audio 06 median 56.9. The [new score report](benchmarks/mega-pre-local-asr-2026-09-24-3x.json) is the before measurement for the optional local ASR experiment. A mistaken earlier full invocation omitted `PARTICIPANT_MEDIA_ROOT`; its 82.4 was a missing-media setup error and is excluded from the route comparison. Use `scripts/run_public_eval.ps1` for future full runs so the kit media root is set explicitly.
 
