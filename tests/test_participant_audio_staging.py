@@ -518,29 +518,47 @@ class AudioStagingTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(planner._pending_tasks, set())
 
     async def test_replanning_cannot_extend_or_replay_acoustic_timeout(self):
-        arrived = asyncio.Event()
+        arrived, expire = asyncio.Event(), asyncio.Event()
+        first_main, replanned_main = asyncio.Event(), asyncio.Event()
+        acoustic_count = main_count = 0
         async def handle(body):
+            nonlocal acoustic_count, main_count
             if self.acoustic(body):
+                acoustic_count += 1
                 arrived.set()
-                try:
-                    await asyncio.Future()
-                except asyncio.CancelledError:
-                    return response(body)
+                await expire.wait()
+                raise asyncio.TimeoutError
+            main_count += 1
+            (first_main if main_count == 1 else replanned_main).set()
             return response(body)
         planner = await self.planner(handle)
-        planner.acoustic_timeout = .04
+        prepared = await planner.media.prepare(self.messages)
+        prepare_started = asyncio.Event()
+        async def prepared_media(_messages):
+            prepare_started.set()
+            return prepared
         planner.observe_input(self.messages[0], 0)
-        first = asyncio.create_task(planner.plan(self.context()))
-        # Allow a busy test host to dispatch the first mocked request; the
-        # acoustic deadline being tested remains the explicit 40 ms above.
-        await asyncio.wait_for(arrived.wait(), 2.0)
-        original = planner._audio_jobs['turn']['task']
-        await asyncio.sleep(.01)
-        first.cancel()
-        await asyncio.gather(first, return_exceptions=True)
-        result = await asyncio.wait_for(planner.plan(self.context(revision=2)), .5)
+        with patch.object(planner.media, 'prepare', prepared_media):
+            first = asyncio.create_task(planner.plan(self.context()))
+            await asyncio.wait_for(prepare_started.wait(), 2.0)
+            await asyncio.wait_for(arrived.wait(), 2.0)
+            await asyncio.wait_for(first_main.wait(), 2.0)
+            original = planner._audio_jobs['turn']['task']
+            self.assertFalse(original.done())
+            first.cancel()
+            await asyncio.gather(first, return_exceptions=True)
+
+            newer = asyncio.create_task(planner.plan(self.context(revision=2)))
+            await asyncio.wait_for(replanned_main.wait(), 2.0)
+            self.assertFalse(original.done())
+            self.assertEqual(acoustic_count, 1)
+            self.assertIs(planner._audio_jobs['turn']['task'], original)
+            # This event is the controlled expiry of the original acoustic timer.
+            expire.set()
+            result = await asyncio.wait_for(newer, 2.0)
         self.assertTrue(result['clarification'])
         self.assertEqual(result['tool_calls'], [])
+        self.assertEqual(acoustic_count, 1)
         self.assertEqual(sum(self.acoustic(body) for body in self.requests), 1)
         self.assertTrue(original.done())
         self.assertFalse(original.cancelled())
