@@ -58,6 +58,27 @@ class MediaTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('reference', repr(clean))
         self.assertNotIn('first.mp3', repr(clean) + repr(parts))
 
+    async def test_opt_in_audio_bytes_match_message_and_sha256_provenance(self):
+        first, second = MP3_BYTES, OTHER_MP3_BYTES
+        (self.root / 'first.mp3').write_bytes(first)
+        (self.root / 'second.mp3').write_bytes(second)
+        messages = [
+            {'message_index': 21, 'event_type': 'user_audio_chunk', 'payload': {'audio_ref': 'first.mp3'}},
+            {'message_index': 22, 'event_type': 'user_audio_chunk', 'payload': {'audio_ref': 'second.mp3'}},
+        ]
+
+        default_result = await self.loader.prepare(messages)
+        self.assertEqual(len(default_result), 3)
+        clean, parts, evidence, audio = await self.loader.prepare(messages, include_audio_bytes=True)
+
+        self.assertEqual((clean, parts, evidence), default_result)
+        self.assertEqual([item['message_index'] for item in audio], [21, 22])
+        self.assertEqual([item['audio_bytes'] for item in audio], [first, second])
+        self.assertEqual([item['sha256'] for item in audio], [item['sha256'] for item in evidence])
+        self.assertEqual([item['sha256'] for item in audio],
+                         [hashlib.sha256(raw).hexdigest() for raw in (first, second)])
+        self.assertTrue(all('audio_bytes' not in item for item in evidence))
+
     async def test_reject_missing_corrupt_nonmedia_and_escape(self):
         (self.root / 'bad.png').write_bytes(b'not an image')
         (self.root / 'bad.mp3').write_bytes(b'not audio')

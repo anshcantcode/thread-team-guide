@@ -6,6 +6,7 @@ import base64
 import hashlib
 import io
 from pathlib import Path
+from typing import Literal, overload
 import wave
 
 from PIL import Image, UnidentifiedImageError
@@ -192,15 +193,33 @@ class MediaLoader:
             raise MediaError('The media file is corrupt or unsupported.') from None
         return raw, mime
 
-    async def prepare(self, messages: list[dict]) -> tuple[list[dict], list[dict], list[dict]]:
+    @overload
+    async def prepare(self, messages: list[dict], *, include_audio_bytes: Literal[True]) -> tuple[
+            list[dict], list[dict], list[dict], list[dict]]: ...
+
+    @overload
+    async def prepare(self, messages: list[dict], *, include_audio_bytes: Literal[False] = False) -> tuple[
+            list[dict], list[dict], list[dict]]: ...
+
+    @overload
+    async def prepare(self, messages: list[dict], *, include_audio_bytes: bool) -> (
+            tuple[list[dict], list[dict], list[dict]]
+            | tuple[list[dict], list[dict], list[dict], list[dict]]): ...
+
+    async def prepare(self, messages: list[dict], *, include_audio_bytes: bool = False) -> (
+            tuple[list[dict], list[dict], list[dict]]
+            | tuple[list[dict], list[dict], list[dict], list[dict]]):
         """Return clean messages, labeled inline media parts, and redacted provenance.
 
         All audio chunks retain their order. Only the latest image is attached.
         Paths never enter the model's textual context; they are transport only.
+        When requested, a fourth result contains validated audio bytes and their
+        message indices and SHA-256 digests.
         """
         latest_frame = next((i for i in range(len(messages) - 1, -1, -1)
                              if messages[i].get('event_type') == 'video_frame'), None)
         clean, parts, evidence = [], [], []
+        audio_bytes = [] if include_audio_bytes else None
         total = 0
         for index, message in enumerate(messages):
             kind = message.get('event_type')
@@ -233,6 +252,12 @@ class MediaLoader:
                 raise MediaError('The combined media exceeds the supported request size.')
             parts.extend([{'text': f'Current {media_kind} evidence for message_index={message_index}; ordered as in messages:'},
                           {'inlineData': {'mimeType': mime, 'data': base64.b64encode(raw).decode('ascii')}}])
-            evidence.append({'message_index': message_index, 'sha256': hashlib.sha256(raw).hexdigest(),
+            digest = hashlib.sha256(raw).hexdigest()
+            evidence.append({'message_index': message_index, 'sha256': digest,
                              'bytes': len(raw), 'mime_type': mime})
+            if media_kind == 'audio' and audio_bytes is not None:
+                audio_bytes.append({'message_index': message_index, 'audio_bytes': raw,
+                                    'sha256': digest})
+        if audio_bytes is not None:
+            return clean, parts, evidence, audio_bytes
         return clean, parts, evidence
