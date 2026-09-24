@@ -17,7 +17,23 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
 /** GPU preview runs continuously; only bounded, independently owned snapshots are encoded. */
-class LiveCamera(context: Context, private val model: ThreadModel, private val rotation: Int,
+internal class CameraRotation(initialDegrees: Int) {
+    @Volatile var displayDegrees = normalize(initialDegrees)
+        private set
+
+    fun update(degrees: Int): Boolean {
+        val next = normalize(degrees)
+        if (next == displayDegrees) return false
+        displayDegrees = next
+        return true
+    }
+
+    fun captureDegrees(sensorDegrees: Int): Int = normalize(sensorDegrees - displayDegrees)
+
+    private fun normalize(degrees: Int) = ((degrees % 360) + 360) % 360
+}
+
+class LiveCamera(context: Context, private val model: ThreadModel, initialRotation: Int,
                  private val failed: () -> Unit) : AutoCloseable {
     val preview = TextureView(context).apply { isOpaque = false; contentDescription = "Live rear-camera preview" }
     private val manager = context.getSystemService(CameraManager::class.java)
@@ -37,7 +53,8 @@ class LiveCamera(context: Context, private val model: ThreadModel, private val r
     private var pipelineDepth = 8
     private var realtimeTimestamps = false
     private var sensorOrientation = 0
-    private var orientation = 0
+    private val rotation = CameraRotation(initialRotation)
+    @Volatile private var orientation = 0
     private var previewSize = Size(1280, 960)
     private val timeout = Runnable { error() }
 
@@ -57,12 +74,19 @@ class LiveCamera(context: Context, private val model: ThreadModel, private val r
         if (w <= 0 || h <= 0) return
         val naturalW = (if (sensorOrientation % 180 == 0) previewSize.width else previewSize.height).toFloat()
         val naturalH = (if (sensorOrientation % 180 == 0) previewSize.height else previewSize.width).toFloat()
-        val scale = if (rotation % 180 == 0) minOf(w / naturalW, h / naturalH) else minOf(w / naturalH, h / naturalW)
+        val displayDegrees = rotation.displayDegrees
+        val scale = if (displayDegrees % 180 == 0) minOf(w / naturalW, h / naturalH) else minOf(w / naturalH, h / naturalW)
         preview.setTransform(Matrix().apply {
             setScale(naturalW * scale / w, naturalH * scale / h, w / 2, h / 2)
-            postRotate(-rotation.toFloat(), w / 2, h / 2)
+            postRotate(-displayDegrees.toFloat(), w / 2, h / 2)
         })
     }
+
+    fun updateRotation(degrees: Int) { handler.post {
+        if (stopped || !rotation.update(degrees)) return@post
+        orientation = rotation.captureDegrees(sensorOrientation)
+        preview.post { if (!stopped) transform() }
+    } }
 
     @SuppressLint("MissingPermission") // Activity requests permission immediately before starting.
     private fun open(texture: SurfaceTexture) { handler.post {
@@ -73,7 +97,7 @@ class LiveCamera(context: Context, private val model: ThreadModel, private val r
             } ?: error("No rear camera")
             val characteristics = manager.getCameraCharacteristics(id)
             sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
-            orientation = (sensorOrientation - rotation + 360) % 360
+            orientation = rotation.captureDegrees(sensorOrientation)
             realtimeTimestamps = characteristics.get(CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE) == CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME
             pipelineDepth = (characteristics.get(CameraCharacteristics.REQUEST_PIPELINE_MAX_DEPTH)?.toInt() ?: 8) + 1
             val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
@@ -134,6 +158,7 @@ class LiveCamera(context: Context, private val model: ThreadModel, private val r
         ticket = null
         if (SystemClock.elapsedRealtime() - owned.captured > 1500) return
         val w = image.width; val h = image.height
+        val imageOrientation = orientation
         val nv21 = ByteArray(w * h * 3 / 2)
         image.planes.forEachIndexed { index, plane ->
             val width = if (index == 0) w else w / 2
@@ -151,9 +176,9 @@ class LiveCamera(context: Context, private val model: ThreadModel, private val r
                     val buffer = ByteArrayOutputStream()
                     YuvImage(nv21, ImageFormat.NV21, w, h, null).compressToJpeg(Rect(0, 0, w, h), 65, buffer)
                     var bytes = buffer.toByteArray()
-                    if (orientation != 0) {
+                    if (imageOrientation != 0) {
                         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                        val upright = Bitmap.createBitmap(bitmap, 0, 0, w, h, Matrix().apply { postRotate(orientation.toFloat()) }, true)
+                        val upright = Bitmap.createBitmap(bitmap, 0, 0, w, h, Matrix().apply { postRotate(imageOrientation.toFloat()) }, true)
                         buffer.reset(); upright.compress(Bitmap.CompressFormat.JPEG, 65, buffer)
                         bytes = buffer.toByteArray(); upright.recycle(); if (upright !== bitmap) bitmap.recycle()
                     }

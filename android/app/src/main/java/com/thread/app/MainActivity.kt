@@ -3,6 +3,7 @@ package com.thread.app
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -67,6 +68,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); incoming(intent) }
     override fun onResume() { super.onResume(); model.refreshSpotifyConnection() }
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        liveCamera?.updateRotation((display?.rotation ?: 0) * 90)
+    }
     override fun onPause() { model.stopCameraSharing(); super.onPause() }
     override fun onStop() { cameraRequestGeneration = null; super.onStop() }
     private fun incoming(intent: Intent) {
