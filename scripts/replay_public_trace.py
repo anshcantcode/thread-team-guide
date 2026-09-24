@@ -90,6 +90,15 @@ def _resolved_participant_config(agents) -> dict[str, str]:
             if isinstance((value := getattr(planner, name, None)), str) and value}
 
 
+def _observed_manifest_identity(agents):
+    if not agents or not isinstance((manifest := getattr(agents[0], "tools", None)), dict):
+        return None
+    canonical = json.dumps(manifest, ensure_ascii=False, sort_keys=True,
+                           separators=(",", ":")).encode("utf-8")
+    return {"sha256": hashlib.sha256(canonical).hexdigest(),
+            "tool_names": sorted(manifest)}
+
+
 async def replay_public_scenario(scenario_id: str, *, agent_factory=None) -> dict:
     """Replay a public case three times; agent_factory is only an offline test seam."""
     path = _scenario_path(scenario_id)
@@ -112,11 +121,11 @@ async def replay_public_scenario(scenario_id: str, *, agent_factory=None) -> dic
         resolved_config = _resolved_participant_config(agents)
         if resolved_config:
             row["participant_runtime"] = resolved_config
+        if (manifest_identity := _observed_manifest_identity(agents)) is not None:
+            row["observed_tool_manifest"] = manifest_identity
         attempts.append(row)
 
     scenario_relative_path = path.relative_to(ROOT).as_posix()
-    manifest_bytes = json.dumps(scenario.get("tool_manifest", {}), ensure_ascii=False,
-                                sort_keys=True, separators=(",", ":")).encode("utf-8")
 
     report = {
         "scenario_id": scenario_id,
@@ -139,11 +148,6 @@ async def replay_public_scenario(scenario_id: str, *, agent_factory=None) -> dic
             },
             "scenario": {"path": scenario_relative_path,
                          "sha256": hashlib.sha256(raw_scenario).hexdigest()},
-            "scenario_tool_manifest": {
-                "path": f"{scenario_relative_path}#/tool_manifest",
-                "present": "tool_manifest" in scenario,
-                "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
-            },
         },
         "attempts": attempts,
         "omitted": OMITTED,
