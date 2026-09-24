@@ -493,11 +493,16 @@ class ParticipantAgent:
         return ""
 
     def _read_matches_current_slots(self, operation):
+        text = " ".join(value for _, value in self._user_texts())
+        explicit_sort = (re.search(r"\b(?:sort|order)\b(?:\s+[\w-]+){0,4}\s+by\b", text, re.I) and
+                         not re.search(r"\b(?:current|live|latest|again|now|refresh|recheck)\b", text, re.I) and
+                         (re.search(r"\b(?:(?:those|these|previous|prior|existing|returned|earlier)|the\s+returned)\s+(?:search\s+)?"
+                                    r"(?:results?|options?|records?|journeys?|flights?)\b", text, re.I) or
+                          re.search(r"\bkeep\b.{0,120}\band\s+(?:sort|order)\s+by\b", text, re.I | re.S)))
         args, slots = operation.get("args"), self.state.get("slots")
-        if not isinstance(args, dict) or not args or not isinstance(slots, dict):
-            return False
-        if any(key not in slots or type(slots[key]) is not type(value) or slots[key] != value
-               for key, value in args.items()):
+        if (not explicit_sort or not isinstance(args, dict) or not args or not isinstance(slots, dict) or
+                any(key not in slots or type(slots[key]) is not type(value) or slots[key] != value
+                    for key, value in args.items())):
             return False
         bindings = operation.get("step", {}).get("result_bindings", {})
         if not isinstance(bindings, dict):
@@ -560,8 +565,8 @@ class ParticipantAgent:
                               op["status"] == "success" and op["revision"] != self.revision and
                               self._read_matches_current_slots(op)), None)
             if completed is not None:
-                reused = {**completed, "step": deepcopy(step), "revision": self.revision,
-                          "request_start": self._request_start, "depth": depth,
+                # Keep the original call and revision as the evidence source.
+                reused = {**completed, "step": deepcopy(step), "depth": depth,
                           "selection": deepcopy(selection)}
                 self.tool_results.append({**self._operation_context(reused), "status": "success"})
                 self._continue_result(reused)
