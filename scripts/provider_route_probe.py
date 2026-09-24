@@ -1,6 +1,7 @@
 """Run public Samsung cases through the reviewed agent with experimental routes.
 
-Requires THREAD_GROQ_API_KEY (or GROQ_API_KEY) for Groq, or DASHSCOPE_API_KEY plus DASHSCOPE_BASE_URL
+Requires THREAD_GROQ_API_KEY (or GROQ_API_KEY) for Groq, OPENROUTER_API_KEY (or OPENROUTER_API) plus a Groq
+key for OpenRouter with audio, or DASHSCOPE_API_KEY plus DASHSCOPE_BASE_URL
 for an Alibaba Singapore compatible-mode /v1 workspace. Pass --env-file to
 read credentials without printing them. This does not modify the submission.
 """
@@ -24,6 +25,11 @@ from dotenv import dotenv_values
 
 ROOT = Path(__file__).resolve().parents[1]
 KIT = ROOT / "theme5_kit" / "participant-kit" / "participant-kit"
+OPENROUTER_FREE_MODELS = {
+    "qwen/qwen3.8-27b:free",
+    "dots-studio/dots-3-note-preview:free",
+    "google/gemma-4-26b-a4b-it:free",
+}
 sys.path[:0] = [str(ROOT), str(KIT)]
 
 from harness.runner import EvaluationHarness  # noqa: E402
@@ -33,9 +39,11 @@ from participant.planner import Planner, planner_trace  # noqa: E402
 
 
 class Route(httpx.AsyncBaseTransport):
-    def __init__(self, name, key, base_url, max_calls):
+    def __init__(self, name, key, base_url, max_calls, asr_key=None):
         self.name, self.key, self.base_url, self.max_calls = name, key, base_url.rstrip("/"), max_calls
-        self.model = "qwen3.8-flash" if name == "alibaba" else "qwen/qwen3.8-27b"
+        self.model = {"alibaba": "qwen3.8-flash", "gemma": "gemma-4-26b-a4b-it", "groq": "qwen/qwen3.8-27b",
+                      "openrouter": "qwen/qwen3.8-27b:free"}[name]
+        self.asr_key = asr_key or (key if name == "groq" else None)
         self.client = httpx.AsyncClient(timeout=httpx.Timeout(4.3, connect=2.0))
         self.api_calls = 0
         self.rate_limited = False
@@ -46,13 +54,13 @@ class Route(httpx.AsyncBaseTransport):
         pass
 
     async def transcribe(self, mime, encoded):
-        if self.name != "groq":
-            raise ValueError("Alibaba audio route is not configured")
+        if not self.asr_key:
+            raise ValueError("audio route is not configured")
         self.claim_call()
         filename = "clip.wav" if mime == "audio/wav" else "clip.mp3"
         response = await self.client.post(
             "https://api.groq.com/openai/v1/audio/transcriptions",
-            headers={"authorization": f"Bearer {self.key}"},
+            headers={"authorization": f"Bearer {self.asr_key}"},
             data={"model": "whisper-large-v3-turbo", "response_format": "verbose_json", "temperature": "0"},
             files={"file": (filename, base64.b64decode(encoded, validate=True), mime)},
         )
@@ -79,6 +87,13 @@ class Route(httpx.AsyncBaseTransport):
         row = {"phase": phase, "status": "error"}
         try:
             source = json.loads(request.content)
+            if self.name == "gemma":
+                self.claim_call()
+                response = await self.client.post(
+                    f"{self.base_url}/models/{self.model}:generateContent",
+                    headers={"x-goog-api-key": self.key}, json=source)
+                row["status"] = response.status_code
+                return httpx.Response(response.status_code, content=response.content, request=request)
             content, audio, label = [], [], ""
             for part in source["contents"][0]["parts"]:
                 if "text" in part:
@@ -114,11 +129,16 @@ class Route(httpx.AsyncBaseTransport):
                                      {"role": "user", "content": content}],
                         "response_format": {"type": "json_object"}, "temperature": 0,
                         "max_completion_tokens": source["generationConfig"]["maxOutputTokens"]}
-                if self.name == "groq":
-                    body["reasoning_effort"] = "none"
-                    body["response_format"] = {"type": "json_schema", "json_schema": {
-                        "name": "participant_decision", "strict": False,
-                        "schema": source["generationConfig"]["responseJsonSchema"]}}
+                if self.name in ("groq", "openrouter"):
+                    if self.name == "groq":
+                        body["reasoning_effort"] = "none"
+                    else:
+                        body["reasoning"] = {"enabled": False}
+                        body["provider"] = {"require_parameters": True}
+                    if self.model != "google/gemma-4-26b-a4b-it:free":
+                        body["response_format"] = {"type": "json_schema", "json_schema": {
+                            "name": "participant_decision", "strict": False,
+                            "schema": source["generationConfig"]["responseJsonSchema"]}}
                 row["chat_request_chars"] = len(json.dumps(body, ensure_ascii=False))
                 row["system_chars"] = len(system)
                 self.claim_call()
@@ -179,9 +199,10 @@ def configure(args):
                       PARTICIPANT_MEDIA_ROOT=str(KIT), PARTICIPANT_TIMEOUT_SECONDS="4.5",
                       PARTICIPANT_AUDIO_MODE=args.audio_mode)
     if args.model:
-        if args.route != "gemini" or re.fullmatch(r"gemini-[a-zA-Z0-9_.-]{1,100}", args.model) is None:
-            raise ValueError("--model accepts an explicit Gemini model with --route gemini")
-        os.environ["PARTICIPANT_MODEL"] = args.model
+        if args.route == "gemini" and re.fullmatch(r"gemini-[a-zA-Z0-9_.-]{1,100}", args.model):
+            os.environ["PARTICIPANT_MODEL"] = args.model
+        elif args.route != "openrouter" or args.model not in OPENROUTER_FREE_MODELS:
+            raise ValueError("--model accepts an explicit Gemini model or a listed OpenRouter free model")
     if args.thinking:
         os.environ["PARTICIPANT_THINKING_LEVEL"] = args.thinking
     if args.route == "gemini":
@@ -190,20 +211,28 @@ def configure(args):
             raise ValueError("Gemini key missing")
         os.environ["SECRET_GEMINI_API_KEY"] = key
         return None
-    names = ("THREAD_GROQ_API_KEY", "GROQ_API_KEY") if args.route == "groq" else ("DASHSCOPE_API_KEY",)
+    names = (("SECRET_GEMINI_API_KEY", "THREAD_API_KEY") if args.route == "gemma" else
+             ("THREAD_GROQ_API_KEY", "GROQ_API_KEY") if args.route == "groq" else
+             ("OPENROUTER_API_KEY", "OPENROUTER_API") if args.route == "openrouter" else ("DASHSCOPE_API_KEY",))
     keys = {value(name) for name in names} - {None, ""}
     if len(keys) > 1:
         raise ValueError("Conflicting route credentials")
     key = next(iter(keys), "")
     if not key:
         raise ValueError(f"{' or '.join(names)} missing")
-    base = value("DASHSCOPE_BASE_URL") if args.route == "alibaba" else "https://api.groq.com/openai/v1"
+    base = (value("DASHSCOPE_BASE_URL") if args.route == "alibaba" else
+            "https://generativelanguage.googleapis.com/v1beta" if args.route == "gemma" else
+            "https://openrouter.ai/api/v1" if args.route == "openrouter" else "https://api.groq.com/openai/v1")
     if args.route == "alibaba" and not base.endswith("/compatible-mode/v1"):
         raise ValueError("DASHSCOPE_BASE_URL must end in /compatible-mode/v1")
     os.environ["SECRET_GEMINI_API_KEY"] = "transport-intercepted-placeholder"
     os.environ["THREAD_API_KEY"] = "transport-intercepted-placeholder"
     os.environ["PARTICIPANT_IMAGE_EMBEDDING"] = "0"
-    return Route(args.route, key, base, args.max_calls)
+    asr_key = (value("THREAD_GROQ_API_KEY") or value("GROQ_API_KEY")) if args.route == "openrouter" else None
+    route = Route(args.route, key, base, args.max_calls, asr_key=asr_key)
+    if args.route == "openrouter" and args.model:
+        route.model = args.model
+    return route
 
 
 async def evaluate(args, route):
@@ -270,8 +299,8 @@ async def evaluate(args, route):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--route", choices=("gemini", "groq", "alibaba"), required=True)
-    parser.add_argument("--model", help="explicit Gemini model override")
+    parser.add_argument("--route", choices=("gemini", "gemma", "groq", "openrouter", "alibaba"), required=True)
+    parser.add_argument("--model", help="explicit Gemini model or allowlisted OpenRouter free model")
     parser.add_argument("--thinking", choices=("minimal", "low", "medium", "high"))
     parser.add_argument("--audio-mode", choices=("independent", "single_call_reads"), default="independent")
     parser.add_argument("--acoustic-timeout", type=float, default=3.5)

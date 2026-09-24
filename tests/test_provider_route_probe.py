@@ -9,6 +9,49 @@ from scripts.provider_route_probe import Route
 
 
 class RouteProbeTest(unittest.IsolatedAsyncioTestCase):
+    async def test_gemma_direct_transport(self):
+        def respond(request):
+            self.assertEqual(request.url.path, "/v1beta/models/gemma-4-26b-a4b-it:generateContent")
+            self.assertEqual(request.headers["x-goog-api-key"], "gemma-key")
+            return httpx.Response(200, json={"candidates": [{"content": {"parts": [{"text": "{}"}]}}]})
+
+        route = Route("gemma", "gemma-key", "https://generativelanguage.googleapis.com/v1beta", 1)
+        await route.client.aclose()
+        route.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
+        request = httpx.Request("POST", "https://generativelanguage.googleapis.com/test",
+                                json={"contents": [{"parts": [{"text": "hello"}]}]})
+        response = await route.handle_async_request(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(route.rows[0]["status"], 200)
+        self.assertNotIn("gemma-key", json.dumps(route.rows))
+        await route.client.aclose()
+
+    async def test_openrouter_free_schema_boundary(self):
+        def respond(request):
+            self.assertEqual(request.headers["authorization"], "Bearer openrouter-key")
+            body = json.loads(request.content)
+            self.assertEqual(body["model"], "qwen/qwen3.8-27b:free")
+            self.assertEqual(body["reasoning"], {"enabled": False})
+            self.assertTrue(body["provider"]["require_parameters"])
+            self.assertEqual(body["response_format"]["type"], "json_schema")
+            return httpx.Response(200, json={"choices": [{"finish_reason": "stop",
+                "message": {"content": '{"response":"Done."}'}}]})
+
+        route = Route("openrouter", "openrouter-key", "https://openrouter.ai/api/v1", 2,
+                      asr_key="groq-key")
+        await route.client.aclose()
+        route.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
+        source = {"systemInstruction": {"parts": [{"text": "Return JSON."}]},
+                  "contents": [{"parts": [{"text": "hello"}]}],
+                  "generationConfig": {"maxOutputTokens": 100, "responseJsonSchema": {
+                      "type": "object", "properties": {"response": {"type": "string"}}}}}
+        response = await route.handle_async_request(httpx.Request(
+            "POST", "https://generativelanguage.googleapis.com/test", json=source))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.json()["candidates"][0]["content"]["parts"][0]["text"])["response"], "Done.")
+        self.assertEqual(route.asr_key, "groq-key")
+        await route.client.aclose()
+
     async def test_groq_text_and_audio_conversion(self):
         calls = []
 
