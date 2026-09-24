@@ -512,6 +512,10 @@ class ParticipantAgent:
         supplied = " ".join(text for _, text in self._user_texts())
         if not isinstance(command, str):
             command = ""
+        authorization = step.get("authorization")
+        authorized_text = authorization.get("quote") if isinstance(authorization, dict) else command
+        if not isinstance(authorized_text, str):
+            authorized_text = command
         primitive_values = [(path, value) for path, value in scalar_fields(args)
                             if type(value) in (bool, int, float) and
                             not any(path == parent or path.startswith(parent + ".") for parent in bindings)]
@@ -557,7 +561,7 @@ class ParticipantAgent:
                 field = path.rsplit(".", 1)[-1].replace("_", " ")
                 descriptive = bool(re.search(r"\b(summary|description|message|note|text|comment|query)\b", field + " " + description, re.I))
                 # An enum/default validates a value; it does not authorize the write.
-                if not descriptive and not contains_value(value, command):
+                if not descriptive and not contains_value(value, authorized_text):
                     return f"Please supply {path}; I cannot invent that value for a state-changing action."
             if not (required_source or identifier and tool["kind"] == "state_modifying"):
                 continue
