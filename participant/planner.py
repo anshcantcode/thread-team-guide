@@ -1336,7 +1336,8 @@ class Planner:
                 if self._audio_turn == current_start:
                     self._stop_audio_jobs()
                 decision = self._audio_clarification(context, decision['observations'])
-            if decision['tool_calls'] and acoustic is not None:
+            if ((decision['tool_calls'] or isinstance(decision.get('response'), str)
+                 and decision['response'].strip()) and acoustic is not None):
                 current_audio_indices = {source['message_index'] for source, _ in current_audio}
                 verified_audio_text = ' '.join(
                     row['transcript'] for index, row in heard.items()
@@ -1346,7 +1347,8 @@ class Planner:
                     try:
                         self._ensure_active_frame_available(
                             context.get('messages'), record['input_media'],
-                            context.get('latest_frame_index'), current_start, verified_audio_text)
+                            context.get('latest_frame_index'), current_start, verified_audio_text,
+                            explicit_reference_only=not bool(decision['tool_calls']))
                     except ValueError as exc:
                         record['validation_error'] = str(exc)
                         raise
@@ -1646,7 +1648,8 @@ class Planner:
         return decision
 
     @staticmethod
-    def _ensure_active_frame_available(messages, media, latest_frame_index, current_turn_start, extra_text=''):
+    def _ensure_active_frame_available(messages, media, latest_frame_index, current_turn_start, extra_text='',
+                                       *, explicit_reference_only=False):
         request_messages = messages if isinstance(messages, list) else []
         current_frame_position = next((i for i, message in enumerate(request_messages)
                                        if isinstance(message, dict) and type(latest_frame_index) is int
@@ -1676,11 +1679,20 @@ class Planner:
             r'(?:picture|image|photo|photograph|frame|screenshot)s?\b'
             r'|\b(?:port|connector|device|item|thing|label)\s+(?:that\s+)?(?:i|we)\s+(?:just\s+)?showed\s+(?:you|us)\b',
             active_request_text, re.IGNORECASE))
+        if explicit_reference_only and re.search(
+                r'\b(?:ignore|disregard|forget|without\s+(?:using|looking\s+at|referring\s+to)|'
+                r'(?:do\s+not|don\x27t)\s+(?:use|look\s+at|refer\s+to))\s+'
+                r'(?:(?:the|this|that|my|our|your|last|previous|earlier|prior)\s+)?'
+                r'(?:picture|image|photo|photograph|frame|screenshot)s?\b',
+                active_request_text, re.IGNORECASE):
+            frame_is_referenced_in_request = False
         current_frame_prepared = any(
             isinstance(source, dict) and source.get('message_index') == latest_frame_index
             and isinstance(source.get('mime_type'), str) and source['mime_type'].startswith('image/')
             for source in media)
-        if ((frame_is_request_source or frame_is_referenced_in_request)
+        frame_is_dependency = frame_is_referenced_in_request or (
+            frame_is_request_source and not explicit_reference_only)
+        if (frame_is_dependency
                 and current_frame_position is not None and not current_frame_prepared):
             raise ValueError('the active request image source is unavailable')
 
@@ -1726,6 +1738,9 @@ class Planner:
         if decision['tool_calls']:
             Planner._ensure_active_frame_available(
                 messages, media, latest_frame_index, current_turn_start)
+        elif isinstance(decision.get('response'), str) and decision['response'].strip():
+            Planner._ensure_active_frame_available(
+                messages, media, latest_frame_index, current_turn_start, explicit_reference_only=True)
         current_image = next((o for o in decision['observations'] if o['type'] == 'image'
                               and o['message_index'] == latest_frame_index), None) if current_frame_prepared else None
         current_label = selected_printed_label(current_image, latest_frame_index)
