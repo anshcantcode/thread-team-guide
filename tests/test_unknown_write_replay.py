@@ -44,9 +44,10 @@ class UnknownWriteReplayTests(unittest.TestCase):
         make_unresolved(agent, original, status)
         if scenario == "spoken interruption":
             event(agent, "interruption", {"text": TEXT})
-        elif scenario in {"new text", "new audio", "split speech"}:
-            event(agent, "interruption")
-            if scenario == "new text":
+        elif scenario in {"new text", "new audio", "split speech", "new text without interruption"}:
+            if scenario != "new text without interruption":
+                event(agent, "interruption")
+            if scenario in {"new text", "new text without interruption"}:
                 event(agent, "user_speech_chunk", {"text": TEXT, "end_of_turn": True})
             elif scenario == "new audio":
                 index = len(agent.messages)
@@ -75,7 +76,8 @@ class UnknownWriteReplayTests(unittest.TestCase):
         return actions
 
     def test_unresolved_equivalent_write_is_blocked_for_each_interruption_encoding(self):
-        for scenario in ("spoken interruption", "new text", "new audio", "split speech"):
+        for scenario in ("spoken interruption", "new text", "new audio", "split speech",
+                         "new text without interruption"):
             for status in ("unknown", "cancel_requested"):
                 with self.subTest(scenario=scenario, status=status):
                     self.block_duplicate(scenario, status)
