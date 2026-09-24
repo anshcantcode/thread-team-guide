@@ -124,6 +124,8 @@ For a change to a particular area, start with that area's tests in [Code map](CO
 .\.venv\Scripts\python.exe -m unittest discover -s tests -q
 ```
 
+To run the official Samsung public evaluation, use `scripts/run_public_eval.ps1` from the repository root; it runs three real-time repetitions against the unchanged kit. Pass `-EnvFile 'C:\private\participant.env'` to use a local participant configuration and `-OutputPath '.runtime\public-eval.json'` to save a report outside the kit. This evaluation can consume Gemini quota.
+
 Do not start every live-provider script just to explore. Actual-model acceptance, responsiveness, voice, and some device checks consume quota. Some widget checks deliberately add home-screen widgets.
 
 For Android development, the app's own `android/README.md` explains the debug device suite and the separate optimized-release microphone check. `-Test` installs test components and runs device checks; `-Release -Test` also needs an unlocked, configured phone and available cloud quota. They are not equivalent to a build-only command.
