@@ -59,6 +59,37 @@ def _redact(value, secrets):
     return value
 
 
+def _module_file_identities(package: str) -> list[dict[str, str]]:
+    identities = []
+    for import_path, module in sorted(sys.modules.items()):
+        if import_path != package and not import_path.startswith(package + "."):
+            continue
+        source = getattr(module, "__file__", None)
+        if not source:
+            continue
+        path = Path(source).resolve()
+        if path.suffix != ".py" or not path.is_file():
+            continue
+        try:
+            relative_path = path.relative_to(ROOT).as_posix()
+        except ValueError:
+            continue
+        identities.append({
+            "import_path": import_path,
+            "path": relative_path,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        })
+    return identities
+
+
+def _resolved_participant_config(agents) -> dict[str, str]:
+    if not agents:
+        return {}
+    planner = getattr(agents[0], "planner", None)
+    return {name: value for name in ("model", "audio_mode")
+            if isinstance((value := getattr(planner, name, None)), str) and value}
+
+
 async def replay_public_scenario(scenario_id: str, *, agent_factory=None) -> dict:
     """Replay a public case three times; agent_factory is only an offline test seam."""
     path = _scenario_path(scenario_id)
@@ -76,8 +107,16 @@ async def replay_public_scenario(scenario_id: str, *, agent_factory=None) -> dic
         trace = await harness.run()
         records = [record for agent in agents if getattr(agent, "planner", None) is not None
                    for record in getattr(agent.planner, "evidence", [])]
-        attempts.append({"attempt": attempt, "score": score_scenario(scenario, trace),
-                         "trace": trace, "planner_records": records})
+        row = {"attempt": attempt, "score": score_scenario(scenario, trace),
+               "trace": trace, "planner_records": records}
+        resolved_config = _resolved_participant_config(agents)
+        if resolved_config:
+            row["participant_runtime"] = resolved_config
+        attempts.append(row)
+
+    scenario_relative_path = path.relative_to(ROOT).as_posix()
+    manifest_bytes = json.dumps(scenario.get("tool_manifest", {}), ensure_ascii=False,
+                                sort_keys=True, separators=(",", ":")).encode("utf-8")
 
     report = {
         "scenario_id": scenario_id,
@@ -92,6 +131,20 @@ async def replay_public_scenario(scenario_id: str, *, agent_factory=None) -> dic
             "thinking_level": os.environ.get("PARTICIPANT_THINKING_LEVEL", "minimal"),
         },
         "evaluator": "official theme5_kit EvaluationHarness and score_scenario",
+        "identity": {
+            "participant_runtime_modules": _module_file_identities("participant"),
+            "official_evaluator": {
+                "entry_points": ["harness.runner.EvaluationHarness", "harness.scorer.score_scenario"],
+                "modules": _module_file_identities("harness"),
+            },
+            "scenario": {"path": scenario_relative_path,
+                         "sha256": hashlib.sha256(raw_scenario).hexdigest()},
+            "scenario_tool_manifest": {
+                "path": f"{scenario_relative_path}#/tool_manifest",
+                "present": "tool_manifest" in scenario,
+                "sha256": hashlib.sha256(manifest_bytes).hexdigest(),
+            },
+        },
         "attempts": attempts,
         "omitted": OMITTED,
     }
