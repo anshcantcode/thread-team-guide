@@ -52,7 +52,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     var phoneKeyBusy by mutableStateOf(false); private set
     var deviceAction: ((JSONObject) -> JSONObject)? = null
     var cameraSharing by mutableStateOf(false); private set
-    var cameraPreview by mutableStateOf<android.graphics.Bitmap?>(null); private set
     var closeCamera: (() -> Unit)? = null
     private val cameraGate = CameraFrameGate()
     private var rejectedCameraFrames = 0
@@ -159,7 +158,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
             "camera_context" -> synchronized(this) {
                 if (event.optString("client_input_id") == actionInputId) {
                     cameraGate.context(event.optString("stream_id"), event.optString("context_token"), actionInputId)
-                    cameraPreview = null
                 }
             }
             "camera_ack" -> synchronized(this) {
@@ -232,7 +230,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     @Synchronized fun send(data: JSONObject) {
         if (data.optString("type") in listOf("text", "speech_start")) {
             cameraGate.invalidate()
-            main.post { cameraPreview = null }
             actionInputId = java.util.UUID.randomUUID().toString()
             data.put("client_input_id", actionInputId)
         }
@@ -345,11 +342,11 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     }
     @Synchronized fun stopCameraSharing() {
         if (cameraSharing) send(JSONObject().put("type", "camera_stop").put("stream_id", cameraGate.stream))
-        cameraGate.stop(); cameraSharing = false; cameraPreview = null
+        cameraGate.stop(); cameraSharing = false
         closeCamera?.invoke()
     }
     @Synchronized fun cameraTicket(): CameraFrameGate.Ticket? = cameraGate.capture(SystemClock.elapsedRealtime())
-    @Synchronized fun sendCameraFrame(ticket: CameraFrameGate.Ticket, bytes: ByteArray, preview: android.graphics.Bitmap) {
+    @Synchronized fun sendCameraFrame(ticket: CameraFrameGate.Ticket, bytes: ByteArray) {
         val socket = live ?: return
         val sequence = cameraGate.deliver(ticket, SystemClock.elapsedRealtime(), bytes.size, socket.queueSize()) ?: return
         val accepted = socket.send(JSONObject().put("type", "camera_frame").put("stream_id", ticket.stream)
@@ -358,7 +355,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
             .put("data", JSONObject().put("base64", android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)).put("mime", "image/jpeg")).toString())
         if (!accepted) cameraGate.acknowledge(ticket.stream, sequence)
         else {
-            main.post { synchronized(this) { if (cameraSharing && cameraGate.owns(ticket)) cameraPreview = preview } }
             main.postDelayed({ synchronized(this) {
                 if (cameraGate.awaiting(ticket.stream, sequence)) {
                     stopCameraSharing()

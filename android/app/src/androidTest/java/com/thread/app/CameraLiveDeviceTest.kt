@@ -58,7 +58,7 @@ class CameraLiveDeviceTest {
         fun frames(after: Long) {
             await("frame delivery and current acknowledgment", 25000) {
                 model.cameraSharing && sequence() >= after + 3 && field(gate(), "pending") == null
-                    && field(model, "rejectedCameraFrames") == 0 && model.cameraPreview != null
+                    && field(model, "rejectedCameraFrames") == 0 && ((field(activity, "liveCamera") as? LiveCamera)?.previewFrames ?: 0) > 0
             }
             val audio = field(model, "audio")!!
             assertEquals(AudioRecord.RECORDSTATE_RECORDING, (field(audio, "record") as AudioRecord).recordingState)
@@ -72,7 +72,6 @@ class CameraLiveDeviceTest {
             val count = sequence()
             SystemClock.sleep(2500)
             assertEquals("No frames queued after $check", count, sequence())
-            assertNull(model.cameraPreview)
             assertNull(field(activity, "liveCamera"))
             checks.put(check)
         }
@@ -107,9 +106,21 @@ class CameraLiveDeviceTest {
                 }
                 checks.put("Gemini independently named the user supplied $expectedObject picture")
             }
+            val camera = field(activity, "liveCamera") as LiveCamera
+            val initialFrames = camera.previewFrames
+            val initialTime = SystemClock.elapsedRealtime()
+            SystemClock.sleep(3000)
+            val windowMs = SystemClock.elapsedRealtime() - initialTime
+            val displayedFrames = camera.previewFrames - initialFrames
+            val fps = displayedFrames * 1000.0 / windowMs
+            report.put("preview_fps", fps).put("preview_frames", displayedFrames).put("preview_window_ms", windowMs)
+            assertTrue("Continuous native preview should exceed 20 fps, measured $fps", fps >= 20)
+            checks.put("native preview exceeds 20 fps with live microphone and image uploads")
             val first = sequence()
             instrumentation.runOnMainSync { model.sendText("For this camera test, say only ready. Do not perform any actions.") }
             frames(first)
+            assertSame("Speech correction keeps the native preview alive", camera, field(activity, "liveCamera"))
+            assertTrue(camera.previewFrames > initialFrames + displayedFrames)
             await("Gemini spoken response", 30000) { (field(field(model, "audio")!!, "writtenFrames") as Long) > 0 }
             checks.put("fresh frames after typed correction and real AudioTrack output")
             instrumentation.runOnMainSync {
@@ -117,6 +128,10 @@ class CameraLiveDeviceTest {
                     .put("items", JSONArray().put(JSONObject().put("title", "Camera dock test").put("value", 156)))
             }
             await("result dock") { find("End conversation") != null }
+            assertSame("Result navigation keeps the native preview alive", camera, field(activity, "liveCamera"))
+            val resultFrames = camera.previewFrames
+            SystemClock.sleep(1000)
+            assertTrue("Result preview continues rendering", camera.previewFrames - resultFrames >= 15)
             assertNotNull(find("Camera active")); click("Stop camera")
             stopped("stop on result screen prevents later frames")
             assertTrue(model.ui.connected)

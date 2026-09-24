@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
     private var showConsent by mutableStateOf(false)
     private var consentAction: (() -> Unit)? = null
     private var liveCamera: LiveCamera? = null
+    private var cameraPreview by mutableStateOf<android.view.TextureView?>(null)
     private var cameraRequestGeneration: Int? = null
     private val liveCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { allowed ->
         val current = cameraRequestGeneration; cameraRequestGeneration = null
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        model.closeCamera = { liveCamera?.close(); liveCamera = null }
+        model.closeCamera = { liveCamera?.close(); liveCamera = null; cameraPreview = null }
         model.deviceAction = { request ->
             if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) PhoneActions.outcome("failed", "Open THREAD to continue this phone action.")
             else PhoneActions(this) { model.widget = it }.execute(request).also {
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ThreadTheme {
                 ThreadApp(model, ::startVoice, { image.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, ::toggleCamera,
-                    { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))) }, ::takePhoto)
+                    { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))) }, ::takePhoto, cameraPreview)
                 if (showConsent) AlertDialog(onDismissRequest = { showConsent = false; consentAction = null },
                     title = { Text("Your voice, with your permission.") },
                     text = { Text("Audio, messages, shared images and relevant task context go to Google Gemini over the internet. Camera sharing is optional: Start camera sends rear-camera images until you stop or leave THREAD. Raw audio and camera frames are not saved. THREAD's task engine runs on this phone. Text, notes and results are kept on this phone.") },
@@ -107,7 +108,7 @@ class MainActivity : ComponentActivity() {
                 model.stopCameraSharing(); model.showError("Camera sharing stopped. Check camera access and try Start camera again. Your voice conversation can continue.")
             } }
         }
-        liveCamera = capture; capture.start()
+        liveCamera = capture; capture.start(); cameraPreview = capture.preview
     }
     private fun readImage(uri: Uri) {
         try {

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
@@ -87,7 +88,7 @@ val Blue = Color(0xFF2378F3)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun ThreadApp(model: ThreadModel, start: () -> Unit, addImage: () -> Unit, camera: () -> Unit, permissions: () -> Unit, photo: () -> Unit) {
+@Composable fun ThreadApp(model: ThreadModel, start: () -> Unit, addImage: () -> Unit, camera: () -> Unit, permissions: () -> Unit, photo: () -> Unit, cameraPreview: android.view.TextureView? = null) {
     val ui = model.ui
     val context = LocalContext.current
     val view = LocalView.current
@@ -117,7 +118,12 @@ val Blue = Color(0xFF2378F3)
                         IconButton(onClick={share(context,result)}) { Icon(Icons.Outlined.IosShare,"Share result",tint=Pale,modifier=Modifier.size(21.dp)) }
                     } else IconButton(onClick = { changeRoute("settings") }) { Icon(Icons.Outlined.Settings, "Settings", tint = Pale, modifier = Modifier.size(23.dp)) }
                 }
-                Box(Modifier.weight(1f).fillMaxWidth()) {
+                val cameraFillsVoice = model.cameraSharing && model.route == "voice" && selected == null
+                // Keep the Surface outside route transitions so navigation never recreates the camera.
+                if (model.cameraSharing && cameraPreview != null) AndroidView(factory = { cameraPreview },
+                    modifier = Modifier.fillMaxWidth().then(if (cameraFillsVoice) Modifier.weight(1f) else Modifier.height(128.dp))
+                        .padding(horizontal = 26.dp, vertical = 8.dp).clip(RoundedCornerShape(24.dp)))
+                Box(Modifier.fillMaxWidth().then(if (cameraFillsVoice) Modifier.wrapContentHeight() else Modifier.weight(1f))) {
                     AnimatedContent(targetState = if (selected != null) "detail" else model.route, transitionSpec = {
                         (fadeIn(tween(220)) + slideInHorizontally(tween(240)) { it / 12 }) togetherWith fadeOut(tween(140))
                     }, label = "Screen transition") { route ->
@@ -196,7 +202,7 @@ val Blue = Color(0xFF2378F3)
 
 @Composable private fun VoiceScreen(model: ThreadModel, start: () -> Unit, type: () -> Unit, camera: () -> Unit, results: () -> Unit) {
     val ui = model.ui
-    Column(Modifier.fillMaxSize().padding(horizontal = 26.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column((if (model.cameraSharing) Modifier.fillMaxWidth() else Modifier.fillMaxSize()).padding(horizontal = 26.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         if (ui.ended) {
             Spacer(Modifier.height(48.dp)); Text("Conversation saved.", fontSize = 32.sp, lineHeight = 38.sp, color = White, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(14.dp)); Text("${ui.results.size} results in your Library", color = Muted, modifier = Modifier.fillMaxWidth())
@@ -204,10 +210,8 @@ val Blue = Color(0xFF2378F3)
             Spacer(Modifier.weight(1f)); HapticButton("New conversation", Icons.Outlined.Add, true, modifier = Modifier.fillMaxWidth(), haptics = model.haptics) { model.newConversation(); start() }
             TextButton(onClick = results) { Text("Open Library") }; Spacer(Modifier.height(20.dp))
         } else {
-            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                val preview = model.cameraPreview
-                if (model.cameraSharing && preview != null) Image(preview.asImageBitmap(), "Shared rear-camera preview", Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)), contentScale = ContentScale.Fit)
-                else AcousticSphere(Modifier.fillMaxWidth().aspectRatio(1f), ui.level, ui.connected)
+            if (!model.cameraSharing) Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                AcousticSphere(Modifier.fillMaxWidth().aspectRatio(1f), ui.level, ui.connected)
             }
             if (ui.connected || ui.connecting) {
                 Column(Modifier.fillMaxWidth().heightIn(min = 110.dp, max = 190.dp).verticalScroll(rememberScrollState())) {
