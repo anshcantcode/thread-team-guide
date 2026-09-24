@@ -19,6 +19,15 @@ visual 07: 47.7, text 08: 100, unseen tool 09: 47.7. The fence did not
 demonstrate an improvement. Different hosted responses and timing can also
 explain part of the decline; these separate runs do not isolate one cause.
 
+A focused replay of audio 06 against that same package scored `56.9, 56.9,
+56.9`; raw harness and planner records are in the ignored local file
+`.runtime/public-traces/fenced-pub06-2026-09-24-3x.json`. Every attempt
+clarified without a tool call. Two Gemini MAIN planning calls hit the
+4.5-second limit after acoustic calls returned HTTP 200 at 3,235 and 2,438
+ms. The remaining acoustic call timed out at 3.5 seconds and blocked the
+read. This follow-up shows a concrete provider-deadline bottleneck; it is a
+separate sample and cannot be substituted for the 27-attempt score report.
+
 The visual case had scores `47.7, 33.8, 100` in the packaged full run. A
 second three-attempt replay against the **same package** produced `47.7, 100,
 75.4`. The latter replay saved official harness traces locally at
