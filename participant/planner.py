@@ -1669,7 +1669,11 @@ class Planner:
             extra_text if isinstance(extra_text, str) else '',
         ])
         frame_is_referenced_in_request = bool(re.search(
-            r'\b(?:this|that|the|these|those|same)\s+(?:picture|image|photo|photograph|frame|screenshot)s?\b'
+            r'\b(?:this|that|the|these|those|same|my|our|your|their|his|her|its)\s+'
+            r'(?:(?:last|previous|earlier|prior|old)\s+)?'
+            r'(?:picture|image|photo|photograph|frame|screenshot)s?\b'
+            r'|\b(?:last|previous|earlier|prior|old)\s+'
+            r'(?:picture|image|photo|photograph|frame|screenshot)s?\b'
             r'|\b(?:port|connector|device|item|thing|label)\s+(?:that\s+)?(?:i|we)\s+(?:just\s+)?showed\s+(?:you|us)\b',
             active_request_text, re.IGNORECASE))
         current_frame_prepared = any(

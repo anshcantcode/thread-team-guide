@@ -148,6 +148,37 @@ class MissingFrameAdmissionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.planner.evidence[-1]['validation_error'],
                          'the active request image source is unavailable')
 
+    async def test_later_possessive_last_photo_text_reference_clarifies(self):
+        agent = self.agent()
+        await self.finish_unrelated_turn_after_missing_frame(agent)
+
+        self.reply = self.lookup()
+        agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+            'text': 'Look up a manual for the port in my last photo.', 'end_of_turn': True}})
+        await self.complete_turn(agent)
+
+        actions = self.drain(agent)
+        self.assertNotIn('tool_call', [item['action'] for item in actions])
+        self.assertIn('clarification_request', [item['action'] for item in actions])
+        self.assertEqual(self.planner.evidence[-1]['validation_error'],
+                         'the active request image source is unavailable')
+
+    async def test_later_possessive_last_photo_audio_reference_clarifies(self):
+        agent = self.agent()
+        await self.finish_unrelated_turn_after_missing_frame(agent)
+
+        transcript = 'Look up a manual for the port in my last photo.'
+        agent._handle(self.add_audio(transcript))
+        await self.complete_turn(agent)
+
+        actions = self.drain(agent)
+        self.assertNotIn('tool_call', [item['action'] for item in actions])
+        self.assertIn('clarification_request', [item['action'] for item in actions])
+        self.assertEqual(self.planner.evidence[-1]['validation_error'],
+                         'the active request image source is unavailable')
+        self.assertTrue(any(record.get('phase') == 'acoustic' and record.get('status') == 200
+                            for record in self.planner.evidence))
+
     async def test_later_audio_picture_reference_after_unrelated_turn_clarifies(self):
         agent = self.agent()
         await self.finish_unrelated_turn_after_missing_frame(agent)
