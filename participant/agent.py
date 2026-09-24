@@ -550,10 +550,11 @@ class ParticipantAgent:
         # A fresh explicit user instruction can authorize the same effect again.
         # Reperceiving the same recording can change its transcript, not its user turn.
         authority_key = (self._request_start, grant) if grant is not None else None
-        # An unresolved effect stays unresolved across every new input encoding.
+        # A submitted effect cannot be repeated while its outcome is unsettled.
         if tool["kind"] == "state_modifying" and any(
                 op["kind"] == "state_modifying" and op["key"] == key and
-                op["status"] in {"unknown", "cancel_requested"}
+                op["request_start"] != self._request_start and
+                op["status"] in {"pending", "unknown", "cancel_requested"}
                 for op in self.operations.values()):
             self._final("That action was already submitted. Its recorded outcome must be checked before trying again.")
             return False

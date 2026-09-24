@@ -674,7 +674,7 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         decision = {"intent": "create_note", "slots": {"text": "hello"},
                     "tool_calls": [{"api_name": "create_note", "args": {"text": "hello"},
                                    "authorization": {"quote": "Create a note"}}]}
-        for outcome in ("success", "unknown", "error", "pending"):
+        for outcome in ("success", "error"):
             with self.subTest(outcome=outcome):
                 agent = await self.start(lambda _: decision, tools={"create_note": tool})
                 await self.speak(agent, "Create a note saying hello.")
@@ -699,9 +699,34 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
                 self.assertNotIn("FIRST-LATE", final["payload"]["text"])
                 self.assertEqual(final["state_snapshot"]["slots"]["note_id"], "SECOND")
                 self.assertEqual(len(final["state_snapshot"]["actions"]), 2)
-                if outcome in {"unknown", "pending"}:
-                    self.assertEqual(first_op["result"]["note_id"], "FIRST-LATE")
-                    self.assertEqual(first_op["status"], "success")
+                self.assertEqual(self.drain(agent), [])
+
+    async def test_unsettled_identical_write_needs_reconciliation_before_fresh_authorization(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.",
+                "args": {"text": {"type": "string", "required": True}}}
+        decision = {"intent": "create_note", "slots": {"text": "hello"},
+                    "tool_calls": [{"api_name": "create_note", "args": {"text": "hello"},
+                                    "authorization": {"quote": "Create a note"}}]}
+        for outcome in ("unknown", "pending"):
+            with self.subTest(outcome=outcome):
+                agent = await self.start(lambda _: decision, tools={"create_note": tool})
+                await self.speak(agent, "Create a note saying hello.")
+                first = await self.output(agent, "tool_call")
+                if outcome == "unknown":
+                    await self.result(agent, first, {"error": "timeout"}, status="error")
+                    await self.output(agent, "final_response")
+                await self.speak(agent, "Create a note saying hello.")
+                blocked = await self.output(agent, "final_response")
+                self.assertIn("already submitted", blocked["payload"]["text"])
+                self.assertEqual(len(agent.operations), 1)
+                await self.result(agent, first, {"note_id": "FIRST-LATE"})
+                async def reconciled():
+                    while agent.operations[first["payload"]["call_id"]]["status"] != "success":
+                        await asyncio.sleep(0.001)
+                await asyncio.wait_for(reconciled(), 0.8)
+                self.assertEqual(agent.operations[first["payload"]["call_id"]]["status"], "success")
+                self.assertEqual(agent.operations[first["payload"]["call_id"]]["result"]["note_id"], "FIRST-LATE")
+                self.assertNotIn("note_id", agent.state["slots"])
                 self.assertEqual(self.drain(agent), [])
 
     async def test_reinterpreted_audio_cannot_repeat_a_write_on_frame_or_manifest_replan(self):
@@ -1096,10 +1121,13 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         await self.result(agent, call, {"note_id": "WRONG-TOOL"}, api_name="different_tool")
         await self.result(agent, call, {"note_id": "WRONG-CALL"}, call_id="not-issued")
         await self.result(agent, call, {"note_id": "ACTUAL-LATE"})
-        confirmed = await self.output(agent, "final_response")
-        self.assertIn("ACTUAL-LATE", confirmed["payload"]["text"])
-        self.assertEqual(confirmed["state_snapshot"]["slots"]["note_id"], "ACTUAL-LATE")
-        self.assertEqual(confirmed["state_snapshot"]["actions"][0]["status"], "success")
+        async def reconciled():
+            while agent.operations[call["payload"]["call_id"]]["status"] != "success":
+                await asyncio.sleep(0.001)
+        await asyncio.wait_for(reconciled(), 0.8)
+        self.assertEqual(agent.state["slots"]["note_id"], "ACTUAL-LATE")
+        self.assertEqual(agent.snapshot()["actions"][0]["status"], "success")
+        self.assertEqual(self.drain(agent), [])
         await self.result(agent, call, {"note_id": "CONFLICTING-DUPLICATE"})
         await asyncio.sleep(0.01)
         self.assertEqual(self.drain(agent), [])
