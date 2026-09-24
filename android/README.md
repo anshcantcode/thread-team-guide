@@ -16,6 +16,24 @@ The owner has Premium but has not registered the developer app. The integration'
 
 For the opt-in real-Gemini/Google phone check, run `com.thread.app.SmartActionsLiveDeviceTest` through the same instrumentation runner as the checks below. It opens Google search results, tests tab correction, and exercises a fictional travel correction and native pause/resume. It does not play Spotify music. It is excluded from the default device suite.
 
+## Opt-in live camera sharing
+
+During a connected conversation, **Start camera** explains what is shared and requests Android camera permission if needed. It opens the rear camera inside THREAD, with a sampled preview and a persistent **Camera sharing · rear camera / Stop camera** strip. The strip remains visible when a result opens or while browsing other app screens. **Stop camera** keeps voice connected. Sharing also stops on leaving the foreground (including screen lock or rotation/recreation), ending/disconnecting voice, task controls, and opening a sheet/dialog that would cover the indicator. Restarting requires a fresh tap. A single still photo is still available under **Keyboard → Take a photo**; the photo picker remains available beside it.
+
+Camera2 captures at most one JPEG per second, with a longest edge of 768 pixels and an encoded size limit of 128 KiB. Only one frame can await the local relay's acknowledgment; there is no retry queue. Congested, oversized, and old captures are dropped; a missing acknowledgment stops sharing after five seconds. The relay separately validates JPEG contents, dimensions, size, cadence, sequence and timestamp, and bounds a pending provider delivery to 1.5 seconds. The phone should have automatic date/time enabled, particularly when using a development relay on another computer. This cadence follows [Gemini Live video input guidance](https://ai.google.dev/gemini-api/docs/live-api/capabilities); capture uses Android's [Camera2](https://developer.android.com/reference/android/hardware/camera2/package-summary) and [ImageReader](https://developer.android.com/reference/android/media/ImageReader) APIs without a new dependency.
+
+Captures belong to a random sharing session, local input ID and relay-issued context token. New speech, typed corrections and provider interruptions invalidate old capture ownership; the relay checks it again after waiting for its send lock. Stop invalidates ownership before late capture callbacks can enqueue another frame. The relay rejects frames from a stopped/replaced stream. A frame already transmitted before Stop cannot be recalled from the network or Gemini context; the model receives a stop marker and instructions to treat earlier images as historical. Frames are not stored in the notebook, task media, event trace or workspace, and do not authorize phone actions. Existing still-image and Samsung participant/evaluator contracts are unchanged.
+
+Focused checks: `python -m unittest tests.test_live_camera tests.test_live tests.test_native_authority tests.test_noise_recovery tests.test_android_backend tests.test_samsung_packaging`, plus Android `:app:testDebugUnitTest` (capture ownership, stop/restart, correction/interruption, acknowledgment, age, size and backlog guards). These use synthetic JPEGs and a fake upstream; they do not prove real-camera or Gemini visual quality.
+
+Remaining device verification on the S24:
+
+- Grant/deny/revoke camera permission; verify voice continues and capture never starts without the explicit Start camera flow.
+- In portrait and landscape, verify an upright rear-camera preview, continuous microphone/audio playback, the active strip on voice and result screens, and a usable stop control.
+- Ask Gemini about two different visible objects while correcting/interruption occurs; verify a fresh scene is used and no obsolete action is performed.
+- Stop during capture, wait several seconds, then restart. Verify no new camera-frame messages are queued after Stop; repeat with Home, screen lock, a phone-app handoff, covered sheets, End and connection loss. Already-sent data cannot be retracted.
+- Exercise a slow connection and Android's camera privacy toggle; verify bounded delivery, automatic stop on failure, and recovery only through another explicit start. Run the optimized release microphone check after device installation.
+
 ## Build and run
 
 From the workspace root, with Android Studio's JDK/SDK installed and the phone connected using USB debugging:

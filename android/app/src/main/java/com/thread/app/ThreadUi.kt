@@ -87,7 +87,7 @@ val Blue = Color(0xFF2378F3)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable fun ThreadApp(model: ThreadModel, start: () -> Unit, addImage: () -> Unit, camera: () -> Unit, permissions: () -> Unit) {
+@Composable fun ThreadApp(model: ThreadModel, start: () -> Unit, addImage: () -> Unit, camera: () -> Unit, permissions: () -> Unit, photo: () -> Unit) {
     val ui = model.ui
     val context = LocalContext.current
     val view = LocalView.current
@@ -97,6 +97,12 @@ val Blue = Color(0xFF2378F3)
     LaunchedEffect(model.sharedText) { if (model.sharedText.isNotBlank()) { typed = model.sharedText; model.sharedText = "" } }
     var showPrivacy by remember { mutableStateOf(false) }
     var sendAfterConsent by remember { mutableStateOf(false) }
+    var showCameraConsent by remember { mutableStateOf(false) }
+    val toggleCamera = { if (model.cameraSharing) model.stopCameraSharing() else { showCameraConsent = true } }
+    // Sheets cover the persistent sharing indicator; require a fresh opt-in afterward.
+    LaunchedEffect(model.keyboard, model.taskExpanded, model.widget, ui.error, showPrivacy) {
+        if (model.keyboard || model.taskExpanded || model.widget != null || ui.error != null || showPrivacy) model.stopCameraSharing()
+    }
     val changeRoute: (String) -> Unit = { if (model.haptics) view.performHapticFeedback(HapticFeedbackConstants.SEGMENT_TICK); selected = null; model.route = it }
     BackHandlerCompat(selected != null || model.route != "voice") { if (selected != null) selected = null else changeRoute("voice") }
     Surface(color = Ink, modifier = Modifier.fillMaxSize()) {
@@ -117,12 +123,19 @@ val Blue = Color(0xFF2378F3)
                     }, label = "Screen transition") { route ->
                         when (route) {
                             "detail" -> selected?.let { ResultDetail(it, model, { url -> openUrl(context, url) }) }
-                            "voice" -> VoiceScreen(model, start, { model.keyboard = true }, camera, { changeRoute("library") })
+                            "voice" -> VoiceScreen(model, start, { model.keyboard = true }, toggleCamera, { changeRoute("library") })
                             "home" -> HomeScreen(model, { selected = it }, { changeRoute("voice"); start() }, { changeRoute("widgets") })
                             "library" -> LibraryScreen(model, { selected = it })
                             "widgets" -> WidgetScreen(model)
                             "settings" -> SettingsScreen(model, permissions, { showPrivacy = true })
                         }
+                    }
+                }
+                if (model.cameraSharing) Surface(color = Color(0xFF173D30), modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.Videocam, "Camera active", tint = White)
+                        Text("Camera sharing · rear camera", color = White, fontSize = 12.sp, modifier = Modifier.weight(1f).padding(start = 8.dp).semantics { liveRegion = LiveRegionMode.Polite })
+                        TextButton(onClick = model::stopCameraSharing) { Text("Stop camera", color = White) }
                     }
                 }
                 if (ui.connected && (model.route != "voice" || selected != null)) CompactDock(model, { changeRoute("voice") }, start, selected?.let(::title))
@@ -147,6 +160,7 @@ val Blue = Color(0xFF2378F3)
             Spacer(Modifier.height(16.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = addImage) { Icon(Icons.Outlined.AddPhotoAlternate, "Share an image") }
+                IconButton(onClick = photo) { Icon(Icons.Outlined.PhotoCamera, "Take a photo") }
                 Spacer(Modifier.weight(1f))
                 HapticButton("Send", Icons.Outlined.ArrowUpward, primary = true, enabled = typed.isNotBlank(), haptics = model.haptics) {
                     if (model.consent) { model.sendText(typed); typed = "" } else { sendAfterConsent = true; showPrivacy = true }
@@ -155,11 +169,12 @@ val Blue = Color(0xFF2378F3)
         }
     }
     if (ui.error != null) ModalBottomSheet(onDismissRequest = model::clearError, containerColor = Panel) {
+        val cameraError = ui.error.startsWith("Camera")
         Column(Modifier.fillMaxWidth().padding(28.dp)) {
             Icon(Icons.Outlined.WifiOff, null, tint = Pale, modifier = Modifier.size(28.dp))
-            Spacer(Modifier.height(20.dp)); Text("A moment to reconnect.", color = White, fontSize = 26.sp)
+            Spacer(Modifier.height(20.dp)); Text(if (cameraError) "Camera sharing is off." else "A moment to reconnect.", color = White, fontSize = 26.sp)
             Spacer(Modifier.height(12.dp)); Text(ui.error, color = Muted)
-            Spacer(Modifier.height(24.dp)); HapticButton("Try again", primary = true, modifier = Modifier.fillMaxWidth(), haptics = model.haptics) { model.clearError(); start() }
+            Spacer(Modifier.height(24.dp)); HapticButton(if (cameraError) "Continue conversation" else "Try again", primary = true, modifier = Modifier.fillMaxWidth(), haptics = model.haptics) { model.clearError(); if (!cameraError) start() }
             TextButton(onClick = model::clearError, modifier = Modifier.align(Alignment.CenterHorizontally)) { Text("Keep browsing my results") }
         }
     }
@@ -169,6 +184,12 @@ val Blue = Color(0xFF2378F3)
         dismissButton = { TextButton(onClick = { showPrivacy = false; sendAfterConsent = false }) { Text("Close") } })
     model.widget?.let { config -> WidgetPreview(model, config) }
     if (model.taskExpanded) TaskSheet(model)
+    if (showCameraConsent && ui.connected) AlertDialog(onDismissRequest = { showCameraConsent = false },
+        title = { Text("Share your camera?") },
+        text = { Text("Send rear-camera images to Google Gemini while you talk, up to once a second. Frames are not saved by THREAD. Sharing stops when you tap Stop camera, end the conversation, or leave the app.") },
+        confirmButton = { TextButton(onClick = { showCameraConsent = false; camera() }) { Text("Start camera") } },
+        dismissButton = { TextButton(onClick = { showCameraConsent = false }) { Text("Not now") } })
+    LaunchedEffect(ui.connected) { if (!ui.connected) showCameraConsent = false }
 }
 
 @Composable fun BackHandlerCompat(enabled: Boolean, onBack: () -> Unit) = androidx.activity.compose.BackHandler(enabled, onBack)
@@ -184,7 +205,9 @@ val Blue = Color(0xFF2378F3)
             TextButton(onClick = results) { Text("Open Library") }; Spacer(Modifier.height(20.dp))
         } else {
             Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                AcousticSphere(Modifier.fillMaxWidth().aspectRatio(1f), ui.level, ui.connected)
+                val preview = model.cameraPreview
+                if (model.cameraSharing && preview != null) Image(preview.asImageBitmap(), "Shared rear-camera preview", Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)), contentScale = ContentScale.Fit)
+                else AcousticSphere(Modifier.fillMaxWidth().aspectRatio(1f), ui.level, ui.connected)
             }
             if (ui.connected || ui.connecting) {
                 Column(Modifier.fillMaxWidth().heightIn(min = 110.dp, max = 190.dp).verticalScroll(rememberScrollState())) {
@@ -224,7 +247,7 @@ val Blue = Color(0xFF2378F3)
                         Spacer(Modifier.height(7.dp)); Text(label, color = White, fontSize = 11.sp)
                     }
                 }
-                control(Icons.Outlined.PhotoCamera, "Camera", click = camera)
+                control(if (model.cameraSharing) Icons.Outlined.VideocamOff else Icons.Outlined.Videocam, if (model.cameraSharing) "Stop camera" else "Start camera", click = camera)
                 control(if (model.ui.muted) Icons.Outlined.MicOff else Icons.Outlined.Mic, if (model.ui.muted) "Unmute" else "Mute") { if (model.ui.muted) enableMic() else model.toggleMute() }
                 control(Icons.Outlined.Keyboard, "Keyboard", click = type)
                 control(Icons.Outlined.CallEnd, "End", true) { model.disconnect() }
