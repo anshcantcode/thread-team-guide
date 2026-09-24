@@ -1576,7 +1576,9 @@ class Planner:
                         call['after_result'][name] = call.pop(name)
                         record['normalized_continuation'] = True
         try:
-            self._validate(decision, record['input_media'], tools, latest_frame_index=context.get('latest_frame_index'))
+            self._validate(decision, record['input_media'], tools,
+                           latest_frame_index=context.get('latest_frame_index'),
+                           messages=context.get('messages'), current_turn_start=context.get('current_turn_start'))
         except ValueError as exc:
             record['validation_error'] = str(exc)
             raise
@@ -1607,7 +1609,8 @@ class Planner:
         return decision
 
     @staticmethod
-    def _validate(decision, media, tools=None, *, latest_frame_index=None):
+    def _validate(decision, media, tools=None, *, latest_frame_index=None,
+                  messages=None, current_turn_start=None):
         if not isinstance(decision, dict) or not isinstance(decision.get('intent'), str) or not isinstance(decision.get('slots'), dict):
             raise ValueError('decision')
         if not isinstance(decision.get('tool_calls'), list) or not isinstance(decision.get('observations'), list):
@@ -1644,6 +1647,20 @@ class Planner:
             raise ValueError('missing media evidence')
         has_image = any(source['mime_type'].startswith('image/') for source in media)
         current_frame_prepared = type(latest_frame_index) is int and (latest_frame_index, 'image') in sources
+        request_messages = messages if isinstance(messages, list) else []
+        current_frame_position = next((i for i, message in enumerate(request_messages)
+                                       if isinstance(message, dict) and type(latest_frame_index) is int
+                                       and message.get('message_index', i) == latest_frame_index
+                                       and message.get('event_type') == 'video_frame'), None)
+        frame_is_request_source = (
+            current_frame_position is not None and type(current_turn_start) is int
+            and current_turn_start >= 0
+            and (current_frame_position >= current_turn_start or not any(
+                isinstance(message, dict) and message.get('event_type') in
+                ('user_speech_chunk', 'user_audio_chunk', 'interruption')
+                for message in request_messages[current_frame_position + 1:current_turn_start])))
+        if frame_is_request_source and not current_frame_prepared and decision['tool_calls']:
+            raise ValueError('the active request image source is unavailable')
         current_image = next((o for o in decision['observations'] if o['type'] == 'image'
                               and o['message_index'] == latest_frame_index), None) if current_frame_prepared else None
         current_label = selected_printed_label(current_image, latest_frame_index)
