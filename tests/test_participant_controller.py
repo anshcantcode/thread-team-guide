@@ -998,6 +998,27 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
             await self.output(agent, "final_response")
         self.assertEqual(len(agent._fillers), 4)
 
+    async def test_completed_turn_ack_waits_through_the_small_clock_fence(self):
+        agent = await self.start(lambda _: {"response": "Weather lookup complete."})
+        waiting, release = asyncio.Event(), asyncio.Event()
+
+        async def hold_fence(delay):
+            self.assertEqual(delay, 0.01)
+            waiting.set()
+            await release.wait()
+
+        with patch("participant.agent.asyncio.sleep", new=hold_fence):
+            await self.speak(agent, "What's the weather like", end=False)
+            await self.event(agent, "user_speech_chunk", {
+                "text": "in Denver right now?", "end_of_turn": True})
+            await asyncio.wait_for(waiting.wait(), timeout=0.6)
+            self.assertEqual(self.drain(agent), [])
+            self.assertEqual(agent.planner.contexts, [])
+            release.set()
+            filler = await self.output(agent, "filler_speech")
+            self.assertIn("Denver", filler["payload"]["text"])
+            await self.output(agent, "final_response")
+
     async def test_selected_equality_condition_must_be_proved_by_result(self):
         for price in (90, 91):
             decision = chain()
