@@ -119,6 +119,8 @@ class Route(httpx.AsyncBaseTransport):
                     body["response_format"] = {"type": "json_schema", "json_schema": {
                         "name": "participant_decision", "strict": False,
                         "schema": source["generationConfig"]["responseJsonSchema"]}}
+                row["chat_request_chars"] = len(json.dumps(body, ensure_ascii=False))
+                row["system_chars"] = len(system)
                 self.claim_call()
                 response = await self.client.post(
                     f"{self.base_url}/chat/completions",
@@ -127,6 +129,15 @@ class Route(httpx.AsyncBaseTransport):
                     "x-ratelimit-limit-tokens", "x-ratelimit-remaining-tokens",
                     "x-ratelimit-reset-tokens", "x-ratelimit-remaining-requests") if header in response.headers}
                 if response.status_code != 200:
+                    if response.status_code == 429:
+                        try:
+                            message = response.json().get("error", {}).get("message", "")
+                            for label in ("limit", "used", "requested"):
+                                match = re.search(rf"\b{label}\s*[:=]?\s*([0-9,]+)", message, re.I)
+                                if match:
+                                    row[f"rate_{label}"] = int(match[1].replace(",", ""))
+                        except (ValueError, TypeError, AttributeError):
+                            pass
                     raise RouteStatus(response.status_code, response.headers.get("retry-after"))
                 payload = response.json()
                 row["usage"] = {k: payload.get("usage", {}).get(k) for k in
@@ -166,7 +177,7 @@ def configure(args):
         return os.environ[name] if name in os.environ else local.get(name, "")
     os.environ.update(THREAD_PROVIDER="gemini", PARTICIPANT_PREWARM="0",
                       PARTICIPANT_MEDIA_ROOT=str(KIT), PARTICIPANT_TIMEOUT_SECONDS="4.5",
-                      PARTICIPANT_AUDIO_MODE="independent")
+                      PARTICIPANT_AUDIO_MODE=args.audio_mode)
     if args.model:
         if args.route != "gemini" or re.fullmatch(r"gemini-[a-zA-Z0-9_.-]{1,100}", args.model) is None:
             raise ValueError("--model accepts an explicit Gemini model with --route gemini")
@@ -203,6 +214,7 @@ async def evaluate(args, route):
         if {p.stem for p in paths} != wanted:
             raise ValueError("case name not found in public scenarios")
     rows = []
+    attempts = 0
     try:
         for path in paths:
             if route and route.rate_limited:
@@ -215,9 +227,14 @@ async def evaluate(args, route):
             for _ in range(args.reps):
                 if route and (route.api_calls >= args.max_calls or route.rate_limited):
                     break
-                harness = EvaluationHarness(scenario,
-                    lambda iq, oq: ParticipantAgent(iq, oq, planner=Planner(transport=route)),
-                    time_scale=args.time_scale, verbose=False)
+                if attempts and args.pause_s:
+                    await asyncio.sleep(args.pause_s)
+                attempts += 1
+                def agent(iq, oq):
+                    planner = Planner(transport=route)
+                    planner.acoustic_timeout = args.acoustic_timeout
+                    return ParticipantAgent(iq, oq, planner=planner)
+                harness = EvaluationHarness(scenario, agent, time_scale=args.time_scale, verbose=False)
                 try:
                     with planner_trace(lambda record: timings.append({key: record.get(key) for key in
                             ("phase", "status", "elapsed_ms", "finish_reason", "validation_error") if key in record})):
@@ -240,11 +257,12 @@ async def evaluate(args, route):
     complete = complete and not (route and route.rate_limited)
     return {"route": args.route, "model": route.model if route else os.getenv("PARTICIPANT_MODEL", "gemini-3.5-flash-lite"),
             "public_scenarios_only": True, "reps": args.reps, "time_scale": args.time_scale,
+            "pause_s": args.pause_s,
             "complete": complete, "rate_limited": bool(route and route.rate_limited),
             "thinking_level": os.getenv("PARTICIPANT_THINKING_LEVEL", "minimal"),
             "image_embedding": os.getenv("PARTICIPANT_IMAGE_EMBEDDING", "1") == "1",
             "audio_mode": os.getenv("PARTICIPANT_AUDIO_MODE", "independent"),
-            "planning_timeout_s": 4.5,
+            "planning_timeout_s": 4.5, "acoustic_timeout_s": args.acoustic_timeout,
             "weighted_score": round(weighted, 1), "scenarios": rows,
             "api_calls": route.api_calls if route else None, "requests": route.rows if route else [],
             "planner_sha256": hashlib.sha256((ROOT / "participant" / "planner.py").read_bytes()).hexdigest()}
@@ -255,16 +273,19 @@ def main():
     parser.add_argument("--route", choices=("gemini", "groq", "alibaba"), required=True)
     parser.add_argument("--model", help="explicit Gemini model override")
     parser.add_argument("--thinking", choices=("minimal", "low", "medium", "high"))
+    parser.add_argument("--audio-mode", choices=("independent", "single_call_reads"), default="independent")
+    parser.add_argument("--acoustic-timeout", type=float, default=3.5)
     parser.add_argument("--env-file", type=Path)
     parser.add_argument("--cases", nargs="*", default=[])
     parser.add_argument("--reps", type=int, default=1)
     parser.add_argument("--time-scale", type=float, default=1)
+    parser.add_argument("--pause-s", type=float, default=0, help="wait between complete scenario attempts for provider quotas")
     parser.add_argument("--wall-cap", type=float, default=120)
     parser.add_argument("--max-calls", type=int, default=120)
     parser.add_argument("--out", type=Path)
     args = parser.parse_args()
-    if args.reps < 1 or args.max_calls < 1 or args.time_scale <= 0:
-        parser.error("reps, max-calls and time-scale must be positive")
+    if args.reps < 1 or args.max_calls < 1 or args.time_scale <= 0 or args.pause_s < 0 or not 0 < args.acoustic_timeout <= 4.5:
+        parser.error("reps, max-calls and time-scale must be positive; pause-s must be nonnegative; acoustic timeout must be in (0, 4.5]")
     try:
         route = configure(args)
         report = asyncio.run(evaluate(args, route))
