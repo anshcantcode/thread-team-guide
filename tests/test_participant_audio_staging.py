@@ -531,7 +531,9 @@ class AudioStagingTests(unittest.IsolatedAsyncioTestCase):
         planner.acoustic_timeout = .04
         planner.observe_input(self.messages[0], 0)
         first = asyncio.create_task(planner.plan(self.context()))
-        await asyncio.wait_for(arrived.wait(), .5)
+        # Allow a busy test host to dispatch the first mocked request; the
+        # acoustic deadline being tested remains the explicit 40 ms above.
+        await asyncio.wait_for(arrived.wait(), 2.0)
         original = planner._audio_jobs['turn']['task']
         await asyncio.sleep(.01)
         first.cancel()
