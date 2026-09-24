@@ -400,6 +400,46 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         await asyncio.sleep(0.01)
         self.assertFalse(any(op["args"]["city"] == "Obsolete" for op in agent.operations.values()))
 
+    async def test_three_rapid_corrections_cannot_revive_cancelled_plans(self):
+        started = {revision: asyncio.Event() for revision in range(1, 5)}
+        cancelled = {revision: asyncio.Event() for revision in range(1, 4)}
+        release = {revision: asyncio.Event() for revision in range(1, 4)}
+        finished = {revision: asyncio.Event() for revision in range(1, 4)}
+
+        async def handler(context):
+            revision = context["revision"]
+            started[revision].set()
+            if revision < 4:
+                try:
+                    await release[revision].wait()
+                except asyncio.CancelledError:
+                    cancelled[revision].set()
+                    await release[revision].wait()
+                finally:
+                    finished[revision].set()
+                return lookup(("Oslo", "Paris", "Tokyo")[revision - 1])
+            return lookup("Rome")
+
+        agent = await self.start(handler)
+        await self.speak(agent, "Find journeys to Oslo.")
+        await asyncio.wait_for(started[1].wait(), 0.6)
+        for revision, correction in ((2, "Make it Paris."), (3, "Change that to Tokyo."),
+                                     (4, "Actually, Rome.")):
+            await self.event(agent, "interruption", {"text": correction})
+            await asyncio.wait_for(started[revision].wait(), 0.6)
+            await asyncio.wait_for(cancelled[revision - 1].wait(), 0.6)
+
+        current = await self.output(agent, "tool_call")
+        self.assertEqual(current["payload"]["args"]["city"], "Rome")
+        self.assertEqual(current["state_snapshot"]["revision"], 4)
+
+        for event in release.values():
+            event.set()
+        await asyncio.gather(*(event.wait() for event in finished.values()))
+        later_calls = [action for action in self.drain(agent) if action["action"] == "tool_call"]
+        self.assertEqual(later_calls, [])
+        self.assertEqual([(op["revision"], op["args"]["city"]) for op in agent.operations.values()], [(4, "Rome")])
+
     async def test_outer_deadline_rejects_a_planner_that_returns_after_cancellation(self):
         cancelled = asyncio.Event()
         async def handler(context):
