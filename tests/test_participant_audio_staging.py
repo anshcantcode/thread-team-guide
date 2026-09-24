@@ -337,6 +337,25 @@ class AudioStagingTests(unittest.IsolatedAsyncioTestCase):
                     await planner.close()
                     self.assertEqual(planner._pending_tasks, set())
 
+    async def test_changed_historical_bytes_cannot_reuse_retained_audio_observation(self):
+        planner = await self.planner()
+        planner.observe_input(self.messages[0], 0)
+        first = await planner.plan(self.context())
+        self.assertTrue(first['tool_calls'])
+
+        messages = deepcopy(self.messages)
+        messages.append({'message_index': 2, 'revision': 2, 'event_type': 'user_speech_chunk',
+                         'payload': {'text': 'What did I say?', 'end_of_turn': True}})
+        (self.root / '0.mp3').write_bytes(CLIPS[1])
+        result = await planner.plan(self.context(messages=messages, revision=2, current_turn_start=2,
+                                                  observations=first['observations']))
+
+        self.assertTrue(result['tool_calls'])
+        main = next(body for body in reversed(self.requests) if not self.acoustic(body))
+        prepared = json.loads(main['contents'][0]['parts'][0]['text'])
+        self.assertEqual([row['message_index'] for row in prepared['observations']], [1])
+        self.assertEqual([source['message_index'] for source in planner.evidence[-1]['reused_audio']], [1])
+
     async def test_new_text_or_wordless_interruption_evicts_late_swallowed_completion(self):
         for kind in ('user_speech_chunk', 'interruption'):
             with self.subTest(kind=kind):

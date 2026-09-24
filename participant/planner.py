@@ -1155,6 +1155,13 @@ class Planner:
             else:
                 retained_sources.append(source)
                 retained_parts.extend(media_parts[2*i:2*i+2])
+        if not single_audio and isinstance(context.get('observations'), list):
+            # Keep historical audio observations only when the current bytes match their cached identity.
+            context = {**context, 'observations': [observation for observation in context['observations']
+                if not isinstance(observation, dict) or observation.get('type') != 'audio'
+                or observation.get('message_index') in reused and all(
+                    observation.get(field) == reused[observation['message_index']].get(field)
+                    for field in ('message_index', 'type', 'transcript', 'uncertain'))]}
         if reused:
             context = {**context, 'observations': [o for o in context.get('observations', [])
                        if not isinstance(o, dict) or o.get('message_index') not in reused] + list(reused.values())}
