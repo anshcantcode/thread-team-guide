@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 from copy import deepcopy
+from decimal import Decimal, InvalidOperation
 import json
 import re
 import time
@@ -20,6 +21,19 @@ from .schema import at_path, call_key, scalar_fields, selected_printed_label, va
 _ANSWER_FIELDS = {"answer", "instructions", "instruction", "explanation", "guidance",
                   "warning", "warnings", "findings", "paragraphs", "steps"}
 _SOURCE_FIELDS = {"sources", "references", "citations", "pages"}
+_NUMBER_LITERAL = re.compile(
+    r"(?<![\w.-])[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?(?![\w.-])")
+
+
+def _has_explicit_number(value, text):
+    expected = Decimal(str(value))
+    for match in _NUMBER_LITERAL.finditer(text):
+        try:
+            if Decimal(match[0]) == expected:
+                return True
+        except InvalidOperation:
+            pass
+    return False
 
 
 class ParticipantAgent:
@@ -420,6 +434,10 @@ class ParticipantAgent:
             return "Result bindings must be an object."
         successes = {key: op for key, op in self.operations.items() if op["status"] == "success"}
         supplied = " ".join(text for _, text in self._user_texts())
+        authorization = step.get("authorization")
+        command = authorization.get("quote", "") if isinstance(authorization, dict) else ""
+        if not isinstance(command, str):
+            command = ""
         for argument, binding in bindings.items():
             try:
                 source = successes[binding["call_id"]]
@@ -442,6 +460,14 @@ class ParticipantAgent:
             required_source = bool(re.search(r"\b(returned|result)\b", description, re.I))
             identifier = path.rsplit(".", 1)[-1].endswith("_id")
             bound = any(path == parent or path.startswith(parent + ".") for parent in bindings)
+            if tool["kind"] == "state_modifying" and not bound:
+                missing = (type(value) is bool and
+                           not contains_value(str(value).lower(), command))
+                missing |= (type(value) in (int, float) and
+                            not _has_explicit_number(value, command))
+                if missing:
+                    return (f"Please supply {path}; I cannot infer this state-changing value "
+                            "without an exact user instruction or verified result.")
             if tool["kind"] == "state_modifying" and isinstance(value, str) and value and not bound:
                 field = path.rsplit(".", 1)[-1].replace("_", " ")
                 descriptive = bool(re.search(r"\b(summary|description|message|note|text|comment|query)\b", field + " " + description, re.I))
