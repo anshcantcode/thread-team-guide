@@ -105,12 +105,22 @@ def authorization_grant(step: dict, tool: dict, texts: list[tuple[int, str]], *,
     prefix = r"(?:^|[.!?;,]\s*|\band\s+|\bthen\s+)(?:(?:please|yes|okay|ok|now)\s+)*(?:(?:can|could|would|will)\s+you\s+(?:please\s+)?)?(?:go\s+ahead\s+and\s+)?"
     quote_start = source.find(quote)
     quote_end = quote_start + len(quote)
-    matches = [match for match in re.finditer(prefix + "(" + verb + r"\s+[^.!?;]+)", language)
-               if match.start(1) < quote_end and match.end(1) > quote_start]
-    match = matches[0] if len(matches) == 1 else None
-    if not match or not re.search(r"\b" + verb + r"\b", quote):
+    number = r"(?<![\w.])[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?(?![\w.])"
+    matches = []
+    for start_match in re.finditer(prefix + "(" + verb + r")\s+", language):
+        start = start_match.start(1)
+        command = re.match(verb + r"\s+(?:[^.!?;]|(?<=\w)\.(?=\w))+", language[start:])
+        if not command or start >= quote_end or start + command.end() <= quote_start:
+            continue
+        # A quote may be concise, but it cannot cut through a numeric literal.
+        if any(quote_start < start + value.end() and quote_end > start + value.start()
+               and not (quote_start <= start + value.start() and quote_end >= start + value.end())
+               for value in re.finditer(number, command[0])):
+            return None
+        matches.append(command[0])
+    if len(matches) != 1 or not re.search(r"\b" + verb + r"\b", quote):
         return None
-    command = words(match[1])
+    command = words(matches[0])
     # A tool cannot borrow permission for a different named object. Pronouns and
     # selected options are resolved by the planner and checked by result binding.
     tail = re.sub(r"^\w+\s+", "", command)

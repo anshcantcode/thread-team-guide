@@ -107,6 +107,75 @@ class PrimitiveWriteAuthorityTests(unittest.TestCase):
         self.assertEqual(events[0]["payload"]["args"]["limit"], 50)
         self.assertEqual(events[0]["payload"]["args"]["threshold"], 2)
 
+    def test_decimal_amount_is_bound_as_a_whole_number(self):
+        text = "Set amount to 2.50 for Nia."
+        agent = self.agent(text)
+        agent.tools["set_amount"] = {"kind": "state_modifying", "description": "Set a customer's payment amount.",
+                                      "args": {"amount": {"type": "number", "required": True},
+                                               "customer": {"type": "string", "required": True}}}
+
+        agent._dispatch(self.step("set_amount", {"amount": 2, "customer": "Nia"}, text,
+                                  quote="Set amount to 2"))
+
+        events = self.events(agent)
+        self.assertEqual([event["action"] for event in events], ["clarification_request"])
+        self.assertFalse(agent.operations)
+
+    def test_exact_decimal_amount_is_allowed_with_ordinary_sentence_punctuation(self):
+        text = "Set amount=2.5 for Nia."
+        agent = self.agent(text)
+        agent.tools["set_amount"] = {"kind": "state_modifying", "description": "Set a customer's payment amount.",
+                                      "args": {"amount": {"type": "number", "required": True},
+                                               "customer": {"type": "string", "required": True}}}
+
+        agent._dispatch(self.step("set_amount", {"amount": 2.5, "customer": "Nia"}, text))
+
+        events = self.events(agent)
+        self.assertEqual([event["action"] for event in events], ["tool_call"])
+        self.assertEqual(events[0]["payload"]["args"]["amount"], 2.5)
+
+    def test_dotted_numeric_fields_are_not_sentence_boundaries(self):
+        text = "Set payment.amount=2 and payment.tax=50 for Nia."
+        agent = self.agent(text)
+        agent.tools["set_payment"] = {"kind": "state_modifying", "description": "Set a customer's payment amount.",
+                                       "args": {"payment": {"type": "object", "required": True,
+                                                             "properties": {"amount": {"type": "number", "required": True},
+                                                                            "tax": {"type": "number", "required": True}}},
+                                                "customer": {"type": "string", "required": True}}}
+
+        agent._dispatch(self.step("set_payment", {"payment": {"amount": 2, "tax": 50}, "customer": "Nia"}, text))
+
+        events = self.events(agent)
+        self.assertEqual([event["action"] for event in events], ["tool_call"])
+        self.assertEqual(events[0]["payload"]["args"]["payment"], {"amount": 2, "tax": 50})
+
+    def test_scientific_notation_amount_is_bound_as_a_whole_number(self):
+        text = "Set amount=2.5e-3 for Nia."
+        agent = self.agent(text)
+        agent.tools["set_amount"] = {"kind": "state_modifying", "description": "Set a customer's payment amount.",
+                                      "args": {"amount": {"type": "number", "required": True},
+                                               "customer": {"type": "string", "required": True}}}
+
+        agent._dispatch(self.step("set_amount", {"amount": 0.0025, "customer": "Nia"}, text))
+
+        events = self.events(agent)
+        self.assertEqual([event["action"] for event in events], ["tool_call"])
+        self.assertEqual(events[0]["payload"]["args"]["amount"], 0.0025)
+
+    def test_two_decimal_commands_cannot_borrow_a_value_across_sentences(self):
+        text = "Set amount to 2.50 for Nia. Set amount to 3 for Nia."
+        agent = self.agent(text)
+        agent.tools["set_amount"] = {"kind": "state_modifying", "description": "Set a customer's payment amount.",
+                                      "args": {"amount": {"type": "number", "required": True},
+                                               "customer": {"type": "string", "required": True}}}
+
+        agent._dispatch(self.step("set_amount", {"amount": 3, "customer": "Nia"}, text,
+                                  quote="Set amount to 2.50 for Nia"))
+
+        events = self.events(agent)
+        self.assertEqual([event["action"] for event in events], ["clarification_request"])
+        self.assertFalse(agent.operations)
+
 
 if __name__ == "__main__":
     unittest.main()
