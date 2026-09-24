@@ -221,7 +221,13 @@ class MediaLoader:
                 continue
             media_kind = 'audio' if kind == 'user_audio_chunk' else 'image'
             ref_key = 'audio_ref' if media_kind == 'audio' else 'image_ref'
-            raw, mime = await asyncio.to_thread(self._read, payload.get(ref_key), media_kind)
+            try:
+                raw, mime = await asyncio.to_thread(self._read, payload.get(ref_key), media_kind)
+            except MediaError:
+                if media_kind != 'image':
+                    raise
+                entry['payload']['image_unavailable'] = True
+                continue
             total += len(raw)
             if total > self.MAX_TOTAL_BYTES:
                 raise MediaError('The combined media exceeds the supported request size.')

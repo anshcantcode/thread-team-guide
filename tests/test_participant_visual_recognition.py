@@ -189,6 +189,47 @@ class VisualRecognitionTests(unittest.IsolatedAsyncioTestCase):
                          'conditional image target lacks clear current label evidence')
         self.assertTrue(self.reply['observations'][0]['uncertain'])
 
+    async def test_unreadable_frame_does_not_block_a_later_text_turn(self):
+        prepared_requests = []
+
+        def handle(request):
+            prepared = json.loads(json.loads(request.content)['contents'][0]['parts'][0]['text'])
+            prepared_requests.append(prepared)
+            latest_text = prepared['messages'][-1]['payload'].get('text', '')
+            if 'frame' in latest_text:
+                return completion(decision(observations=[], tool_calls=[], response=None,
+                    clarification='I could not read the frame. Please resend it or describe it.'))
+            return completion(decision(observations=[], tool_calls=[], response='Two plus two is four.'))
+
+        planner = Planner(transport=httpx.MockTransport(handle))
+        await planner.setup()
+        self.addAsyncCleanup(planner.close)
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue(), planner=planner)
+        agent.tools = deepcopy(self.tools)
+        agent._handle({'event_type': 'video_frame', 'payload': {'image_ref': 'missing.png'}})
+        agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+            'text': 'What can you tell me about this frame?', 'end_of_turn': True}})
+
+        _, first = await agent._plan_task
+        agent._plan_task = None
+        agent._apply(first)
+        emitted = [agent.out_queue.get_nowait() for _ in range(agent.out_queue.qsize())]
+        self.assertEqual(emitted[-1]['action'], 'clarification_request')
+        self.assertIn('could not read the frame', emitted[-1]['payload']['text'])
+        frame = next(message for message in prepared_requests[0]['messages']
+                     if message['event_type'] == 'video_frame')
+        self.assertTrue(frame['payload']['image_unavailable'])
+
+        agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+            'text': 'What is two plus two?', 'end_of_turn': True}})
+        _, second = await agent._plan_task
+        agent._plan_task = None
+        agent._apply(second)
+        emitted = [agent.out_queue.get_nowait() for _ in range(agent.out_queue.qsize())]
+        self.assertEqual(emitted[-1]['action'], 'final_response')
+        self.assertEqual(emitted[-1]['payload']['text'], 'Two plus two is four.')
+        self.assertEqual(len(prepared_requests), 2)
+
     def test_free_prose_and_tool_data_cannot_supply_missing_recognition_evidence(self):
         agent, operation = rendering_controls.GeneralFunctionTests().context('LINE IN')
         selected = agent.observations[0].pop('selected_label')
