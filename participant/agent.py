@@ -25,21 +25,30 @@ _NUMBER_LITERAL = re.compile(
     r"(?<![\w.-])[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?(?![\w.-])")
 
 
-def _has_explicit_number(value, text):
-    expected = Decimal(str(value))
+def _has_exact_field_value(path, value, command):
+    parts = path.split(".")
+    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    literal = (r"(?P<value>true|false)\b" if type(value) is bool
+               else r"(?P<value>" + _NUMBER_LITERAL.pattern + r")")
     found = set()
-    for match in _NUMBER_LITERAL.finditer(text):
-        try:
-            found.add(Decimal(match[0]))
-        except InvalidOperation:
-            pass
-    # A value elsewhere in a multi-number command is not an argument binding.
+    for alias in aliases:
+        field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
+        pattern = (field +
+                   r"\s*(?:(?:=|:)\s*|\b(?:to|is|equals?|of)\b(?:\s+exactly)?\s+)?" + literal)
+        for match in re.finditer(pattern, command, re.I):
+            try:
+                found.add(match["value"].casefold() == "true" if type(value) is bool
+                          else Decimal(match["value"]))
+            except InvalidOperation:
+                pass
+    expected = value if type(value) is bool else Decimal(str(value))
     return found == {expected}
 
 
-def _has_explicit_boolean(value, text):
-    found = {match[0].casefold() for match in re.finditer(r"\b(?:true|false)\b", text, re.I)}
-    return found == {str(value).lower()}
+def _proposed_primitive_values(values):
+    formatted = ", ".join(f"{path}={json.dumps(value, allow_nan=False)}" for path, value in values)
+    return ("Please confirm the proposed values exactly: " + formatted +
+            ". Repeat this field=value set in a new instruction.")
 
 
 class ParticipantAgent:
@@ -436,21 +445,21 @@ class ParticipantAgent:
                     texts.append((index, observation["transcript"]))
         return texts
 
-    def _binding_error(self, step, tool, args):
+    def _binding_error(self, step, tool, args, command=None):
         bindings = step.get("result_bindings", {})
         if not isinstance(bindings, dict):
             return "Result bindings must be an object."
         successes = {key: op for key, op in self.operations.items() if op["status"] == "success"}
         supplied = " ".join(text for _, text in self._user_texts())
-        authorization = step.get("authorization")
-        command = authorization.get("quote", "") if isinstance(authorization, dict) else ""
         if not isinstance(command, str):
             command = ""
-        primitive_paths = [path for path, value in scalar_fields(args)
-                           if type(value) in (bool, int, float) and
-                           not any(path == parent or path.startswith(parent + ".") for parent in bindings)]
-        if tool["kind"] == "state_modifying" and len(primitive_paths) > 1:
-            return "Please confirm each numeric or boolean value for this state-changing action."
+        primitive_values = [(path, value) for path, value in scalar_fields(args)
+                            if type(value) in (bool, int, float) and
+                            not any(path == parent or path.startswith(parent + ".") for parent in bindings)]
+        if tool["kind"] == "state_modifying" and any(
+                not _has_exact_field_value(path, value, command)
+                for path, value in primitive_values):
+            return _proposed_primitive_values(primitive_values)
         for argument, binding in bindings.items():
             try:
                 source = successes[binding["call_id"]]
@@ -473,14 +482,6 @@ class ParticipantAgent:
             required_source = bool(re.search(r"\b(returned|result)\b", description, re.I))
             identifier = path.rsplit(".", 1)[-1].endswith("_id")
             bound = any(path == parent or path.startswith(parent + ".") for parent in bindings)
-            if tool["kind"] == "state_modifying" and not bound:
-                missing = (type(value) is bool and
-                           not _has_explicit_boolean(value, command))
-                missing |= (type(value) in (int, float) and
-                            not _has_explicit_number(value, command))
-                if missing:
-                    return (f"Please supply {path}; I cannot infer this state-changing value "
-                            "without an exact user instruction or verified result.")
             if tool["kind"] == "state_modifying" and isinstance(value, str) and value and not bound:
                 field = path.rsplit(".", 1)[-1].replace("_", " ")
                 descriptive = bool(re.search(r"\b(summary|description|message|note|text|comment|query)\b", field + " " + description, re.I))
@@ -515,7 +516,7 @@ class ParticipantAgent:
             if not grant:
                 self._say("clarification_request", "Please explicitly confirm the action and its target before I change anything.")
                 return
-        binding_error = self._binding_error(step, tool, args)
+        binding_error = self._binding_error(step, tool, args, grant)
         if binding_error:
             self._say("clarification_request", binding_error)
             return
