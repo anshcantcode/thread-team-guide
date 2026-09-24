@@ -14,6 +14,11 @@ class WriteNumericBindingTests(unittest.TestCase):
         return {"authorization": {"quote": agent.messages[0]["payload"]["text"]},
                 "result_bindings": bindings or {}}
 
+    def binding_error(self, agent, tool, args, bindings=None):
+        # The controller passes the full verified user command, not the planner's quote.
+        command = agent.messages[0]["payload"]["text"].casefold()
+        return agent._binding_error(self.step(agent, bindings), tool, args, command)
+
     def test_supplied_quantity_two_does_not_authorize_default_enum_2000(self):
         agent = self.agent("Hold 2 units of ITEM-82 for Nia.")
         tool = {"kind": "state_modifying", "description": "Hold inventory for a customer.", "args": {
@@ -21,7 +26,7 @@ class WriteNumericBindingTests(unittest.TestCase):
             "quantity": {"type": "integer", "enum": [2000], "default": 2000}}}
         args = {"item": "ITEM-82", "customer": "Nia", "quantity": 2000}
 
-        self.assertIn("quantity", agent._binding_error(self.step(agent), tool, args))
+        self.assertIn("quantity", self.binding_error(agent, tool, args))
 
     def test_nested_amount_requires_its_exact_numeric_literal(self):
         agent = self.agent("Charge 50 for Nia.")
@@ -31,7 +36,7 @@ class WriteNumericBindingTests(unittest.TestCase):
                 "customer": {"type": "string", "required": True}}}}}
         args = {"payment": {"amount": 5000, "customer": "Nia"}}
 
-        self.assertIn("payment.amount", agent._binding_error(self.step(agent), tool, args))
+        self.assertIn("payment.amount", self.binding_error(agent, tool, args))
 
     def test_boolean_value_cannot_contradict_explicit_instruction_or_use_default(self):
         agent = self.agent("Set alerts to true for Nia.")
@@ -40,16 +45,16 @@ class WriteNumericBindingTests(unittest.TestCase):
             "enabled": {"type": "boolean", "enum": [False], "default": False}}}
         args = {"customer": "Nia", "enabled": False}
 
-        self.assertIn("enabled", agent._binding_error(self.step(agent), tool, args))
+        self.assertIn("enabled", self.binding_error(agent, tool, args))
 
     def test_exact_explicit_quantity_is_allowed(self):
-        agent = self.agent("Hold 2 units of ITEM-82 for Nia.")
+        agent = self.agent("Hold quantity 2 of ITEM-82 for Nia.")
         tool = {"kind": "state_modifying", "description": "Hold inventory for a customer.", "args": {
             "item": {"type": "string"}, "customer": {"type": "string"},
             "quantity": {"type": "integer", "default": 2000}}}
         args = {"item": "ITEM-82", "customer": "Nia", "quantity": 2}
 
-        self.assertEqual(agent._binding_error(self.step(agent), tool, args), "")
+        self.assertEqual(self.binding_error(agent, tool, args), "")
 
     def test_verified_result_binding_supplies_numeric_value(self):
         agent = self.agent("Hold the available quantity of ITEM-82 for Nia.")
@@ -61,37 +66,38 @@ class WriteNumericBindingTests(unittest.TestCase):
         step = self.step(agent, {"quantity": {"call_id": "lookup-1", "path": "quantity"}})
         args = {"item": "ITEM-82", "customer": "Nia", "quantity": 2000}
 
-        self.assertEqual(agent._binding_error(step, tool, args), "")
+        self.assertEqual(agent._binding_error(step, tool, args,
+                                              agent.messages[0]["payload"]["text"].casefold()), "")
 
     def test_exact_boolean_literal_is_allowed(self):
-        agent = self.agent("Set alerts to false for Nia.")
+        agent = self.agent("Set enabled to false for Nia.")
         tool = {"kind": "state_modifying", "description": "Set notification alerts.", "args": {
             "customer": {"type": "string"}, "enabled": {"type": "boolean"}}}
         args = {"customer": "Nia", "enabled": False}
 
-        self.assertEqual(agent._binding_error(self.step(agent), tool, args), "")
+        self.assertEqual(self.binding_error(agent, tool, args), "")
 
     def test_other_numeric_literal_cannot_authorize_the_quantity(self):
         agent = self.agent("Hold 2 units and 50 boxes for Nia.")
         tool = {"kind": "state_modifying", "description": "Hold inventory.", "args": {
             "quantity": {"type": "integer"}, "customer": {"type": "string"}}}
-        self.assertIn("quantity", agent._binding_error(self.step(agent), tool,
-                                                          {"quantity": 50, "customer": "Nia"}))
+        self.assertIn("quantity", self.binding_error(agent, tool,
+                                                      {"quantity": 50, "customer": "Nia"}))
 
     def test_two_unbound_primitive_fields_require_clarification(self):
         agent = self.agent("Set limit 2 and threshold 50 for Nia.")
         tool = {"kind": "state_modifying", "description": "Set limits.", "args": {
             "limit": {"type": "integer"}, "threshold": {"type": "integer"},
             "customer": {"type": "string"}}}
-        self.assertIn("confirm", agent._binding_error(self.step(agent), tool,
-                                                       {"limit": 50, "threshold": 2, "customer": "Nia"}))
+        self.assertIn("confirm", self.binding_error(agent, tool,
+                                                    {"limit": 50, "threshold": 2, "customer": "Nia"}))
 
     def test_conflicting_boolean_literals_require_clarification(self):
         agent = self.agent("Set alerts true but set backup false for Nia.")
         tool = {"kind": "state_modifying", "description": "Set alerts.", "args": {
             "enabled": {"type": "boolean"}, "customer": {"type": "string"}}}
-        self.assertIn("enabled", agent._binding_error(self.step(agent), tool,
-                                                        {"enabled": False, "customer": "Nia"}))
+        self.assertIn("enabled", self.binding_error(agent, tool,
+                                                     {"enabled": False, "customer": "Nia"}))
 
 
 if __name__ == "__main__":
