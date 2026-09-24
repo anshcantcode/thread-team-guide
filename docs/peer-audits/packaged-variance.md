@@ -1,17 +1,19 @@
 # Frozen package score variance — 24 September 2026
 
 The Samsung package built from THREAD commit `c2504bc` passed the official
-package/contract checks and all 27 real-time public attempts. Its
+package/contract checks and completed all 27 real-time public attempts. Of
+those, 22 scored 100 and five scored below 100. Its
 [score report](../benchmarks/mega-packaged-2026-09-24-3x.json) is **90.6
 weighted**, below the earlier [94.0 source run](../benchmarks/mega-pre-local-asr-2026-09-24-3x.json).
 The package was frozen before this run, with the official kit files preserved.
 This difference is a measured reliability problem, not an adjusted score.
 
 A later package from `c513567`, including a 10 ms post-turn acknowledgment
-fence, also passed package and contract checks but scored only **78.0
-weighted** on the complete official 27 attempts. Its
+fence, also passed package and contract checks and completed all 27 official
+attempts; 14 scored 100 and 13 scored below 100. Its weighted score was only
+**78.0**. Its
 [per-attempt report](../benchmarks/mega-fenced-package-2026-09-24-3x.json)
-has SHA-256 `93D7F95A8FBE93DFE4A050986E0D6F2FD14F700939318523933C34E3AEC7AF8C`;
+has SHA-256 `9edf4f9942307135bc218ee0cd5fb1d2830ad7ae15ff8285d756c25c8361a810`;
 the package ZIP SHA-256 is
 `44d10a0ce8a45293221dc80a5027acb4be60e8d2c21bdb808ecf53d661e07a65`.
 Its case medians were text 01–04: 100, audio 05: 72.3, audio 06: 56.9,
@@ -38,9 +40,9 @@ tail. Raw records are at `.runtime/public-traces/fenced-pub09-2026-09-24-3x.json
 
 A subsequent visual 07 replay scored `47.7, 47.7, 47.7` and produced no
 manual lookup. Planner records show one timeout after 2,532 ms and two
-transport errors before inference after 15 and 47 ms. This is additional
-evidence of route availability trouble; the short transport errors are not
-evidence that the model misidentified a port. Its ignored trace is
+generic `transport_error` outcomes with no accepted decision, at 15 and 47
+ms. The records do not show where those requests failed or whether inference
+began. Its ignored trace is
 `.runtime/public-traces/fenced-pub07-2026-09-24-3x.json`.
 
 The visual case had scores `47.7, 33.8, 100` in the packaged full run. A
@@ -62,11 +64,14 @@ packaged replay scored `76.9, 100, 100`; raw traces are at
 `.runtime/public-traces/package-pub09-2026-09-24-3x.json`. In the 76.9
 attempt, `weather_lookup` completed with the correct city and the agent
 answered from its result. Task and safety were full credit, but latency was
-zero. The acknowledgment was logged at 796 ms, four milliseconds before the
-last user chunk's nominal 800 ms timestamp. The scorer therefore measured
-the first **post-turn** answer at 3,828 ms (3,028 ms after that chunk). In
-the two 100-point attempts, acknowledgments landed at 812 ms, 12 ms after
-the nominal end. This is a narrow timing race around the turn boundary.
+zero. The trace logs actual delivery of the last user chunk and the
+acknowledgment at the same displayed timestamp, 796 ms; the scenario's
+nominal timestamp for that chunk is 800 ms. The scorer measured the first
+**post-turn** answer at 3,828 ms, or 3,028 ms after the nominal 800 ms end.
+In the two 100-point attempts, acknowledgments landed at 812 ms, 12 ms after
+the nominal end. These are comparisons with scheduled timestamps; the
+displayed trace timestamps do not resolve any offset between actual chunk
+delivery and acknowledgment in the 796 ms attempt.
 
 The full Python 3.11 suite passed in isolation after the first live run:
 `1,044 tests in 64.550s, OK`. After the fence change, `1,045 tests in
