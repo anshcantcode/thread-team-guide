@@ -11,7 +11,7 @@ from threading import Lock
 
 
 MODEL_ID = 'dropbox-dash/faster-whisper-large-v3-turbo'
-MODEL_REVISION = '0c94664816ec82be77b20e824c8e8675995b0029'
+MODEL_REVISION = '0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf'
 MAX_AUDIO_BYTES = 8_000_000
 _MIME_SUFFIX = {'audio/mpeg': '.mp3', 'audio/wav': '.wav'}
 
@@ -141,7 +141,8 @@ class LocalASR:
                 path = stream.name
                 stream.write(raw)
             segments, info = self._get_model().transcribe(
-                path, task='transcribe', beam_size=5, temperature=0.0,
+                path, task='transcribe', language='en', beam_size=5, temperature=0.0,
+                word_timestamps=True,
                 condition_on_previous_text=False,
             )
             transcript = ''.join(segment.text for segment in segments)

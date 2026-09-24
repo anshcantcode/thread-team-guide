@@ -83,6 +83,14 @@ class LocalASRTests(unittest.TestCase):
             adapter.transcribe(wav_bytes(), 'audio/wav')
             adapter.transcribe(wav_bytes(), 'audio/wav')
             load.assert_called_once_with()
+        self.assertEqual(model.options, {
+            'task': 'transcribe',
+            'language': 'en',
+            'beam_size': 5,
+            'temperature': 0.0,
+            'word_timestamps': True,
+            'condition_on_previous_text': False,
+        })
 
         calls = []
         def whisper_model(*args, **kwargs):
@@ -92,6 +100,7 @@ class LocalASRTests(unittest.TestCase):
             self.assertIs(local_asr._load_model(), model)
         args, kwargs = calls[0]
         self.assertEqual(args, (local_asr.MODEL_ID,))
+        self.assertEqual(kwargs['revision'], '0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf')
         self.assertEqual(kwargs['revision'], local_asr.MODEL_REVISION)
         self.assertTrue(kwargs['local_files_only'])
         self.assertEqual(kwargs['device'], 'cpu')
