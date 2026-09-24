@@ -545,11 +545,13 @@ class ParticipantAgent:
         # A fresh explicit user instruction can authorize the same effect again.
         # Reperceiving the same recording can change its transcript, not its user turn.
         authority_key = (self._request_start, grant) if grant is not None else None
-        interrupted_request = (self._request_start < len(self.messages) and
-                               self.messages[self._request_start]["event_type"] == "interruption")
-        if tool["kind"] == "state_modifying" and interrupted_request and any(
+        # Later text/audio can move request_start past an interruption following this write.
+        last_interruption = next((message["message_index"] for message in reversed(self.messages)
+                                  if message["event_type"] == "interruption"), -1)
+        if tool["kind"] == "state_modifying" and any(
                 op["kind"] == "state_modifying" and op["key"] == key and
-                op["status"] in {"unknown", "cancel_requested"} for op in self.operations.values()):
+                op["status"] in {"unknown", "cancel_requested"} and op["request_start"] <= last_interruption
+                for op in self.operations.values()):
             self._final("That action was already submitted. Its recorded outcome must be checked before trying again.")
             return False
         same = [op for op in self.operations.values() if op["key"] == key and
