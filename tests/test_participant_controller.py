@@ -539,8 +539,13 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(final["state_snapshot"]["actions"][0]["status"], "unknown")
         self.assertEqual(len(agent.operations), 2)
         await self.result(agent, write, {"receipt_id": "LATE-SUCCESS"})
-        final = await self.output(agent, "final_response")
-        self.assertEqual(final["state_snapshot"]["actions"][0]["status"], "success")
+        async def reconciled():
+            while agent.operations[write["payload"]["call_id"]]["status"] != "success":
+                await asyncio.sleep(0)
+        await asyncio.wait_for(reconciled(), 0.5)
+        self.assertEqual(agent.snapshot()["actions"][0]["result"]["receipt_id"], "LATE-SUCCESS")
+        self.assertEqual(agent.state["slots"]["receipt_id"], "LATE-SUCCESS")
+        self.assertEqual(self.drain(agent), [])
 
     async def test_ambiguous_write_is_not_retried_after_interruption(self):
         tool = {"kind": "state_modifying", "description": "Create a note.",
@@ -1241,6 +1246,34 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         await self.result(agent, call, {"reference_id": "SECOND"})
         await asyncio.sleep(0.01)
         self.assertEqual(agent.state["slots"]["reference_id"], "FIRST")
+        self.assertEqual(self.drain(agent), [])
+
+    async def test_conflicting_write_results_commit_and_speak_once(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.", "args": {
+            "text": {"type": "string", "required": True}}}
+        step = {"api_name": "create_note", "args": {"text": "hello"},
+                "authorization": {"quote": "Create a note"},
+                "response_template": "Created note {note_id}."}
+        agent = await self.start(lambda _: {"tool_calls": [step]}, tools={"create_note": tool})
+        await self.speak(agent, "Create a note saying hello.")
+        call = await self.output(agent, "tool_call")
+        notifications = (
+            ("error", {"status": "error", "error": "timeout"}),
+            ("success", {"status": "success", "note_id": "NOTE-FIRST"}),
+            ("success", {"status": "success", "note_id": "NOTE-SECOND"}),
+        )
+        for status, result in notifications:
+            agent.in_queue.put_nowait({"event_type": "tool_result", "payload": {
+                **call["payload"], "status": status, "result": result}})
+
+        final = await self.output(agent, "final_response")
+        operation = agent.operations[call["payload"]["call_id"]]
+        self.assertIn("could not confirm", final["payload"]["text"])
+        self.assertEqual(operation["status"], "success")
+        self.assertEqual(operation["result"]["note_id"], "NOTE-FIRST")
+        self.assertEqual(agent.state["slots"]["note_id"], "NOTE-FIRST")
+        self.assertEqual(len(agent.tool_results), 2)
+        self.assertEqual(len(agent.operations), 1)
         self.assertEqual(self.drain(agent), [])
 
     async def test_no_tool_reply_and_planner_failure_remain_valid(self):
