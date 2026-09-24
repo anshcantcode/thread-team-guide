@@ -48,7 +48,7 @@ def _has_exact_field_value(path, value, command):
 def _proposed_primitive_values(values):
     formatted = ", ".join(f"{path}={json.dumps(value, allow_nan=False)}" for path, value in values)
     return ("Please confirm the proposed values exactly: " + formatted +
-            ". Repeat this field=value set in a new instruction.")
+            ". State the action and target with these field=value pairs in a new instruction.")
 
 
 class ParticipantAgent:
