@@ -49,6 +49,8 @@ class LocalASRSetupTests(unittest.IsolatedAsyncioTestCase):
         local_asr.assert_called_once_with(device='cuda', compute_type='float16')
         local_asr.return_value.prewarm.assert_called_once_with()
         self.assertIs(planner._local_asr, local_asr.return_value)
+        await planner.close()
+        self.assertIsNone(planner._local_asr)
 
     async def test_unavailable_cuda_provider_fails_without_fallback(self):
         os.environ['PARTICIPANT_ACOUSTIC_PROVIDER'] = 'local_whisper_cuda'

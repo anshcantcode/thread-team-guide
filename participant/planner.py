@@ -962,6 +962,7 @@ class Planner:
         if self.client is not None:
             client, self.client = self.client, None
             await client.aclose()
+        self._local_asr = None
 
     def _record(self, record):
         self.evidence.append(dict(record))
