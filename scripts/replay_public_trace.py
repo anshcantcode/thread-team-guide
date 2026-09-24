@@ -67,9 +67,17 @@ async def replay_public_scenario(scenario_id: str, *, agent_factory=None) -> dic
     factory = agent_factory or (lambda in_q, out_q: ParticipantAgent(in_q, out_q))
     attempts = []
     for attempt in range(1, REPETITIONS + 1):
-        harness = EvaluationHarness(scenario, factory, time_scale=TIME_SCALE, verbose=False)
+        agents = []
+        def record_agent(in_q, out_q):
+            agent = factory(in_q, out_q)
+            agents.append(agent)
+            return agent
+        harness = EvaluationHarness(scenario, record_agent, time_scale=TIME_SCALE, verbose=False)
         trace = await harness.run()
-        attempts.append({"attempt": attempt, "score": score_scenario(scenario, trace), "trace": trace})
+        records = [record for agent in agents if getattr(agent, "planner", None) is not None
+                   for record in getattr(agent.planner, "evidence", [])]
+        attempts.append({"attempt": attempt, "score": score_scenario(scenario, trace),
+                         "trace": trace, "planner_records": records})
 
     report = {
         "scenario_id": scenario_id,
