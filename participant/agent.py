@@ -264,6 +264,7 @@ class ParticipantAgent:
         for op in self.operations.values():
             if (op["kind"] == "state_modifying" and op["status"] == "pending" and
                     time.monotonic() >= op.get("deadline", float("inf"))):
+                op["continuation_retired"] = True
                 op["status"] = "unknown"
                 if op["revision"] == self.revision:
                     self._final("I could not confirm the action's outcome because no result arrived. I will not repeat it without checking what happened.")
@@ -605,7 +606,9 @@ class ParticipantAgent:
         self._continue_result(operation)
 
     def _continue_result(self, operation):
-        if operation.get("result_announced"):
+        if (operation.get("result_announced") or
+                (operation.get("continuation_retired") and
+                 operation["step"].get("after_result") is not None)):
             return
         next_step = operation["step"].get("after_result")
         if next_step is not None:
