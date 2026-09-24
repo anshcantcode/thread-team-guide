@@ -19,6 +19,7 @@ class RouteProbeTest(unittest.IsolatedAsyncioTestCase):
             body = json.loads(request.content)
             assert body["model"] == "qwen/qwen3.8-27b"
             assert body["reasoning_effort"] == "none"
+            assert body["response_format"]["type"] == "json_schema"
             return httpx.Response(200, json={"choices": [{"finish_reason": "stop",
                 "message": {"content": '{"intent":"help","slots":{},"tool_calls":[],"observations":[],"clarification":null,"response":"Done."}'}}]})
 
@@ -27,7 +28,8 @@ class RouteProbeTest(unittest.IsolatedAsyncioTestCase):
         route.client = httpx.AsyncClient(transport=httpx.MockTransport(respond))
         source = {"systemInstruction": {"parts": [{"text": "Return JSON."}]},
                   "contents": [{"parts": [{"text": "hello"}]}],
-                  "generationConfig": {"maxOutputTokens": 100}}
+                  "generationConfig": {"maxOutputTokens": 100, "responseJsonSchema": {
+                      "type": "object", "properties": {"response": {"type": "string"}}}}}
         request = httpx.Request("POST", "https://generativelanguage.googleapis.com/test", json=source)
         response = await route.handle_async_request(request)
         self.assertEqual(response.status_code, 200)
@@ -47,6 +49,19 @@ class RouteProbeTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(calls), 2)
         self.assertNotIn("fake-key", json.dumps(route.rows))
         await route.client.aclose()
+
+        limited = Route("groq", "fake-key", "https://api.groq.com/openai/v1", 1)
+        await limited.client.aclose()
+        limited.client = httpx.AsyncClient(transport=httpx.MockTransport(
+            lambda request: httpx.Response(429, headers={"retry-after": "60"})))
+        source["systemInstruction"]["parts"][0]["text"] = "Return JSON."
+        source["contents"][0]["parts"] = [{"text": "hello"}]
+        response = await limited.handle_async_request(httpx.Request(
+            "POST", "https://generativelanguage.googleapis.com/test", json=source))
+        self.assertEqual(response.status_code, 429)
+        self.assertTrue(limited.rate_limited)
+        self.assertEqual(limited.rows[0]["retry_after"], "60")
+        await limited.client.aclose()
 
 
 if __name__ == "__main__":

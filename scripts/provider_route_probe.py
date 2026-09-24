@@ -1,6 +1,6 @@
 """Run public Samsung cases through the reviewed agent with experimental routes.
 
-Requires GROQ_API_KEY for Groq, or DASHSCOPE_API_KEY plus DASHSCOPE_BASE_URL
+Requires THREAD_GROQ_API_KEY (or GROQ_API_KEY) for Groq, or DASHSCOPE_API_KEY plus DASHSCOPE_BASE_URL
 for an Alibaba Singapore compatible-mode /v1 workspace. Pass --env-file to
 read credentials without printing them. This does not modify the submission.
 """
@@ -38,6 +38,7 @@ class Route(httpx.AsyncBaseTransport):
         self.model = "qwen3.8-flash" if name == "alibaba" else "qwen/qwen3.8-27b"
         self.client = httpx.AsyncClient(timeout=httpx.Timeout(4.3, connect=2.0))
         self.api_calls = 0
+        self.rate_limited = False
         self.rows = []
 
     async def aclose(self):
@@ -56,7 +57,7 @@ class Route(httpx.AsyncBaseTransport):
             files={"file": (filename, base64.b64decode(encoded, validate=True), mime)},
         )
         if response.status_code != 200:
-            raise RouteStatus(response.status_code)
+            raise RouteStatus(response.status_code, response.headers.get("retry-after"))
         payload = response.json()
         transcript = payload.get("text", "").strip()
         if not transcript:
@@ -115,13 +116,22 @@ class Route(httpx.AsyncBaseTransport):
                         "max_completion_tokens": source["generationConfig"]["maxOutputTokens"]}
                 if self.name == "groq":
                     body["reasoning_effort"] = "none"
+                    body["response_format"] = {"type": "json_schema", "json_schema": {
+                        "name": "participant_decision", "strict": False,
+                        "schema": source["generationConfig"]["responseJsonSchema"]}}
                 self.claim_call()
                 response = await self.client.post(
                     f"{self.base_url}/chat/completions",
                     headers={"authorization": f"Bearer {self.key}"}, json=body)
+                row["limits"] = {header: response.headers[header] for header in (
+                    "x-ratelimit-limit-tokens", "x-ratelimit-remaining-tokens",
+                    "x-ratelimit-reset-tokens", "x-ratelimit-remaining-requests") if header in response.headers}
                 if response.status_code != 200:
-                    raise RouteStatus(response.status_code)
-                choice = response.json()["choices"][0]
+                    raise RouteStatus(response.status_code, response.headers.get("retry-after"))
+                payload = response.json()
+                row["usage"] = {k: payload.get("usage", {}).get(k) for k in
+                    ("prompt_tokens", "completion_tokens", "total_tokens") if k in payload.get("usage", {})}
+                choice = payload["choices"][0]
                 if choice.get("finish_reason") != "stop":
                     raise ValueError("incomplete chat response")
                 output = choice["message"]["content"]
@@ -131,6 +141,10 @@ class Route(httpx.AsyncBaseTransport):
                 "candidates": [{"finishReason": "STOP", "content": {"parts": [{"text": output}]}}]}, request=request)
         except RouteStatus as exc:
             row["status"] = exc.status
+            if exc.status == 429:
+                self.rate_limited = True
+            if exc.retry_after is not None:
+                row["retry_after"] = exc.retry_after
             return httpx.Response(exc.status, json={"error": "route request failed"}, request=request)
         except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError) as exc:
             row["status"] = type(exc).__name__
@@ -141,8 +155,9 @@ class Route(httpx.AsyncBaseTransport):
 
 
 class RouteStatus(Exception):
-    def __init__(self, status):
+    def __init__(self, status, retry_after=None):
         self.status = status
+        self.retry_after = retry_after
 
 
 def configure(args):
@@ -164,10 +179,13 @@ def configure(args):
             raise ValueError("Gemini key missing")
         os.environ["SECRET_GEMINI_API_KEY"] = key
         return None
-    name = "GROQ_API_KEY" if args.route == "groq" else "DASHSCOPE_API_KEY"
-    key = value(name)
+    names = ("THREAD_GROQ_API_KEY", "GROQ_API_KEY") if args.route == "groq" else ("DASHSCOPE_API_KEY",)
+    keys = {value(name) for name in names} - {None, ""}
+    if len(keys) > 1:
+        raise ValueError("Conflicting route credentials")
+    key = next(iter(keys), "")
     if not key:
-        raise ValueError(f"{name} missing")
+        raise ValueError(f"{' or '.join(names)} missing")
     base = value("DASHSCOPE_BASE_URL") if args.route == "alibaba" else "https://api.groq.com/openai/v1"
     if args.route == "alibaba" and not base.endswith("/compatible-mode/v1"):
         raise ValueError("DASHSCOPE_BASE_URL must end in /compatible-mode/v1")
@@ -187,20 +205,22 @@ async def evaluate(args, route):
     rows = []
     try:
         for path in paths:
+            if route and route.rate_limited:
+                break
             scenario = json.loads(path.read_text(encoding="utf-8"))
             meta = scenario["metadata"]
             weight = (1.5 if meta["modality"] in ("audio", "visual") else 1) * (
                 1.25 if meta["difficulty"] in ("L3", "L4") else 1)
             scores, timings = [], []
             for _ in range(args.reps):
-                if route and route.api_calls >= args.max_calls:
+                if route and (route.api_calls >= args.max_calls or route.rate_limited):
                     break
                 harness = EvaluationHarness(scenario,
                     lambda iq, oq: ParticipantAgent(iq, oq, planner=Planner(transport=route)),
                     time_scale=args.time_scale, verbose=False)
                 try:
                     with planner_trace(lambda record: timings.append({key: record.get(key) for key in
-                            ("phase", "status", "elapsed_ms", "finish_reason") if key in record})):
+                            ("phase", "status", "elapsed_ms", "finish_reason", "validation_error") if key in record})):
                         trace = await asyncio.wait_for(harness.run(), timeout=args.wall_cap)
                     score = score_scenario(scenario, trace)["total"]
                 except asyncio.TimeoutError:
@@ -216,8 +236,11 @@ async def evaluate(args, route):
             await route.client.aclose()
     total_weight = sum(row["weight"] for row in rows)
     weighted = sum(row["median"] * row["weight"] for row in rows) / total_weight if total_weight else 0
+    complete = len(rows) == len(paths) and all(len(row["scores"]) == args.reps for row in rows)
+    complete = complete and not (route and route.rate_limited)
     return {"route": args.route, "model": route.model if route else os.getenv("PARTICIPANT_MODEL", "gemini-3.5-flash-lite"),
             "public_scenarios_only": True, "reps": args.reps, "time_scale": args.time_scale,
+            "complete": complete, "rate_limited": bool(route and route.rate_limited),
             "thinking_level": os.getenv("PARTICIPANT_THINKING_LEVEL", "minimal"),
             "image_embedding": os.getenv("PARTICIPANT_IMAGE_EMBEDDING", "1") == "1",
             "audio_mode": os.getenv("PARTICIPANT_AUDIO_MODE", "independent"),
@@ -247,7 +270,7 @@ def main():
         report = asyncio.run(evaluate(args, route))
     except ValueError as exc:
         parser.error(str(exc))
-    print(f"Weighted public score: {report['weighted_score']:.1f}")
+    print(f"{'Weighted public score' if report['complete'] else 'Partial public score'}: {report['weighted_score']:.1f}")
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(report, indent=2), encoding="utf-8")
