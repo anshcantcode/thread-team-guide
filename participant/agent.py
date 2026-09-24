@@ -27,13 +27,19 @@ _NUMBER_LITERAL = re.compile(
 
 def _has_explicit_number(value, text):
     expected = Decimal(str(value))
+    found = set()
     for match in _NUMBER_LITERAL.finditer(text):
         try:
-            if Decimal(match[0]) == expected:
-                return True
+            found.add(Decimal(match[0]))
         except InvalidOperation:
             pass
-    return False
+    # A value elsewhere in a multi-number command is not an argument binding.
+    return found == {expected}
+
+
+def _has_explicit_boolean(value, text):
+    found = {match[0].casefold() for match in re.finditer(r"\b(?:true|false)\b", text, re.I)}
+    return found == {str(value).lower()}
 
 
 class ParticipantAgent:
@@ -438,6 +444,11 @@ class ParticipantAgent:
         command = authorization.get("quote", "") if isinstance(authorization, dict) else ""
         if not isinstance(command, str):
             command = ""
+        primitive_paths = [path for path, value in scalar_fields(args)
+                           if type(value) in (bool, int, float) and
+                           not any(path == parent or path.startswith(parent + ".") for parent in bindings)]
+        if tool["kind"] == "state_modifying" and len(primitive_paths) > 1:
+            return "Please confirm each numeric or boolean value for this state-changing action."
         for argument, binding in bindings.items():
             try:
                 source = successes[binding["call_id"]]
@@ -462,7 +473,7 @@ class ParticipantAgent:
             bound = any(path == parent or path.startswith(parent + ".") for parent in bindings)
             if tool["kind"] == "state_modifying" and not bound:
                 missing = (type(value) is bool and
-                           not contains_value(str(value).lower(), command))
+                           not _has_explicit_boolean(value, command))
                 missing |= (type(value) in (int, float) and
                             not _has_explicit_number(value, command))
                 if missing:

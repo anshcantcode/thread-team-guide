@@ -71,6 +71,28 @@ class WriteNumericBindingTests(unittest.TestCase):
 
         self.assertEqual(agent._binding_error(self.step(agent), tool, args), "")
 
+    def test_other_numeric_literal_cannot_authorize_the_quantity(self):
+        agent = self.agent("Hold 2 units and 50 boxes for Nia.")
+        tool = {"kind": "state_modifying", "description": "Hold inventory.", "args": {
+            "quantity": {"type": "integer"}, "customer": {"type": "string"}}}
+        self.assertIn("quantity", agent._binding_error(self.step(agent), tool,
+                                                          {"quantity": 50, "customer": "Nia"}))
+
+    def test_two_unbound_primitive_fields_require_clarification(self):
+        agent = self.agent("Set limit 2 and threshold 50 for Nia.")
+        tool = {"kind": "state_modifying", "description": "Set limits.", "args": {
+            "limit": {"type": "integer"}, "threshold": {"type": "integer"},
+            "customer": {"type": "string"}}}
+        self.assertIn("confirm", agent._binding_error(self.step(agent), tool,
+                                                       {"limit": 50, "threshold": 2, "customer": "Nia"}))
+
+    def test_conflicting_boolean_literals_require_clarification(self):
+        agent = self.agent("Set alerts true but set backup false for Nia.")
+        tool = {"kind": "state_modifying", "description": "Set alerts.", "args": {
+            "enabled": {"type": "boolean"}, "customer": {"type": "string"}}}
+        self.assertIn("enabled", agent._binding_error(self.step(agent), tool,
+                                                        {"enabled": False, "customer": "Nia"}))
+
 
 if __name__ == "__main__":
     unittest.main()
