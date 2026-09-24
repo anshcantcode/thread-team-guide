@@ -2,7 +2,22 @@
 
 Checked: 24 September 2026. This is a map of documented product capabilities, not a measured head-to-head result. Recheck availability by device, country and account before making public claims.
 
-THREAD's tested advantage is its visible task revision and action ledger: a correction can invalidate pending work, and completed or uncertain writes remain accounted for. The current Samsung participant has 352 passing offline methods. A later official nine-case, three-repeat public evaluation reached 94.0 weighted using median scores, with audio disfluency the main repeatable miss; individual audio, visual, and unseen-tool runs still had low outliers. Provider delivery and audio/visual task completion remain the immediate submission risks. See `docs/PROVIDER_ROUTE_COMPARISON.md` for measured results.
+THREAD's tested advantage is its visible task revision and action ledger: a correction can invalidate pending work, and completed or uncertain writes remain accounted for. The Samsung participant has 352 passing offline methods. An isolated 24 September run on reviewed checkpoint `f45f0b1` scored **94.0 weighted across nine public cases × three repetitions**, with 22 of 27 individual attempts at 100. Audio case 06 failed twice; no-tool case 04, visual case 07 and unseen-tool case 09 each had one lower attempt. An earlier candidate 009 run on 21 September scored 62.6 amid provider deadlines. The 94.0 is a later, distinct sample, not proof of stable qualification. Its report is in `docs/PROVIDER_ROUTE_COMPARISON.md`; the raw report remains local and is not yet reviewable on GitHub.
+
+## Samsung Theme 5 peer projects
+
+This is a **provisional evidence order**, not a competition leaderboard. Compare the same frozen kit, time scale, nine cases, three attempts per case, mandatory completion and factual quality before treating scores as directly comparable.
+
+| Peer | Evidence checked 24 September | Current limitation / THREAD action |
+|---|---|---|
+| [DUET, Team SE7EN](https://github.com/tannnmayy/DUET-SAMSUNGPRISM-HACKATHON-TEAM-SE7EN/blob/4d08c2b0c9a0a29e39559fb7b2439029aff5725d/README.md) | Its README reports **97.4 weighted**, text/audio 100 and visual 81.5. The cited evaluator command defaults to **three repetitions at time scale 1**; 17 relevant public scenario/evaluator files match THREAD's kit byte for byte. DUET uses local Whisper with a CPU fallback, a fast rule path and guarded writes. | No per-attempt 27-case report is committed in DUET's `results/`, and this score has not been independently reproduced here. Its visual port answer abstains. Treat it as the leading reported score and target THREAD's audio reliability and five non-perfect attempts before claiming parity. |
+| THREAD | The isolated 94.0 public run above is measured locally with the official evaluator; action safety and correction handling have separate checks. The camera feature has an S24 device check in a separate branch. | Five of 27 attempts were below 100, including two on audio case 06. The benchmark and camera branches are local, and a second independent complete qualification is still needed. Camera UX is not itself a judge score. |
+| [AccessFlow](https://github.com/MridulNegi2005/AccessFlow/blob/749fe23aac10e5d79b74f75fdb257500702fee65/docs/STATUS.md) | The merged engine and perception work has live text screening and explicit action/result tracking. | Its status explicitly retains **four pending-frame controller failures** and says the build is not multimodal-ready; no comparable complete public result is established. |
+| [Talent Atlas](https://github.com/pylrn/talent-atlas-realtime-agent) | Selective cancellation preserves unaffected retrieval branches and exposes an activity graph. | Its domain-specific recruiting evaluation does not establish a comparable complete Samsung public result. Selective reuse is worth testing only if THREAD's correction ledger proves the reused read remains current. |
+| [Interject](https://github.com/joannamariyajames/interject) | Cancellable turns and checkpoints can resume a paused answer or park a goal; its source describes the behavior and tests. | The published demo simulates voice from transcripts, and no comparable complete Samsung public result is established. Test goal-switch and resumption behavior against THREAD before borrowing the approach. |
+| Aura | The user supplied a report of improved confirmation/cancellation and a custom-scorer limitation. | Exact source and current commit remain to be verified; do not rank it by score yet. |
+
+## Product and platform competitors
 
 | Competitor | Documented capability relevant to THREAD | THREAD status / testable opportunity | Priority |
 |---|---|---|---|
