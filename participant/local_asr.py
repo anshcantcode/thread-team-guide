@@ -40,12 +40,12 @@ class ASRTimeoutError(LocalASRError):
     """Recognition did not finish before its deadline."""
 
 
-def _load_model():
+def _load_model(device='cpu', compute_type='int8'):
     """Load only the pinned cached model; never fetch model files at runtime."""
     from faster_whisper import WhisperModel
 
     return WhisperModel(
-        MODEL_ID, device='cpu', compute_type='int8',
+        MODEL_ID, device=device, compute_type=compute_type,
         local_files_only=True, revision=MODEL_REVISION,
     )
 
@@ -58,10 +58,16 @@ class LocalASR:
     exactly the data passed to faster-whisper. A model can be injected for tests.
     """
 
-    def __init__(self, model=None):
+    def __init__(self, model=None, *, device='cpu', compute_type='int8'):
         self._model = model
+        self._device = device
+        self._compute_type = compute_type
         self._state_lock = Lock()
         self._future: Future | None = None
+
+    def prewarm(self) -> None:
+        """Load the model synchronously before timed recognition turns."""
+        self._get_model()
 
     def transcribe(self, audio: bytes | bytearray | memoryview | str | os.PathLike,
                    mime_type: str, *, timeout: float = 60.0) -> dict:
@@ -122,7 +128,7 @@ class LocalASR:
     def _get_model(self):
         if self._model is None:
             try:
-                self._model = _load_model()
+                self._model = _load_model(self._device, self._compute_type)
             except Exception:
                 raise ASRUnavailableError('The pinned local speech model is unavailable.') from None
         return self._model

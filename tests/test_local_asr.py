@@ -75,14 +75,15 @@ class LocalASRTests(unittest.TestCase):
             with self.assertRaises(ASRInputError):
                 LocalASR(FakeModel()).transcribe(path, 'audio/mpeg')
 
-    def test_model_load_is_lazy_cached_and_offline_pinned(self):
+    def test_model_prewarm_uses_selected_backend_once_and_stays_offline_pinned(self):
         model = FakeModel()
         with patch('participant.local_asr._load_model', return_value=model) as load:
-            adapter = LocalASR()
+            adapter = LocalASR(device='cuda', compute_type='float16')
             load.assert_not_called()
+            adapter.prewarm()
+            adapter.prewarm()
             adapter.transcribe(wav_bytes(), 'audio/wav')
-            adapter.transcribe(wav_bytes(), 'audio/wav')
-            load.assert_called_once_with()
+            load.assert_called_once_with('cuda', 'float16')
         self.assertEqual(model.options, {
             'task': 'transcribe',
             'language': 'en',
@@ -91,19 +92,29 @@ class LocalASRTests(unittest.TestCase):
             'word_timestamps': True,
             'condition_on_previous_text': False,
         })
+        with patch('participant.local_asr._load_model', return_value=model) as load:
+            LocalASR().prewarm()
+            load.assert_called_once_with('cpu', 'int8')
 
         calls = []
         def whisper_model(*args, **kwargs):
             calls.append((args, kwargs))
             return model
         with patch.dict(sys.modules, {'faster_whisper': types.SimpleNamespace(WhisperModel=whisper_model)}):
-            self.assertIs(local_asr._load_model(), model)
+            self.assertIs(local_asr._load_model('cuda', 'float16'), model)
         args, kwargs = calls[0]
         self.assertEqual(args, (local_asr.MODEL_ID,))
         self.assertEqual(kwargs['revision'], '0a363e9161cbc7ed1431c9597a8ceaf0c4f78fcf')
         self.assertEqual(kwargs['revision'], local_asr.MODEL_REVISION)
         self.assertTrue(kwargs['local_files_only'])
-        self.assertEqual(kwargs['device'], 'cpu')
+        self.assertEqual(kwargs['device'], 'cuda')
+        self.assertEqual(kwargs['compute_type'], 'float16')
+
+    def test_cuda_load_failure_does_not_retry_on_cpu(self):
+        with patch('participant.local_asr._load_model', side_effect=RuntimeError('cuda unavailable')) as load:
+            with self.assertRaises(ASRUnavailableError):
+                LocalASR(device='cuda', compute_type='float16').prewarm()
+        load.assert_called_once_with('cuda', 'float16')
 
     def test_empty_audio_transcript_and_missing_model_have_typed_sanitized_errors(self):
         model = FakeModel()
