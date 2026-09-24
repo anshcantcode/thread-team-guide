@@ -21,6 +21,9 @@ from .schema import at_path, call_key, scalar_fields, selected_printed_label, va
 _ANSWER_FIELDS = {"answer", "instructions", "instruction", "explanation", "guidance",
                   "warning", "warnings", "findings", "paragraphs", "steps"}
 _SOURCE_FIELDS = {"sources", "references", "citations", "pages"}
+_FOR_TARGET_FIELDS = {"account", "client", "contact", "customer", "employee", "guest",
+                      "member", "owner", "passenger", "patient", "person", "recipient", "user"}
+_TO_TARGET_FIELDS = {"destination", "location", "target"}
 _NUMBER_LITERAL = re.compile(
     r"(?<![\w.-])[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?(?![\w.-])")
 
@@ -72,6 +75,31 @@ def _explicit_boolean_field_values(path, command):
                    r"\s*(?:(?:=|:)\s*|\b(?:to|is|equals?|of)\b(?:\s+exactly)?\s+)?" +
                    r"(?P<value>true|false)\b")
         found.update(match["value"].casefold() == "true"
+                     for match in re.finditer(pattern, command, re.I))
+    return found
+
+
+def _explicit_string_field_values(path, command):
+    parts = path.split(".")
+    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    found = set()
+    for alias in aliases:
+        field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
+        pattern = (field +
+                   r"\s*(?:(?:=|:)\s*|\b(?:to|is|equals?|of)\b(?:\s+exactly)?\s+)?" +
+                   r"(?P<value>(?!\s*\b(?:for|to|and|but|then|with|from|using|based|selected|"
+                   r"returned|result|results|lookup|according)\b)[^,;.!?]+?)" +
+                   r"(?=\s+\b(?:for|and|but|then|with|from)\b|[,;.!?]|$)")
+        found.update(" ".join(match["value"].casefold().split())
+                     for match in re.finditer(pattern, command, re.I))
+
+    field_name = parts[-1].casefold().removesuffix("_id")
+    relation = ("for" if field_name in _FOR_TARGET_FIELDS else
+                "to" if field_name in _TO_TARGET_FIELDS else None)
+    if relation:
+        pattern = (r"\b" + relation + r"\s+(?P<value>.+?)" +
+                   r"(?=\s+\b(?:and|but|then)\b|[,;.!?]|$)")
+        found.update(" ".join(match["value"].casefold().split())
                      for match in re.finditer(pattern, command, re.I))
     return found
 
@@ -505,6 +533,10 @@ class ParticipantAgent:
                 elif type(actual) is bool:
                     explicit = _explicit_boolean_field_values(argument, command)
                     if explicit and explicit != {actual}:
+                        return "A proposed argument does not match the explicit user value."
+                elif isinstance(actual, str):
+                    explicit = _explicit_string_field_values(argument, command)
+                    if explicit and explicit != {" ".join(actual.casefold().split())}:
                         return "A proposed argument does not match the explicit user value."
                 if source["revision"] != self.revision and not (isinstance(actual, str) and contains_value(actual, supplied)):
                     return "An earlier result needs an explicit current reference before I can use it for this action."
