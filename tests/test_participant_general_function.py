@@ -278,6 +278,35 @@ class GeneralFunctionTests(unittest.TestCase):
         self.assertNotIn(PURPOSE, text)
         self.assertNotIn("invented feature", text)
 
+    def test_unseen_nested_returned_identifier_binds_by_exact_path_and_rejects_guess(self):
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
+        agent.tools = {
+            "opaque_lookup": {"kind": "read_only", "args": {}},
+            "opaque_resume": {"kind": "read_only", "args": {"record": {
+                "type": "object", "required": True, "properties": {
+                    "reservation_id": {"type": "string", "required": True,
+                                     "description": "Identifier returned by the lookup"}}}}},
+        }
+        agent._dispatch({"api_name": "opaque_lookup", "args": {}, "after_result": {
+            "api_name": "opaque_resume", "args": {}, "bindings": {
+                "record.reservation_id": "payload.entries.0.identity.reservation_id"}}})
+        lookup = agent.out_queue.get_nowait()["payload"]
+        agent._result({"call_id": lookup["call_id"], "api_name": "opaque_lookup", "status": "success",
+                       "result": {"status": "success", "payload": {"entries": [{
+                           "identity": {"reservation_id": "RETURNED-42"}}]}}})
+
+        followup = agent.out_queue.get_nowait()
+        self.assertEqual(followup["action"], "tool_call")
+        self.assertEqual(followup["payload"]["args"], {"record": {"reservation_id": "RETURNED-42"}})
+        continuation = agent.operations[followup["payload"]["call_id"]]
+        self.assertEqual(continuation["step"]["result_bindings"], {
+            "record.reservation_id": {"call_id": lookup["call_id"],
+                                       "path": "payload.entries.0.identity.reservation_id"}})
+
+        agent._dispatch({"api_name": "opaque_resume", "args": {"record": {"reservation_id": "GUESSED-99"}}})
+        self.assertEqual(agent.out_queue.get_nowait()["action"], "clarification_request")
+        self.assertEqual(len(agent.operations), 2)
+
     def test_actual_dispatch_and_result_keep_field_local_and_do_not_authorize_effects(self):
         agent, operation = self.context()
         agent.tools = {"reference_lookup": {"kind": "read_only", "args": {}}}
