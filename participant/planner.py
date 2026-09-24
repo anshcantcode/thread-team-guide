@@ -1076,8 +1076,9 @@ class Planner:
     async def _current_audio(self, current_audio, context, started, raw_audio=None):
         """Join one source-bound full-turn job without restarting its deadline."""
         turn = context.get('current_turn_start', 0)
+        audio_args = (raw_audio,) if raw_audio is not None else ()
         if self._audio_turn is None:
-            return await self._perceive_audio(current_audio, context.get('revision'), started, raw_audio)
+            return await self._perceive_audio(current_audio, context.get('revision'), started, *audio_args)
         if self._audio_turn != turn:
             raise asyncio.CancelledError
         try:
@@ -1088,7 +1089,7 @@ class Planner:
                 raise PlannerError('The recording source identity is invalid.')
             job = self._audio_jobs.get('turn')
             if job is None:
-                task = asyncio.create_task(self._perceive_audio(current_audio, context.get('revision'), started, raw_audio))
+                task = asyncio.create_task(self._perceive_audio(current_audio, context.get('revision'), started, *audio_args))
                 job = self._audio_jobs['turn'] = {'keys': keys, 'task': task}
                 self._pending_tasks.add(task)
                 task.add_done_callback(self._task_finished)
@@ -1125,6 +1126,7 @@ class Planner:
             messages, media_parts, record['input_media'], audio_rows = await self.media.prepare(
                 context.get('messages', []), include_audio_bytes=True)
             raw_audio = {row['message_index']: row for row in audio_rows}
+        audio_args = (raw_audio,) if raw_audio is not None else ()
         latest_image_index = next((source['message_index'] for source in record['input_media']
                                    if source['mime_type'].startswith('image/')), None)
         context = {**context, 'observations': [row for row in context.get('observations', [])
@@ -1214,7 +1216,7 @@ class Planner:
             except ImportError:
                 record['embedding'] = {'status': 'unavailable'}
         if current_audio and not single_audio:
-            acoustic = asyncio.create_task(self._current_audio(current_audio, context, started, raw_audio))
+            acoustic = asyncio.create_task(self._current_audio(current_audio, context, started, *audio_args))
             self._pending_tasks.add(acoustic)
             acoustic.add_done_callback(self._task_finished)
         try:
@@ -1235,7 +1237,7 @@ class Planner:
                         self._stop_audio_jobs()
                     decision = self._audio_clarification(context, decision['observations'])
                 else:
-                    acoustic = asyncio.create_task(self._current_audio(current_audio, context, started, raw_audio))
+                    acoustic = asyncio.create_task(self._current_audio(current_audio, context, started, *audio_args))
                     self._pending_tasks.add(acoustic)
                     acoustic.add_done_callback(self._task_finished)
             elif acoustic is not None:
