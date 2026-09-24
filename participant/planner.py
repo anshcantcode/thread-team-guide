@@ -1101,6 +1101,11 @@ class Planner:
         current_start = context.get('current_turn_start', 0)
         single_audio = self.audio_mode == 'single_call_reads'
         messages, media_parts, record['input_media'] = await self.media.prepare(context.get('messages', []))
+        latest_image_index = next((source['message_index'] for source in record['input_media']
+                                   if source['mime_type'].startswith('image/')), None)
+        context = {**context, 'observations': [row for row in context.get('observations', [])
+                   if not isinstance(row, dict) or row.get('type') != 'image'
+                   or row.get('message_index') == latest_image_index]}
         source_keys = tuple(self._audio_key(context.get('messages', []), source)
                             for source in record['input_media'] if source['mime_type'].startswith('audio/')) if single_audio else ()
         joint_history = {}

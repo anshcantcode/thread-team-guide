@@ -230,6 +230,27 @@ class VisualRecognitionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(emitted[-1]['payload']['text'], 'Two plus two is four.')
         self.assertEqual(len(prepared_requests), 2)
 
+    async def test_new_frame_drops_older_image_observation_before_planning(self):
+        Image.new('RGB', (4, 4), 'blue').save(self.root / 'new-frame.png')
+        agent = self.agent()
+        agent.observations[0] = deepcopy(self.observation)
+        agent._awaiting_clarification = True
+        agent._handle({'event_type': 'video_frame', 'payload': {'image_ref': 'new-frame.png'}})
+        agent._append_message('user_speech_chunk', {'text': 'Use the new frame.', 'end_of_turn': True})
+        current = {'message_index': 2, 'type': 'image', 'visible_text': ['CURRENT FRAME'],
+                   'selected_label': None, 'observation': 'The current frame has a different scene.',
+                   'uncertain': False}
+        self.reply = decision(observations=[current], response='I am looking at the current frame.')
+
+        planned = await self.planner.plan(agent._context())
+
+        prepared = json.loads(self.requests[-1]['contents'][0]['parts'][0]['text'])
+        self.assertEqual(prepared['latest_frame_index'], 2)
+        self.assertEqual([message['message_index'] for message in prepared['messages']
+                          if message['event_type'] == 'video_frame'], [2])
+        self.assertEqual(prepared['observations'], [])
+        self.assertEqual(planned['observations'][0]['message_index'], 2)
+
     def test_free_prose_and_tool_data_cannot_supply_missing_recognition_evidence(self):
         agent, operation = rendering_controls.GeneralFunctionTests().context('LINE IN')
         selected = agent.observations[0].pop('selected_label')
