@@ -62,6 +62,20 @@ def _explicit_numeric_field_values(path, command):
     return found
 
 
+def _explicit_boolean_field_values(path, command):
+    parts = path.split(".")
+    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    found = set()
+    for alias in aliases:
+        field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
+        pattern = (field +
+                   r"\s*(?:(?:=|:)\s*|\b(?:to|is|equals?|of)\b(?:\s+exactly)?\s+)?" +
+                   r"(?P<value>true|false)\b")
+        found.update(match["value"].casefold() == "true"
+                     for match in re.finditer(pattern, command, re.I))
+    return found
+
+
 def _proposed_primitive_values(values):
     formatted = ", ".join(f"{path}={json.dumps(value, allow_nan=False)}" for path, value in values)
     return ("Please confirm the proposed values exactly: " + formatted +
@@ -487,6 +501,10 @@ class ParticipantAgent:
                 if type(actual) in (int, float):
                     explicit = _explicit_numeric_field_values(argument, command)
                     if explicit and explicit != {Decimal(str(actual))}:
+                        return "A proposed argument does not match the explicit user value."
+                elif type(actual) is bool:
+                    explicit = _explicit_boolean_field_values(argument, command)
+                    if explicit and explicit != {actual}:
                         return "A proposed argument does not match the explicit user value."
                 if source["revision"] != self.revision and not (isinstance(actual, str) and contains_value(actual, supplied)):
                     return "An earlier result needs an explicit current reference before I can use it for this action."
