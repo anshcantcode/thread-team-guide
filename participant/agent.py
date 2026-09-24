@@ -606,9 +606,7 @@ class ParticipantAgent:
         self._continue_result(operation)
 
     def _continue_result(self, operation):
-        if (operation.get("result_announced") or
-                (operation.get("continuation_retired") and
-                 operation["step"].get("after_result") is not None)):
+        if operation.get("result_announced") or operation.get("continuation_retired"):
             return
         next_step = operation["step"].get("after_result")
         if next_step is not None:

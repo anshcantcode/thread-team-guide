@@ -6,7 +6,7 @@ from participant.agent import ParticipantAgent
 
 
 class WriteExpiryContinuationTests(unittest.TestCase):
-    def make_agent(self, delay_range_ms=(0, 10)):
+    def make_agent(self, delay_range_ms=(0, 10), *, with_continuation=True):
         text = "Create a note saying hello. Then create another note saying extra."
         tool = {"kind": "state_modifying", "description": "Create a note.",
                 "args": {"text": {"type": "string", "required": True}},
@@ -15,6 +15,8 @@ class WriteExpiryContinuationTests(unittest.TestCase):
                 "authorization": {"quote": "Create a note saying hello"},
                 "after_result": {"api_name": "create_note", "args": {"text": "extra"},
                                  "authorization": {"quote": "create another note saying extra"}}}
+        if not with_continuation:
+            step.pop("after_result")
         agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
         agent.tools = {"create_note": tool}
         agent.messages = [{"event_type": "user_speech_chunk", "payload": {"text": text}, "revision": 0}]
@@ -67,6 +69,15 @@ class WriteExpiryContinuationTests(unittest.TestCase):
         self.assertEqual(notice["action"], "final_response")
         self.assertEqual(operation["status"], "unknown")
         self.assertTrue(operation["continuation_retired"])
+
+        self.reconcile_late_success(agent, call)
+        self.assertTrue(agent.out_queue.empty())
+
+    def test_expired_terminal_write_does_not_speak_an_obsolete_result(self):
+        agent, call = self.make_agent(with_continuation=False)
+        deadline = agent.operations[call["payload"]["call_id"]]["deadline"]
+        self.expire_at(agent, deadline)
+        self.assertEqual(agent.out_queue.get_nowait()["action"], "final_response")
 
         self.reconcile_late_success(agent, call)
         self.assertTrue(agent.out_queue.empty())
