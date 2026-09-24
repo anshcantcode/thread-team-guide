@@ -1493,9 +1493,10 @@ class Planner:
             payload = response.json()
             candidate = payload['candidates'][0]
             record.update(model_version=payload.get('modelVersion'), usage=payload.get('usageMetadata'), finish_reason=candidate.get('finishReason'))
-            if candidate.get('finishReason', 'STOP') != 'STOP':
+            if candidate.get('finishReason') != 'STOP':
                 raise ValueError('incomplete audio')
-            output = json.loads(''.join(p.get('text', '') for p in candidate['content']['parts'] if not p.get('thought')))
+            output = json.loads(''.join(p.get('text', '') for p in candidate['content']['parts'] if not p.get('thought')),
+                                object_pairs_hook=_unique_json_object)
             self._validate({'intent': '', 'slots': {}, 'tool_calls': [], 'observations': output['observations']}, sources)
             if self.audio_mode == 'single_call_reads':
                 record['audio_mode'] = self.audio_mode

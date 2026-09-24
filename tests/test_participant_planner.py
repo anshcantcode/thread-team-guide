@@ -66,6 +66,16 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         self.addAsyncCleanup(planner.close)
         return planner
 
+    async def perceive_audio_text(self, text, finish='STOP'):
+        candidate = {'content': {'parts': [{'text': text}]}}
+        if finish is not None:
+            candidate['finishReason'] = finish
+        response = httpx.Response(200, json={'candidates': [candidate]})
+        planner = await self.make_planner(lambda _: response)
+        source = {'message_index': 0, 'mime_type': 'audio/mpeg'}
+        return await planner._perceive_audio(
+            [(source, [{'text': 'attached test audio'}])], 1, asyncio.get_running_loop().time())
+
     def audio_context(self, *, correction=False):
         messages = [{'message_index': 0, 'revision': 1, 'event_type': 'user_audio_chunk',
                      'payload': {'audio_ref': 'old.mp3', 'end_of_turn': True}}]
@@ -762,6 +772,30 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
         context = {'tools': {'lookup': {'kind': 'read_only', 'args': {'place': {'type': 'string'}}}}}
         result = await planner.plan(context)
         self.assertEqual(result['tool_calls'], [{'api_name': 'lookup', 'args': {'place': 'Oslo'}}])
+
+    async def test_acoustic_parser_rejects_duplicate_root_and_nested_keys(self):
+        valid = ('{"message_index":0,"type":"audio","transcript":"Create a note.",'
+                 '"uncertain":false}')
+        for name, output in (
+                ('root', '{"observations":[],"observations":[' + valid + ']}'),
+                ('nested', '{"observations":[{"message_index":0,"type":"audio",'
+                 '"transcript":"Create a note.","uncertain":true,"uncertain":false}]}')):
+            with self.subTest(level=name), self.assertRaisesRegex(PlannerError, 'transcribed reliably'):
+                await self.perceive_audio_text(output)
+
+    async def test_acoustic_parser_requires_explicit_stop_and_rejects_max_tokens(self):
+        output = json.dumps({'observations': [{'message_index': 0, 'type': 'audio',
+                                               'transcript': 'Create a note.', 'uncertain': False}]})
+        for finish in (None, 'MAX_TOKENS'):
+            with self.subTest(finish=finish), self.assertRaisesRegex(PlannerError, 'transcribed reliably'):
+                await self.perceive_audio_text(output, finish)
+
+    async def test_acoustic_parser_accepts_stop_and_preserves_uncertainty(self):
+        for uncertain in (False, True):
+            expected = [{'message_index': 0, 'type': 'audio', 'transcript': 'Create a note.',
+                         'uncertain': uncertain}]
+            with self.subTest(uncertain=uncertain):
+                self.assertEqual(await self.perceive_audio_text(json.dumps({'observations': expected})), expected)
 
     async def test_snapshot_tracks_actual_argument_and_preserves_other_constraints(self):
         planner = await self.make_planner(lambda _: completion(decision(slots={'place': 'mispelling', 'time': 'morning', 'remove': None},
