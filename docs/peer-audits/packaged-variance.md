@@ -36,6 +36,13 @@ post-turn acknowledgments landed 12–13 ms after the user chunk, so the 10 ms
 fence addressed that narrow scorer race but did not fix the larger provider
 tail. Raw records are at `.runtime/public-traces/fenced-pub09-2026-09-24-3x.json`.
 
+A subsequent visual 07 replay scored `47.7, 47.7, 47.7` and produced no
+manual lookup. Planner records show one timeout after 2,532 ms and two
+transport errors before inference after 15 and 47 ms. This is additional
+evidence of route availability trouble; the short transport errors are not
+evidence that the model misidentified a port. Its ignored trace is
+`.runtime/public-traces/fenced-pub07-2026-09-24-3x.json`.
+
 The visual case had scores `47.7, 33.8, 100` in the packaged full run. A
 second three-attempt replay against the **same package** produced `47.7, 100,
 75.4`. The latter replay saved official harness traces locally at
