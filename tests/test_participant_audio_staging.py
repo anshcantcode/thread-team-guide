@@ -249,6 +249,53 @@ class AudioStagingTests(unittest.IsolatedAsyncioTestCase):
                 await planner.close()
                 self.assertEqual(planner._pending_tasks, set())
 
+    async def test_independent_uncertainty_vetoes_confident_write_but_clear_audio_can_authorize_it(self):
+        command = 'Set the label to Harbor.'
+        tools = {'set_label': {'kind': 'state_modifying', 'description': 'Set a display label.',
+                               'args': {'label': {'type': 'string', 'required': True}}}}
+        for uncertain in (True, False):
+            with self.subTest(uncertain=uncertain):
+                async def handle(body):
+                    observations = [{'message_index': 0, 'type': 'audio', 'transcript': command,
+                                     'uncertain': uncertain and self.acoustic(body)}]
+                    decision = {'observations': observations}
+                    if not self.acoustic(body):
+                        decision.update(intent='set_label', slots={'label': 'Harbor'}, tool_calls=[{
+                            'api_name': 'set_label', 'args': {'label': 'Harbor'},
+                            'authorization': {'quote': command, 'message_index': 0},
+                            'response_template': 'The label was updated.'}], response=None, clarification=None)
+                    return httpx.Response(200, json={'candidates': [{'finishReason': 'STOP',
+                        'content': {'parts': [{'text': json.dumps(decision)}]}}]})
+
+                planner = await self.planner(handle)
+                agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue(), planner=planner)
+                self.addAsyncCleanup(agent.close)
+                await agent.setup()
+                agent._handle({'event_type': 'tool_manifest', 'payload': {'tools': tools}})
+                message = deepcopy(self.messages[0]['payload'])
+                message['end_of_turn'] = True
+                agent._handle({'event_type': 'user_audio_chunk', 'payload': message})
+                _, decision = await asyncio.wait_for(agent._plan_task, .5)
+                agent._apply(decision)
+                events = []
+                while not agent.out_queue.empty():
+                    events.append(agent.out_queue.get_nowait())
+                writes = [event for event in events if event['action'] == 'tool_call']
+                if uncertain:
+                    self.assertTrue(decision['clarification'])
+                    self.assertEqual(decision['tool_calls'], [])
+                    self.assertEqual(writes, [])
+                    self.assertTrue(decision['observations'][0]['uncertain'])
+                else:
+                    self.assertIsNone(decision['clarification'])
+                    self.assertEqual(len(decision['tool_calls']), 1)
+                    self.assertEqual(len(writes), 1)
+                    self.assertEqual(writes[0]['payload']['api_name'], 'set_label')
+                    key, cached = next(iter(planner._audio_cache.items()))
+                    self.assertEqual(key[:3], (0, agent.messages[0]['revision'], 'audio/mpeg'))
+                    self.assertEqual(cached['transcript'], command)
+                    self.assertFalse(cached['uncertain'])
+
     async def test_main_first_uncertainty_only_caches_clear_words_after_both_full_readings_agree(self):
         for index in (0, 1):
             with self.subTest(index=index):
