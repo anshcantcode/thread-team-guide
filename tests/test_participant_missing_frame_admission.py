@@ -11,7 +11,7 @@ from PIL import Image
 
 from participant.agent import ParticipantAgent
 from participant.planner import Planner, PlannerError
-from tests.test_participant_planner import completion, decision
+from tests.test_participant_planner import MP3_BYTES, completion, decision
 
 
 class MissingFrameAdmissionTests(unittest.IsolatedAsyncioTestCase):
@@ -29,10 +29,17 @@ class MissingFrameAdmissionTests(unittest.IsolatedAsyncioTestCase):
         self.addCleanup(env.stop)
         self.tools = {'manual': {'kind': 'read_only', 'args': {'query': {'type': 'string'}}}}
         self.reply = None
+        self.audio_transcript = None
         self.requests = []
 
         def handle(request):
-            self.requests.append(json.loads(request.content))
+            body = json.loads(request.content)
+            self.requests.append(body)
+            if 'perception only' in body['systemInstruction']['parts'][0]['text']:
+                items = body['generationConfig']['responseJsonSchema']['properties']['observations']['items']
+                return completion({'observations': [
+                    {'message_index': item['properties']['message_index']['enum'][0], 'type': 'audio',
+                     'transcript': self.audio_transcript, 'uncertain': False} for item in items['anyOf']]})
             return completion(self.reply)
 
         self.planner = Planner(transport=httpx.MockTransport(handle))
@@ -54,6 +61,22 @@ class MissingFrameAdmissionTests(unittest.IsolatedAsyncioTestCase):
     @staticmethod
     def drain(agent):
         return [agent.out_queue.get_nowait() for _ in range(agent.out_queue.qsize())]
+
+    async def finish_unrelated_turn_after_missing_frame(self, agent):
+        self.reply = decision(response='Here is an unrelated fact.')
+        agent._handle({'event_type': 'video_frame', 'payload': {'image_ref': 'missing.png'}})
+        agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+            'text': 'Tell me something interesting.', 'end_of_turn': True}})
+        await self.complete_turn(agent)
+        self.drain(agent)
+
+    def add_audio(self, transcript, *, observed_index=2):
+        (self.root / 'current.mp3').write_bytes(MP3_BYTES)
+        self.audio_transcript = transcript
+        self.reply = {**self.lookup(), 'observations': [{
+            'message_index': observed_index, 'type': 'audio', 'transcript': transcript, 'uncertain': False}]}
+        return {'event_type': 'user_audio_chunk', 'payload': {
+            'audio_ref': 'current.mp3', 'end_of_turn': True}}
 
     @staticmethod
     def lookup(evidence='omitted', *, query='LAN'):
@@ -110,14 +133,67 @@ class MissingFrameAdmissionTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(self.planner.evidence[-1]['validation_error'],
                                  'the active request image source is unavailable')
 
+    async def test_later_paraphrased_text_reference_after_unrelated_turn_clarifies(self):
+        agent = self.agent()
+        await self.finish_unrelated_turn_after_missing_frame(agent)
+
+        self.reply = self.lookup()
+        agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+            'text': 'Look up a manual for the port I showed you.', 'end_of_turn': True}})
+        await self.complete_turn(agent)
+
+        actions = self.drain(agent)
+        self.assertNotIn('tool_call', [item['action'] for item in actions])
+        self.assertIn('clarification_request', [item['action'] for item in actions])
+        self.assertEqual(self.planner.evidence[-1]['validation_error'],
+                         'the active request image source is unavailable')
+
+    async def test_later_audio_picture_reference_after_unrelated_turn_clarifies(self):
+        agent = self.agent()
+        await self.finish_unrelated_turn_after_missing_frame(agent)
+
+        transcript = 'What is the port in that picture?'
+        agent._handle(self.add_audio(transcript))
+        await self.complete_turn(agent)
+
+        actions = self.drain(agent)
+        self.assertNotIn('tool_call', [item['action'] for item in actions])
+        self.assertIn('clarification_request', [item['action'] for item in actions])
+        self.assertEqual(self.planner.evidence[-1]['validation_error'],
+                         'the active request image source is unavailable')
+        self.assertTrue(any(record.get('phase') == 'acoustic' and record.get('status') == 200
+                            for record in self.planner.evidence))
+        self.assertNotIn('LAN', str(actions))
+
+    async def test_later_explicit_audio_lookup_is_not_blocked_by_old_missing_frame(self):
+        agent = self.agent()
+        await self.finish_unrelated_turn_after_missing_frame(agent)
+
+        transcript = 'Look up a manual for the LAN port.'
+        agent._handle(self.add_audio(transcript))
+        planned = await self.complete_turn(agent)
+
+        actions = self.drain(agent)
+        call = next(item for item in actions if item['action'] == 'tool_call')
+        self.assertEqual(call['payload']['args'], {'query': 'LAN'})
+        self.assertEqual(planned['observations'][0]['message_index'], 2)
+        self.assertNotIn('validation_error', self.planner.evidence[-1])
+
+    async def test_audio_observations_remain_bound_to_their_recording_source(self):
+        agent = self.agent()
+        await self.finish_unrelated_turn_after_missing_frame(agent)
+
+        transcript = 'What is the port in that picture?'
+        agent._handle(self.add_audio(transcript, observed_index=1))
+        await self.complete_turn(agent)
+
+        actions = self.drain(agent)
+        self.assertNotIn('tool_call', [item['action'] for item in actions])
+        self.assertEqual(self.planner.evidence[-1]['validation_error'], 'unattached observation')
+
     async def test_later_explicit_text_lookup_is_not_blocked_by_old_missing_frame(self):
         agent = self.agent()
-        self.reply = decision(clarification='I could not read the frame. Please describe it.')
-        agent._handle({'event_type': 'video_frame', 'payload': {'image_ref': 'missing.png'}})
-        agent._handle({'event_type': 'user_speech_chunk', 'payload': {
-            'text': 'What is the port in this picture?', 'end_of_turn': True}})
-        await self.complete_turn(agent)
-        self.drain(agent)
+        await self.finish_unrelated_turn_after_missing_frame(agent)
 
         self.reply = self.lookup(None)
         agent._handle({'event_type': 'user_speech_chunk', 'payload': {

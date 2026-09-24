@@ -1323,6 +1323,20 @@ class Planner:
                 if self._audio_turn == current_start:
                     self._stop_audio_jobs()
                 decision = self._audio_clarification(context, decision['observations'])
+            if decision['tool_calls'] and acoustic is not None:
+                current_audio_indices = {source['message_index'] for source, _ in current_audio}
+                verified_audio_text = ' '.join(
+                    row['transcript'] for index, row in heard.items()
+                    if index in current_audio_indices and index >= current_start
+                    and row.get('message_index') == index and row.get('uncertain') is False)
+                if verified_audio_text:
+                    try:
+                        self._ensure_active_frame_available(
+                            context.get('messages'), record['input_media'],
+                            context.get('latest_frame_index'), current_start, verified_audio_text)
+                    except ValueError as exc:
+                        record['validation_error'] = str(exc)
+                        raise
             if embedding is not None and embedding.done() and not embedding.cancelled():
                 try:
                     embedded = embedding.result()
@@ -1619,6 +1633,41 @@ class Planner:
         return decision
 
     @staticmethod
+    def _ensure_active_frame_available(messages, media, latest_frame_index, current_turn_start, extra_text=''):
+        request_messages = messages if isinstance(messages, list) else []
+        current_frame_position = next((i for i, message in enumerate(request_messages)
+                                       if isinstance(message, dict) and type(latest_frame_index) is int
+                                       and message.get('message_index', i) == latest_frame_index
+                                       and message.get('event_type') == 'video_frame'), None)
+        frame_is_request_source = (
+            current_frame_position is not None and type(current_turn_start) is int
+            and current_turn_start >= 0
+            and (current_frame_position >= current_turn_start or not any(
+                isinstance(message, dict) and message.get('event_type') in
+                ('user_speech_chunk', 'user_audio_chunk', 'interruption')
+                for message in request_messages[current_frame_position + 1:current_turn_start])))
+        current_request_messages = (request_messages[current_turn_start:]
+                                    if type(current_turn_start) is int
+                                    and 0 <= current_turn_start < len(request_messages) else [])
+        active_request_text = ' '.join([
+            *(message['payload']['text'] for message in current_request_messages
+              if isinstance(message, dict) and message.get('event_type') in ('user_speech_chunk', 'interruption')
+              and isinstance(message.get('payload'), dict) and isinstance(message['payload'].get('text'), str)),
+            extra_text if isinstance(extra_text, str) else '',
+        ])
+        frame_is_referenced_in_request = bool(re.search(
+            r'\b(?:this|that|the|these|those|same)\s+(?:picture|image|photo|photograph|frame|screenshot)s?\b'
+            r'|\b(?:port|connector|device|item|thing|label)\s+(?:that\s+)?(?:i|we)\s+(?:just\s+)?showed\s+(?:you|us)\b',
+            active_request_text, re.IGNORECASE))
+        current_frame_prepared = any(
+            isinstance(source, dict) and source.get('message_index') == latest_frame_index
+            and isinstance(source.get('mime_type'), str) and source['mime_type'].startswith('image/')
+            for source in media)
+        if ((frame_is_request_source or frame_is_referenced_in_request)
+                and current_frame_position is not None and not current_frame_prepared):
+            raise ValueError('the active request image source is unavailable')
+
+    @staticmethod
     def _validate(decision, media, tools=None, *, latest_frame_index=None,
                   messages=None, current_turn_start=None):
         if not isinstance(decision, dict) or not isinstance(decision.get('intent'), str) or not isinstance(decision.get('slots'), dict):
@@ -1657,31 +1706,9 @@ class Planner:
             raise ValueError('missing media evidence')
         has_image = any(source['mime_type'].startswith('image/') for source in media)
         current_frame_prepared = type(latest_frame_index) is int and (latest_frame_index, 'image') in sources
-        request_messages = messages if isinstance(messages, list) else []
-        current_frame_position = next((i for i, message in enumerate(request_messages)
-                                       if isinstance(message, dict) and type(latest_frame_index) is int
-                                       and message.get('message_index', i) == latest_frame_index
-                                       and message.get('event_type') == 'video_frame'), None)
-        frame_is_request_source = (
-            current_frame_position is not None and type(current_turn_start) is int
-            and current_turn_start >= 0
-            and (current_frame_position >= current_turn_start or not any(
-                isinstance(message, dict) and message.get('event_type') in
-                ('user_speech_chunk', 'user_audio_chunk', 'interruption')
-                for message in request_messages[current_frame_position + 1:current_turn_start])))
-        current_request_messages = (request_messages[current_turn_start:]
-                                    if type(current_turn_start) is int
-                                    and 0 <= current_turn_start < len(request_messages) else [])
-        active_request_text = ' '.join(
-            message['payload']['text'] for message in current_request_messages
-            if isinstance(message, dict) and message.get('event_type') in ('user_speech_chunk', 'interruption')
-            and isinstance(message.get('payload'), dict) and isinstance(message['payload'].get('text'), str))
-        frame_is_referenced_in_request = bool(re.search(
-            r'\b(?:this|that|the|these|those|same)\s+(?:picture|image|photo|photograph|frame|screenshot)s?\b',
-            active_request_text, re.IGNORECASE))
-        if ((frame_is_request_source or frame_is_referenced_in_request)
-                and current_frame_position is not None and not current_frame_prepared and decision['tool_calls']):
-            raise ValueError('the active request image source is unavailable')
+        if decision['tool_calls']:
+            Planner._ensure_active_frame_available(
+                messages, media, latest_frame_index, current_turn_start)
         current_image = next((o for o in decision['observations'] if o['type'] == 'image'
                               and o['message_index'] == latest_frame_index), None) if current_frame_prepared else None
         current_label = selected_printed_label(current_image, latest_frame_index)
