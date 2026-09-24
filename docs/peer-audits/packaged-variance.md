@@ -33,10 +33,11 @@ separate sample and cannot be substituted for the 27-attempt score report.
 A similar focused unseen-tool replay scored `47.7, 47.7, 100`. In the first
 two attempts Gemini MAIN timed out after 4,515–4,516 ms, so no tool was
 called; the third returned HTTP 200 in 1,844 ms and the agent completed the
-manifest-supplied `weather_lookup` with a grounded answer. All three
-post-turn acknowledgments landed 12–13 ms after the user chunk, so the 10 ms
-fence addressed that narrow scorer race but did not fix the larger provider
-tail. Raw records are at `.runtime/public-traces/fenced-pub09-2026-09-24-3x.json`.
+manifest-supplied `weather_lookup` with a grounded answer. All three post-turn
+acknowledgments landed 12–13 ms after the scenario's nominal 800 ms end. Those
+timestamps are relative to the schedule; they do not establish the delay from
+actual user-chunk receipt. The 10 ms fence did not fix the larger provider tail.
+Raw records are at `.runtime/public-traces/fenced-pub09-2026-09-24-3x.json`.
 
 A subsequent visual 07 replay scored `47.7, 47.7, 47.7` and produced no
 manual lookup. Planner records show one timeout after 2,532 ms and two

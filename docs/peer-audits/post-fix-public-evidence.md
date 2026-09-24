@@ -30,10 +30,10 @@ The full batch and focused replay are separate samples, so the favorable replay
 cannot replace the frozen score. They show how strongly the free hosted route's
 deadline availability affects the public score.
 
-In the visual replay, one 4.515-second MAIN timeout produced no lookup. One
-HTTP 200 decision at 2.734 seconds copied both `HDMI` and `SS` from the
-image, but asked which port the user meant and did not call `lookup_manual`.
-The third attempt selected a supported conditional HDMI lookup and scored 100.
+In visual attempt 1, an HTTP 200 decision at 2.734 seconds copied both `HDMI`
+and `SS` from the image, but asked which port the user meant and did not call
+`lookup_manual`. Attempt 2 selected a supported conditional HDMI lookup and
+scored 100. Attempt 3 hit a 4.515-second MAIN timeout and produced no lookup.
 This separates an actual recognition/referent decision miss from the timeout;
 no safe fix follows from the public score alone. A free-tier
 `gemini-3.5-flash` visual trial on the same source scored **47.7/47.7/100**,
