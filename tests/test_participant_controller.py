@@ -318,6 +318,53 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(final["state_snapshot"]["slots"]["city"], "Rome")
         self.assertIn("FRESH", final["payload"]["text"])
 
+    async def test_superseded_read_result_cannot_speak_or_continue_after_queued_correction(self):
+        for continued in (False, True):
+            with self.subTest(continued=continued):
+                stale_ref = "STALE-OSLO-741"
+                old_step = chain()["tool_calls"][0]
+                old_step["response_template"] = "The old lookup found {journeys.0.ref}."
+                if not continued:
+                    old_step.pop("after_result")
+
+                def handler(context):
+                    if context["revision"] == 1:
+                        return {"tool_calls": [old_step]}
+                    return (lookup("Rome", after_result=chain()["tool_calls"][0]["after_result"])
+                            if continued else {"intent": "find_journey", "slots": {"city": "Rome"},
+                                               "response": "I will look for journeys to Rome."})
+
+                agent = await self.start(handler)
+                await self.speak(agent, "Find a journey to Oslo and reserve the 8 AM one for Mina.")
+                old_read = await self.output(agent, "tool_call")
+                trace = []
+                emit = agent._emit
+
+                def record(action, payload):
+                    trace.append((action, deepcopy(payload)))
+                    emit(action, payload)
+
+                agent._emit = record
+                old_result = {"status": "success", "journeys": [{"ref": stale_ref, "start": "08:00"}]}
+                agent.in_queue.put_nowait({"event_type": "tool_result", "payload": {
+                    **old_read["payload"], "status": "success", "result": old_result}})
+                agent.in_queue.put_nowait({"event_type": "interruption", "payload": {
+                    "text": "Actually, find a journey to Rome and reserve the 8 AM one for Mina."}})
+
+                if continued:
+                    current = await self.output(agent, "tool_call")
+                    self.assertEqual(current["payload"]["api_name"], "journeys")
+                    self.assertEqual(current["payload"]["args"]["city"], "Rome")
+                else:
+                    current = await self.output(agent, "final_response")
+                    self.assertEqual(current["payload"]["text"], "I will look for journeys to Rome.")
+
+                self.assertEqual(agent.revision, 2)
+                self.assertEqual(agent.operations[old_read["payload"]["call_id"]]["status"], "success")
+                self.assertEqual(agent.operations[old_read["payload"]["call_id"]]["result"], old_result)
+                self.assertNotIn(stale_ref, str(trace))
+                self.assertFalse(any(op["api_name"] == "reserve_journey" for op in agent.operations.values()))
+
     async def test_ready_plan_loses_to_queued_correction(self):
         release = asyncio.Event()
         async def handler(context):
