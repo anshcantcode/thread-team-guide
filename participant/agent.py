@@ -105,6 +105,8 @@ class ParticipantAgent:
                     for event in batch:
                         is_result = isinstance(event, dict) and event.get("event_type") == "tool_result"
                         if is_result == result_pass:
+                            if is_result:
+                                self._expire_writes()
                             self._handle(event)
                 self._expire_writes()
                 task = self._plan_task
