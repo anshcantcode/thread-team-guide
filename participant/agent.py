@@ -92,6 +92,13 @@ def _explicit_string_field_values(path, command):
                    r"(?=\s+\b(?:for|and|but|then|with|from)\b|[,;.!?]|$)")
         found.update(" ".join(match["value"].casefold().split())
                      for match in re.finditer(pattern, command, re.I))
+        compound = (field +
+                    r"\s*(?:(?:=|:)\s*|\b(?:to|is|equals?|of)\b(?:\s+exactly)?\s+)?" +
+                    r"(?P<value>(?!\s*\b(?:for|to|and|but|then|with|from|using|based|selected|"
+                    r"returned|result|results|lookup|according)\b)[^,;.!?]+?)" +
+                    r"(?=\s+\b(?:for|but|then|with|from)\b|[,;.!?]|$)")
+        found.update(" ".join(match["value"].casefold().split())
+                     for match in re.finditer(compound, command, re.I))
 
         preceding = (r"\b(?:set|choose|select|use|switch|change)\s+(?:the\s+)?" +
                      r"(?P<value>[^,;.!?]+?)\s+" + field +
@@ -609,8 +616,13 @@ class ParticipantAgent:
                         return f"Please supply {path}; I cannot invent that value for a state-changing action."
                     if not explicit and not contains_value(value, authorized_text):
                         return f"Please supply {path}; I cannot invent that value for a state-changing action."
-                elif not descriptive and not contains_value(value, authorized_text):
-                    return f"Please supply {path}; I cannot invent that value for a state-changing action."
+                elif not descriptive:
+                    explicit = _explicit_string_field_values(path, authorized_text)
+                    normalized = " ".join(value.casefold().split())
+                    if explicit and normalized not in explicit:
+                        return f"The proposed value for {path} does not match the explicit user value."
+                    if not explicit and not contains_value(value, authorized_text):
+                        return f"Please supply {path}; I cannot invent that value for a state-changing action."
             if not (required_source or identifier and tool["kind"] == "state_modifying"):
                 continue
             explicit = isinstance(value, str) and contains_value(value, supplied)
