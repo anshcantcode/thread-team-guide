@@ -22,8 +22,8 @@ _ANSWER_FIELDS = {"answer", "instructions", "instruction", "explanation", "guida
                   "warning", "warnings", "findings", "paragraphs", "steps"}
 _SOURCE_FIELDS = {"sources", "references", "citations", "pages"}
 _FOR_TARGET_FIELDS = {"account", "client", "contact", "customer", "employee", "guest",
-                      "member", "owner", "passenger", "patient", "person", "recipient", "user"}
-_TO_TARGET_FIELDS = {"destination", "location", "target"}
+                      "member", "owner", "passenger", "patient", "person", "user"}
+_TO_TARGET_FIELDS = {"destination", "location", "recipient", "target"}
 _NUMBER_LITERAL = re.compile(
     r"(?<![\w.-])[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?(?![\w.-])")
 
@@ -103,8 +103,9 @@ def _explicit_string_field_values(path, command):
     relation = ("for" if field_name in _FOR_TARGET_FIELDS else
                 "to" if field_name in _TO_TARGET_FIELDS else None)
     if relation:
+        boundary = r"and|but|then|saying|that" if field_name == "recipient" else r"and|but|then"
         pattern = (r"\b" + relation + r"\s+(?P<value>.+?)" +
-                   r"(?=\s+\b(?:and|but|then)\b|[,;.!?]|$)")
+                   r"(?=\s+\b(?:" + boundary + r")\b|[,;.!?]|$)")
         found.update(" ".join(match["value"].casefold().split())
                      for match in re.finditer(pattern, command, re.I))
     return found
@@ -587,7 +588,7 @@ class ParticipantAgent:
                 descriptive = bool(re.search(r"\b(summary|description|message|note|text|comment|query)\b", field + " " + description, re.I))
                 # An enum/default validates a value; it does not authorize the write.
                 target_field = path.rsplit(".", 1)[-1].casefold().removesuffix("_id")
-                if not descriptive and target_field in _FOR_TARGET_FIELDS | _TO_TARGET_FIELDS:
+                if target_field in _FOR_TARGET_FIELDS | _TO_TARGET_FIELDS:
                     explicit = _explicit_string_field_values(path, authorized_text)
                     if explicit and explicit != {" ".join(value.casefold().split())}:
                         return f"Please supply {path}; I cannot invent that value for a state-changing action."
