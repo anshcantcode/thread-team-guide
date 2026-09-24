@@ -25,8 +25,16 @@ def decision(**updates):
 
 
 def completion(value, finish='STOP'):
+    candidate = {'content': {'parts': [{'text': json.dumps(value)}]}}
+    if finish is not None:
+        candidate['finishReason'] = finish
     return httpx.Response(200, json={'modelVersion': DEFAULT_MODEL, 'usageMetadata': {'totalTokenCount': 80},
-                                   'candidates': [{'finishReason': finish, 'content': {'parts': [{'text': json.dumps(value)}]}}]})
+                                   'candidates': [candidate]})
+
+
+def completion_text(text, finish='STOP'):
+    return httpx.Response(200, json={'modelVersion': DEFAULT_MODEL, 'usageMetadata': {'totalTokenCount': 80},
+                                   'candidates': [{'finishReason': finish, 'content': {'parts': [{'text': text}]}}]})
 
 
 def audio_completion(body, *, unclear=(), main_unclear=()):
@@ -723,11 +731,37 @@ class PlannerTests(unittest.IsolatedAsyncioTestCase):
     async def test_invalid_or_incomplete_decision_never_returns_calls(self):
         for value, finish in [(decision(clarification='Which?', tool_calls=[{'api_name': 'erase', 'args': {}}]), 'STOP'),
                               (decision(tool_calls=[None]), 'STOP'),
-                              (decision(), 'MAX_TOKENS')]:
+                              (decision(), 'MAX_TOKENS'),
+                              (decision(), None)]:
             with self.subTest(value=value, finish=finish):
                 planner = await self.make_planner(lambda _, v=value, f=finish: completion(v, f))
                 with self.assertRaises(PlannerError):
                     await planner.plan({})
+
+    async def test_complete_decision_rejects_duplicate_root_keys(self):
+        output = ('{"observations":[],"intent":"search","slots":{},"tool_calls":[],"clarification":"Stop and ask",'
+                  '"response":null,"clarification":null,"tool_calls":[{"api_name":"lookup","args":{"place":"Oslo"}}]}')
+        planner = await self.make_planner(lambda _: completion_text(output))
+        context = {'tools': {'lookup': {'kind': 'read_only', 'args': {'place': {'type': 'string'}}}}}
+        with self.assertRaisesRegex(PlannerError, 'invalid decision'):
+            await planner.plan(context)
+
+    async def test_complete_decision_rejects_duplicate_nested_keys(self):
+        output = ('{"observations":[],"intent":"search","slots":{},"tool_calls":[{"api_name":"lookup",'
+                  '"args":{"place":"Oslo","place":"Bergen"}}],"clarification":null,"response":null}')
+        planner = await self.make_planner(lambda _: completion_text(output))
+        context = {'tools': {'lookup': {'kind': 'read_only', 'args': {'place': {'type': 'string'}}}}}
+        with self.assertRaisesRegex(PlannerError, 'invalid decision'):
+            await planner.plan(context)
+
+    async def test_complete_decision_with_unique_keys_remains_valid(self):
+        output = json.dumps(decision(slots={'place': 'Oslo'},
+                                     tool_calls=[{'api_name': 'lookup', 'args': {'place': 'Oslo'}}],
+                                     clarification=None, response=None))
+        planner = await self.make_planner(lambda _: completion_text(output))
+        context = {'tools': {'lookup': {'kind': 'read_only', 'args': {'place': {'type': 'string'}}}}}
+        result = await planner.plan(context)
+        self.assertEqual(result['tool_calls'], [{'api_name': 'lookup', 'args': {'place': 'Oslo'}}])
 
     async def test_snapshot_tracks_actual_argument_and_preserves_other_constraints(self):
         planner = await self.make_planner(lambda _: completion(decision(slots={'place': 'mispelling', 'time': 'morning', 'remove': None},

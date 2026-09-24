@@ -47,6 +47,15 @@ class PlannerError(RuntimeError):
     """Sanitized failure: no API key, request body, or provider error body."""
 
 
+def _unique_json_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError('Duplicate JSON object key.')
+        result[key] = value
+    return result
+
+
 @contextmanager
 def planner_trace(observer):
     """Capture redacted evidence around an unchanged harness run."""
@@ -1564,10 +1573,10 @@ class Planner:
         candidate = payload['candidates'][0]
         record.update(model_version=payload.get('modelVersion'), usage=payload.get('usageMetadata'),
                       response_id=payload.get('responseId'), finish_reason=candidate.get('finishReason'))
-        if candidate.get('finishReason', 'STOP') != 'STOP':
+        if candidate.get('finishReason') != 'STOP':
             raise PlannerError('Gemini did not finish a complete decision.')
         output = ''.join(p.get('text', '') for p in candidate['content']['parts'] if not p.get('thought'))
-        decision = json.loads(output)
+        decision = json.loads(output, object_pairs_hook=_unique_json_object)
         # A misplaced selector has one unambiguous target: this root's continuation.
         for call in decision.get('tool_calls', []) if isinstance(decision, dict) else []:
             if isinstance(call, dict) and isinstance(call.get('after_result'), dict):
