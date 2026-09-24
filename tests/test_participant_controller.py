@@ -542,6 +542,29 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         final = await self.output(agent, "final_response")
         self.assertEqual(final["state_snapshot"]["actions"][0]["status"], "success")
 
+    async def test_ambiguous_write_is_not_retried_after_interruption(self):
+        tool = {"kind": "state_modifying", "description": "Create a note.",
+                "args": {"text": {"type": "string", "required": True}}}
+        text = "Create a note saying hello."
+        step = {"api_name": "create_note", "args": {"text": "hello"},
+                "authorization": {"quote": text}}
+        for outcome in ("timeout", "canceled"):
+            with self.subTest(outcome=outcome):
+                agent = await self.start(lambda _: {"tool_calls": [step]}, tools={"create_note": tool})
+                await self.speak(agent, text)
+                call = await self.output(agent, "tool_call")
+                if outcome == "timeout":
+                    await self.result(agent, call, {"error": "timeout"}, status="error")
+                    await self.output(agent, "final_response")
+                await self.event(agent, "interruption", {"text": text})
+                if outcome == "canceled":
+                    await self.output(agent, "cancel_tool")
+                await self.output(agent, "filler_speech")
+                blocked = await self.output(agent, "final_response")
+                self.assertIn("already submitted", blocked["payload"]["text"])
+                self.assertEqual(len(agent.operations), 1)
+                self.assertEqual(self.drain(agent), [])
+
     async def test_invalid_schema_unknown_tool_and_fabricated_identifier_are_blocked(self):
         proposals = [
             {"api_name": "not_supplied", "args": {}},
