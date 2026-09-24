@@ -85,13 +85,6 @@ class ParticipantAgent:
                     for event in batch:
                         is_result = isinstance(event, dict) and event.get("event_type") == "tool_result"
                         if is_result == result_pass:
-                            if (not is_result and isinstance(event, dict)
-                                    and event.get("event_type") in ("user_speech_chunk", "user_audio_chunk")
-                                    and isinstance(event.get("payload"), dict)
-                                    and event["payload"].get("end_of_turn") is True):
-                                # ponytail: this 10 ms fence covers small trace-clock leads;
-                                # larger skew needs a shared clock epoch in the input protocol.
-                                await asyncio.sleep(0.01)
                             self._handle(event)
                 self._expire_writes()
                 task = self._plan_task
