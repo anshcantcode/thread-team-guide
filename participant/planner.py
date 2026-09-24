@@ -673,10 +673,10 @@ def _flight_read_audio_format_agreement(context, decision, heard, *, repair_plan
         # Only replace a destination the user explicitly superseded in this turn.
         if (not repair_plan or start != 0 or len(destinations) < 2
                 or planned[0] != planned[1] or planned[0] not in destinations[:-1]):
-            return {}
+            return None
         corrected = _simple_flight_search(probe)
         if corrected is None:
-            return {}
+            return None
         decision.update({key: value for key, value in corrected.items() if key != 'observations'})
     return agreements
 
@@ -1251,6 +1251,9 @@ class Planner:
                 if single_audio:
                     for field in ('intent', 'slots', 'tool_calls', 'clarification', 'response'):
                         decision[field] = checked_decision[field]
+                plan_conflict = read_agreement is None
+                if plan_conflict:
+                    read_agreement = {}
                 for observation in decision['observations']:
                     if observation['type'] == 'audio' and observation['message_index'] in heard:
                         actual = heard[observation['message_index']]
@@ -1271,6 +1274,12 @@ class Planner:
                             record.setdefault('audio_transcript_conflicts', []).append(observation['message_index'])
                         observation['transcript'] = actual['transcript']
                         observation['uncertain'] = observation['uncertain'] or actual['uncertain'] or conflict
+                if plan_conflict:
+                    record['audio_plan_conflict'] = True
+                    record['audio_admission'] = 'blocked'
+                    if self._audio_turn == current_start:
+                        self._stop_audio_jobs()
+                    return self._audio_clarification(context, decision['observations'])
             if any(o['type'] == 'audio' and (o['message_index'] >= current_start or single_audio and acoustic is not None)
                    and o['uncertain'] for o in decision['observations']):
                 record['uncertainty_blocked'] = bool(decision['tool_calls'])

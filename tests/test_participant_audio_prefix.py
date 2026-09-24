@@ -635,6 +635,27 @@ class PrefixPlannerTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(planner._pending_tasks, set())
                 self.assertIsNone(planner.client)
 
+    async def test_two_source_bound_chunks_block_an_unspoken_destination(self):
+        abandoned, corrected = 'Alpha', 'Bravo'
+        transcripts = [f'Find flights to {abandoned}.', f'Actually make that {corrected}.']
+        planner, requests = await self.planner(transcripts, transcripts, destination='Charlie')
+        result = await planner.plan(context(2))
+
+        self.assertEqual(result['tool_calls'], [])
+        self.assertTrue(result['clarification'])
+        self.assertEqual([row['transcript'] for row in result['observations']], transcripts)
+        self.assertEqual(sorted(requests), [(False, [0, 1]), (True, [0, 1])])
+        self.assertTrue(planner.evidence[-1]['audio_plan_conflict'])
+        sources = planner.evidence[-1]['input_media']
+        self.assertEqual([source['message_index'] for source in sources], [0, 1])
+        self.assertEqual([source['sha256'] for source in sources], [
+            hashlib.sha256((self.root / '0.mp3').read_bytes()).hexdigest(),
+            hashlib.sha256((self.root / '1.mp3').read_bytes()).hexdigest(),
+        ])
+        self.assertEqual([row['transcript'] for row in planner._audio_cache.values()], transcripts)
+        await planner.close()
+        self.assertEqual(planner._pending_tasks, set())
+
     async def test_both_completion_orders_preserve_native_records_and_selected_destination(self):
         for main_first, prefix in ((False, MAIN[0]), (True, MAIN[0]),
                                    (False, 'Uh, book a flight to Quito.'), (True, 'Uh, book a flight to Quito.')):
