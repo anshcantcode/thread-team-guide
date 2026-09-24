@@ -1,7 +1,9 @@
 package com.thread.app
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.*
 import android.hardware.camera2.*
 import android.media.Image
@@ -33,7 +35,7 @@ internal class CameraRotation(initialDegrees: Int) {
     private fun normalize(degrees: Int) = ((degrees % 360) + 360) % 360
 }
 
-class LiveCamera(context: Context, private val model: ThreadModel, initialRotation: Int,
+class LiveCamera(private val context: Context, private val model: ThreadModel, initialRotation: Int,
                  private val failed: () -> Unit) : AutoCloseable {
     val preview = TextureView(context).apply { isOpaque = false; contentDescription = "Live rear-camera preview" }
     private val manager = context.getSystemService(CameraManager::class.java)
@@ -57,6 +59,8 @@ class LiveCamera(context: Context, private val model: ThreadModel, initialRotati
     @Volatile private var orientation = 0
     private var previewSize = Size(1280, 960)
     private val timeout = Runnable { error() }
+
+    private fun hasCameraPermission() = context.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
 
     fun start() {
         preview.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
@@ -149,7 +153,7 @@ class LiveCamera(context: Context, private val model: ThreadModel, initialRotati
     } }
 
     private fun sample(image: Image) {
-        if (stopped || encoding.get()) return
+        if (stopped || stopIfCameraPermissionMissing(hasCameraPermission()) { error() } || encoding.get()) return
         val owned = ticket
         if (owned == null) { ticket = model.cameraTicket(); waitingFrames = 0; return }
         // Select an exposure made after ownership was acquired, never a buffered pre-correction frame.
@@ -172,7 +176,7 @@ class LiveCamera(context: Context, private val model: ThreadModel, initialRotati
         encoding.set(true)
         encoder.execute {
             try {
-                if (!stopped) {
+                if (!stopped && !stopIfCameraPermissionMissing(hasCameraPermission()) { error() }) {
                     val buffer = ByteArrayOutputStream()
                     YuvImage(nv21, ImageFormat.NV21, w, h, null).compressToJpeg(Rect(0, 0, w, h), 65, buffer)
                     var bytes = buffer.toByteArray()
@@ -182,7 +186,7 @@ class LiveCamera(context: Context, private val model: ThreadModel, initialRotati
                         buffer.reset(); upright.compress(Bitmap.CompressFormat.JPEG, 65, buffer)
                         bytes = buffer.toByteArray(); upright.recycle(); if (upright !== bitmap) bitmap.recycle()
                     }
-                    if (!stopped) model.sendCameraFrame(owned, bytes)
+                    if (!stopped && !stopIfCameraPermissionMissing(hasCameraPermission()) { error() }) model.sendCameraFrame(owned, bytes)
                 }
             } catch (_: Exception) { error() }
             finally { encoding.set(false) }

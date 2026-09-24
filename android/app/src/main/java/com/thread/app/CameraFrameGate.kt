@@ -34,3 +34,9 @@ class CameraFrameGate {
     }
     fun acknowledge(streamId: String, seq: Long) { if (streamId == stream && pending == seq) pending = null }
 }
+
+internal fun stopIfCameraPermissionMissing(permissionGranted: Boolean, stop: () -> Unit): Boolean {
+    if (permissionGranted) return false
+    stop()
+    return true
+}

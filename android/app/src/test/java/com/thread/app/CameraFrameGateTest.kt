@@ -70,4 +70,19 @@ class CameraFrameGateTest {
         gate.acknowledge("stream", sequence)
         assertNull(gate.capture(6000))
     }
+
+    @Test fun permissionRevocationStopsCaptureAndInvalidatesCurrentFrame() {
+        val gate = gate()
+        val captured = gate.capture(1000)!!
+        var permissionGranted = true
+        var stopCalls = 0
+        val stopCamera = { stopCalls++; gate.stop() }
+        assertFalse(stopIfCameraPermissionMissing(permissionGranted, stopCamera))
+        assertEquals(0, stopCalls)
+        permissionGranted = false
+        assertTrue(stopIfCameraPermissionMissing(permissionGranted, stopCamera))
+        assertEquals(1, stopCalls)
+        assertNull(gate.deliver(captured, 1100, 10000, 0))
+        assertNull(gate.capture(2000))
+    }
 }
