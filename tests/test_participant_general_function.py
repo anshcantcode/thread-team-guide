@@ -297,6 +297,43 @@ class GeneralFunctionTests(unittest.TestCase):
         self.assertEqual(len(agent.operations), 1)
         self.assertTrue(agent.out_queue.empty())
 
+    def test_renamed_unseen_tool_uses_manifest_schema_and_selected_result_binding(self):
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
+        search_name, detail_name = "conditions_scan", "read_condition_detail"
+        agent._handle({"event_type": "tool_manifest", "payload": {"tools": {
+            search_name: {"kind": "read_only", "args": {
+                "region": {"type": "string", "required": True},
+                "measure": {"type": "string", "required": False,
+                            "enum": ["metric", "imperial"]}}},
+            detail_name: {"kind": "read_only", "args": {
+                "reference": {"type": "string", "required": True,
+                              "description": "Reference returned by the search."}}},
+        }}})
+        agent._dispatch({"api_name": search_name, "args": {"region": "Denver", "measure": "metric"},
+                         "response_template": "", "after_result": {
+            "api_name": detail_name, "args": {},
+            "select": {"path": "offers", "where": {"label": "Clear"}},
+            "bindings": {"reference": "reference"},
+            "response_template": "The selected report is {summary}.",
+        }})
+        search_call = agent.out_queue.get_nowait()["payload"]
+        self.assertEqual(search_call["api_name"], search_name)
+        agent._result({"call_id": search_call["call_id"], "api_name": search_name,
+                       "status": "success", "result": {"status": "success", "offers": [
+                           {"label": "Clear", "reference": "REF-4"}]}})
+        detail_call = agent.out_queue.get_nowait()["payload"]
+        self.assertEqual(detail_call["api_name"], detail_name)
+        self.assertEqual(detail_call["args"], {"reference": "REF-4"})
+        operation = agent.operations[detail_call["call_id"]]
+        self.assertEqual(operation["step"]["result_bindings"], {
+            "reference": {"call_id": search_call["call_id"], "path": "offers.0.reference"}})
+        agent._result({"call_id": detail_call["call_id"], "api_name": detail_name,
+                       "status": "success", "result": {"status": "success", "summary": "clear skies"}})
+        final = agent.out_queue.get_nowait()
+        self.assertEqual(final["action"], "final_response")
+        self.assertIn("clear skies", final["payload"]["text"])
+        self.assertTrue(agent.out_queue.empty())
+
 
 if __name__ == "__main__":
     unittest.main()
