@@ -552,6 +552,21 @@ class ParticipantAgent:
                 actual, bound = at_path(args, argument), at_path(result, binding["path"])
                 if type(actual) is not type(bound) or actual != bound:
                     return "A proposed argument does not match the tool result."
+                if tool["kind"] == "state_modifying" and isinstance(actual, (dict, list)):
+                    for path, value in scalar_fields(actual, prefix=argument):
+                        if type(value) is bool:
+                            explicit = _explicit_boolean_field_values(path, command)
+                            expected = value
+                        elif type(value) in (int, float):
+                            explicit = _explicit_numeric_field_values(path, command)
+                            expected = Decimal(str(value))
+                        elif isinstance(value, str):
+                            explicit = _explicit_string_field_values(path, authorized_text)
+                            expected = " ".join(value.casefold().split())
+                        else:
+                            continue
+                        if explicit and explicit != {expected}:
+                            return "A proposed argument does not match the explicit user value."
                 if type(actual) in (int, float):
                     explicit = _explicit_numeric_field_values(argument, command)
                     if explicit and explicit != {Decimal(str(actual))}:
