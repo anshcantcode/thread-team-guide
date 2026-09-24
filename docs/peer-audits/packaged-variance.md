@@ -7,6 +7,18 @@ weighted**, below the earlier [94.0 source run](../benchmarks/mega-pre-local-asr
 The package was frozen before this run, with the official kit files preserved.
 This difference is a measured reliability problem, not an adjusted score.
 
+A later package from `c513567`, including a 10 ms post-turn acknowledgment
+fence, also passed package and contract checks but scored only **78.0
+weighted** on the complete official 27 attempts. Its
+[per-attempt report](../benchmarks/mega-fenced-package-2026-09-24-3x.json)
+has SHA-256 `93D7F95A8FBE93DFE4A050986E0D6F2FD14F700939318523933C34E3AEC7AF8C`;
+the package ZIP SHA-256 is
+`44d10a0ce8a45293221dc80a5027acb4be60e8d2c21bdb808ecf53d661e07a65`.
+Its case medians were text 01–04: 100, audio 05: 72.3, audio 06: 56.9,
+visual 07: 47.7, text 08: 100, unseen tool 09: 47.7. The fence did not
+demonstrate an improvement. Different hosted responses and timing can also
+explain part of the decline; these separate runs do not isolate one cause.
+
 The visual case had scores `47.7, 33.8, 100` in the packaged full run. A
 second three-attempt replay against the **same package** produced `47.7, 100,
 75.4`. The latter replay saved official harness traces locally at
@@ -32,9 +44,12 @@ the first **post-turn** answer at 3,828 ms (3,028 ms after that chunk). In
 the two 100-point attempts, acknowledgments landed at 812 ms, 12 ms after
 the nominal end. This is a narrow timing race around the turn boundary.
 
-The full Python 3.11 suite passed in isolation after the live run:
-`1,044 tests in 64.550s, OK`. An earlier suite run concurrent with the
-evaluator had one timing-test failure that passed on rerun. These tests
+The full Python 3.11 suite passed in isolation after the first live run:
+`1,044 tests in 64.550s, OK`. After the fence change, `1,045 tests in
+72.136s, OK`; an intermediate run hit a 0.5-second mocked-request startup
+wait under host load and the same test passed alone. Its startup wait was
+raised to two seconds, while the tested acoustic deadline stayed at 40 ms.
+These tests
 verify local contracts but cannot remove hosted-model latency variance.
 
 No public scenario ID, image label, destination, or expected answer should be
