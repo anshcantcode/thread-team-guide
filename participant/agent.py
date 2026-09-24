@@ -561,7 +561,14 @@ class ParticipantAgent:
                 field = path.rsplit(".", 1)[-1].replace("_", " ")
                 descriptive = bool(re.search(r"\b(summary|description|message|note|text|comment|query)\b", field + " " + description, re.I))
                 # An enum/default validates a value; it does not authorize the write.
-                if not descriptive and not contains_value(value, authorized_text):
+                target_field = path.rsplit(".", 1)[-1].casefold().removesuffix("_id")
+                if not descriptive and target_field in _FOR_TARGET_FIELDS | _TO_TARGET_FIELDS:
+                    explicit = _explicit_string_field_values(path, authorized_text)
+                    if explicit and explicit != {" ".join(value.casefold().split())}:
+                        return f"Please supply {path}; I cannot invent that value for a state-changing action."
+                    if not explicit and not contains_value(value, authorized_text):
+                        return f"Please supply {path}; I cannot invent that value for a state-changing action."
+                elif not descriptive and not contains_value(value, authorized_text):
                     return f"Please supply {path}; I cannot invent that value for a state-changing action."
             if not (required_source or identifier and tool["kind"] == "state_modifying"):
                 continue

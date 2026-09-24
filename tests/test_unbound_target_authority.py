@@ -31,7 +31,7 @@ class UnboundTargetAuthorityTests(unittest.TestCase):
     def test_first_clause_target_and_mode_still_dispatch(self):
         events = self.dispatch(
             "Set mode safe for Nia and tell Omar about it.",
-            "Set mode safe for Nia", "Nia", "safe")
+            "Set mode safe for Nia and tell Omar about it.", "Nia", "safe")
 
         self.assertEqual([event["action"] for event in events], ["tool_call"])
         self.assertEqual(events[0]["payload"]["args"], {"customer": "Nia", "mode": "safe"})
@@ -39,10 +39,17 @@ class UnboundTargetAuthorityTests(unittest.TestCase):
     def test_compound_string_value_in_the_authorized_clause_still_dispatches(self):
         events = self.dispatch(
             "Set mode quiet and safe for Nia and tell Omar about it.",
-            "Set mode quiet and safe for Nia", "Nia", "quiet and safe")
+            "Set mode quiet and safe for Nia and tell Omar about it.", "Nia", "quiet and safe")
 
         self.assertEqual([event["action"] for event in events], ["tool_call"])
         self.assertEqual(events[0]["payload"]["args"]["mode"], "quiet and safe")
+
+    def test_full_quote_does_not_authorize_a_target_from_a_coordinated_clause(self):
+        text = "Set mode safe for Nia and tell Omar about it."
+        events = self.dispatch(text, text, "Omar", "safe")
+
+        self.assertEqual([event["action"] for event in events], ["clarification_request"])
+        self.assertIn("customer", events[0]["payload"]["text"])
 
 
 if __name__ == "__main__":
