@@ -299,8 +299,14 @@ class ParticipantAgent:
                 raise ValueError("The planner did not return an object")
         except asyncio.CancelledError:
             raise
-        except Exception:
-            decision = {"clarification": "I could not reliably interpret that request. Please clarify what you want me to do."}
+        except Exception as exc:
+            from .planner import PlannerError
+            message = str(exc)
+            if (isinstance(exc, PlannerError)
+                    and message.startswith(("Gemini returned HTTP 429;", "Gemini returned HTTP 503;"))):
+                decision = {"clarification": message}
+            else:
+                decision = {"clarification": "I could not reliably interpret that request. Please clarify what you want me to do."}
         finally:
             if task is not None and not task.done():
                 task.cancel()
