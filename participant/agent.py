@@ -93,6 +93,12 @@ def _explicit_string_field_values(path, command):
         found.update(" ".join(match["value"].casefold().split())
                      for match in re.finditer(pattern, command, re.I))
 
+        preceding = (r"\b(?:set|choose|select|use|switch|change)\s+(?:the\s+)?" +
+                     r"(?P<value>[^,;.!?]+?)\s+" + field +
+                     r"(?=\s+\b(?:for|to|and|but|then)\b|[,;.!?]|$)")
+        found.update(" ".join(match["value"].casefold().split())
+                     for match in re.finditer(preceding, command, re.I))
+
     field_name = parts[-1].casefold().removesuffix("_id")
     relation = ("for" if field_name in _FOR_TARGET_FIELDS else
                 "to" if field_name in _TO_TARGET_FIELDS else None)
@@ -102,6 +108,21 @@ def _explicit_string_field_values(path, command):
         found.update(" ".join(match["value"].casefold().split())
                      for match in re.finditer(pattern, command, re.I))
     return found
+
+
+def _field_scoped_result_delegation(path, command):
+    parts = path.split(".")
+    aliases = {path, " ".join(part.replace("_", " ") for part in parts)}
+    qualifier = r"(?:returned|selected|chosen|result|lookup)"
+    for alias in aliases:
+        field = r"(?<![\w.])" + re.escape(alias) + r"(?![\w.])"
+        after = (field + r"\s+(?:(?:based\s+on|according\s+to|from|using|with|to)\s+)?" +
+                 r"(?:the\s+)?" + qualifier + r"\b")
+        before = (r"\b" + qualifier + r"(?:\s+(?!(?:and|but|then)\b)[\w-]+){0,3}" +
+                  r"\s+(?:for\s+)?" + field)
+        if re.search(after, command, re.I) or re.search(before, command, re.I):
+            return True
+    return False
 
 
 def _proposed_primitive_values(values):
@@ -504,7 +525,7 @@ class ParticipantAgent:
                     texts.append((index, observation["transcript"]))
         return texts
 
-    def _binding_error(self, step, tool, args, command=None):
+    def _binding_error(self, step, tool, args, command=None, selection=None):
         bindings = step.get("result_bindings", {})
         if not isinstance(bindings, dict):
             return "Result bindings must be an object."
@@ -539,8 +560,12 @@ class ParticipantAgent:
                     if explicit and explicit != {actual}:
                         return "A proposed argument does not match the explicit user value."
                 elif isinstance(actual, str):
-                    explicit = _explicit_string_field_values(argument, command)
+                    explicit = _explicit_string_field_values(argument, authorized_text)
                     if explicit and explicit != {" ".join(actual.casefold().split())}:
+                        return "A proposed argument does not match the explicit user value."
+                    if (not explicit and not contains_value(actual, authorized_text) and
+                            not argument.rsplit(".", 1)[-1].endswith("_id") and selection is None and
+                            not _field_scoped_result_delegation(argument, authorized_text)):
                         return "A proposed argument does not match the explicit user value."
                 if source["revision"] != self.revision and not (isinstance(actual, str) and contains_value(actual, supplied)):
                     return "An earlier result needs an explicit current reference before I can use it for this action."
@@ -598,7 +623,7 @@ class ParticipantAgent:
             if not grant:
                 self._say("clarification_request", "Please explicitly confirm the action and its target before I change anything.")
                 return
-        binding_error = self._binding_error(step, tool, args, grant)
+        binding_error = self._binding_error(step, tool, args, grant, selection)
         if binding_error:
             self._say("clarification_request", binding_error)
             return
