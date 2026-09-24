@@ -16,7 +16,7 @@ import httpx
 from dotenv import dotenv_values
 
 from .media import MediaError, MediaLoader
-from .schema import selected_printed_label, validate_args
+from .schema import scalar_fields, selected_printed_label, validate_args
 
 
 DEFAULT_MODEL = 'gemini-3.5-flash-lite'
@@ -1738,6 +1738,32 @@ class Planner:
         if decision['tool_calls']:
             Planner._ensure_active_frame_available(
                 messages, media, latest_frame_index, current_turn_start)
+            # A lost frame cannot supply an unspoken search target on a later turn.
+            # This check uses the verified current request, so it also covers image
+            # references phrased without any of the image nouns above.
+            if (type(latest_frame_index) is int and not current_frame_prepared
+                    and isinstance(messages, list) and type(current_turn_start) is int
+                    and any(isinstance(message, dict) and message.get('event_type') == 'video_frame'
+                            and message.get('message_index', index) == latest_frame_index
+                            for index, message in enumerate(messages))):
+                current_text = ' '.join([
+                    *(message['payload']['text'] for message in messages[current_turn_start:]
+                      if isinstance(message, dict) and message.get('event_type') in
+                      ('user_speech_chunk', 'interruption') and isinstance(message.get('payload'), dict)
+                      and isinstance(message['payload'].get('text'), str)),
+                    *(row['transcript'] for row in decision['observations']
+                      if row['type'] == 'audio' and row['message_index'] >= current_turn_start
+                      and not row['uncertain']),
+                ])
+                current_text = ' '.join(current_text.casefold().split())
+                for call in decision['tool_calls']:
+                    if not isinstance(call, dict):
+                        continue
+                    for _, value in scalar_fields(call.get('args', {})):
+                        if isinstance(value, str) and value.strip():
+                            literal = ' '.join(value.casefold().split())
+                            if not re.search(r'(?<![\w-])' + re.escape(literal) + r'(?![\w-])', current_text):
+                                raise ValueError('the active request image source is unavailable')
         elif isinstance(decision.get('response'), str) and decision['response'].strip():
             Planner._ensure_active_frame_available(
                 messages, media, latest_frame_index, current_turn_start, explicit_reference_only=True)

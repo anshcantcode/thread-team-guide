@@ -179,6 +179,31 @@ class MissingFrameAdmissionTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(any(record.get('phase') == 'acoustic' and record.get('status') == 200
                             for record in self.planner.evidence))
 
+    async def test_unspoken_target_from_earlier_upload_cannot_use_lost_frame(self):
+        request = 'Find the manual for the connector from my earlier upload.'
+        for audio in (False, True):
+            for corrupt in (False, True):
+                with self.subTest(audio=audio, corrupt=corrupt):
+                    agent = self.agent()
+                    if corrupt:
+                        (self.root / 'missing.png').write_bytes(b'not an image')
+                    await self.finish_unrelated_turn_after_missing_frame(agent)
+
+                    if audio:
+                        agent._handle(self.add_audio(request))
+                    else:
+                        self.reply = self.lookup()
+                        agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+                            'text': request, 'end_of_turn': True}})
+                    await self.complete_turn(agent)
+
+                    actions = self.drain(agent)
+                    self.assertNotIn('tool_call', [item['action'] for item in actions])
+                    self.assertIn('clarification_request', [item['action'] for item in actions])
+                    self.assertEqual(self.planner.evidence[-1]['validation_error'],
+                                     'the active request image source is unavailable')
+                    (self.root / 'missing.png').unlink(missing_ok=True)
+
     async def test_later_audio_picture_reference_after_unrelated_turn_clarifies(self):
         agent = self.agent()
         await self.finish_unrelated_turn_after_missing_frame(agent)
