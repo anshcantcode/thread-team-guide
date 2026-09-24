@@ -1,0 +1,14 @@
+# Public competitor claim reproduction — 24 September 2026
+
+The comparisons below pin each public repository to the inspected commit. A score is called a Samsung score only when it comes from the untouched public `theme5_kit/participant-kit/participant-kit` evaluator and its nine scenarios. No hidden-set result is available.
+
+| Project | Claim checked | Independent result | Samsung 9 × 3 comparison |
+| --- | --- | --- | --- |
+| [DUET](duet-official-reproduction.md) | README: 97.4 weighted, 97.9 plain | **Reproduced exactly** at `4d08c2b` with the unchanged official evaluator, 27 attempts, GPU Whisper; text 100, audio 100, visual 81.5 | **97.4 weighted**; per-attempt report in [`../benchmarks/duet-public-2026-09-24-3x.json`](../benchmarks/duet-public-2026-09-24-3x.json) |
+| [THREAD](../benchmarks/mega-pre-local-asr-2026-09-24-3x.json) | Earlier 94.0 public batch | **Reproduced** at `be11e82` with correct kit media root: text and visual medians 100, audio 05 median 100, audio 06 median 56.9 | **94.0 weighted**; the optional local ASR experiment is separate from this submission route |
+| [AccessFlow](accessflow-official-kit-smoke.md) | Published `pub_03` text trace: 100 | Trace hashes verified and the official scorer returned **100** for that one case. Fresh candidate package passed Stage 1; setup requires a Groq key and stopped before a fresh scenario. | No current nine-case score. A single text case does not establish audio or visual coverage. |
+| [Talent Atlas](talent-atlas-official-kit-smoke.md) | Own synthetic interruption gate: 12/12 | **12/12 reproduced** with its documented deterministic script. Official kit rejected its root at Stage 1 because `submission.yaml` is absent. | No official score. Its 674/670 unit-test count could not be reproduced from this pinned checkout. |
+| [AURA](aura-official-kit-smoke.md) | Own custom harness and rubric weights | Its README identifies its scorer as author-built; no published official aggregate was found. Official kit rejected its root at Stage 1 because `submission.yaml` is absent. | No official score. |
+| [Interject](interject-official-kit-smoke.md) | Interruption and checkpoint claims | Prior pinned audit passed 26 local tests. Official kit rejected its root at Stage 1 because `submission.yaml` is absent. | No official score. Its under-1-ms typical yield claim was not established by the kit smoke. |
+
+The DUET and THREAD public results used the same nine kit scenarios and three repetitions, but were run at different times with different inference stacks. The Samsung score report has checkpoints and per-attempt totals, not a hidden-set estimate or full factual trace. Raw THREAD traces for selected cases and provider diagnostics are kept under ignored `.runtime/` for local review. See [provider and router comparison](../PROVIDER_ROUTE_COMPARISON.md) for measured route failures and quotas.
