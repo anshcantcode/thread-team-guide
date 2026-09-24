@@ -454,6 +454,30 @@ class ParticipantAgent:
                 return f"The value for {path} needs a successful result or an explicit user reference."
         return ""
 
+    def _read_matches_current_slots(self, operation):
+        args, slots = operation.get("args"), self.state.get("slots")
+        if not isinstance(args, dict) or not args or not isinstance(slots, dict):
+            return False
+        if any(key not in slots or type(slots[key]) is not type(value) or slots[key] != value
+               for key, value in args.items()):
+            return False
+        bindings = operation.get("step", {}).get("result_bindings", {})
+        if not isinstance(bindings, dict):
+            return False
+        successes = {key: op for key, op in self.operations.items() if op["status"] == "success"}
+        for argument, binding in bindings.items():
+            try:
+                source = successes[binding["call_id"]]
+                current = at_path(slots, argument)
+                actual = at_path(args, argument)
+                bound = at_path(source["result"], binding["path"])
+                if (type(actual) is not type(current) or actual != current or
+                        type(actual) is not type(bound) or actual != bound):
+                    return False
+            except (KeyError, IndexError, TypeError, ValueError):
+                return False
+        return True
+
     def _dispatch(self, step, *, retry=0, depth=0, selection=None):
         if self._closed or self._turn_open or self._awaiting_clarification:
             return
@@ -492,6 +516,18 @@ class ParticipantAgent:
             return False
         same = [op for op in self.operations.values() if op["key"] == key and
                 (op["request_start"] == self._request_start if grant is not None else op["revision"] == self.revision)]
+        if not same and tool["kind"] == "read_only":
+            completed = next((op for op in reversed(self.operations.values())
+                              if op["key"] == key and op["kind"] == "read_only" and
+                              op["status"] == "success" and op["revision"] != self.revision and
+                              self._read_matches_current_slots(op)), None)
+            if completed is not None:
+                reused = {**completed, "step": deepcopy(step), "revision": self.revision,
+                          "request_start": self._request_start, "depth": depth,
+                          "selection": deepcopy(selection)}
+                self.tool_results.append({**self._operation_context(reused), "status": "success"})
+                self._continue_result(reused)
+                return True
         if same:
             last = same[-1]
             if not (tool["kind"] == "read_only" and retry == 1 and last["status"] == "error" and last["retry"] == 0):
@@ -566,6 +602,9 @@ class ParticipantAgent:
             identifier = type(value) in (int, float) or isinstance(value, str) and value and not re.search(r"\s", value)
             if key.endswith("_id") and identifier:
                 self.state["slots"][key] = value
+        self._continue_result(operation)
+
+    def _continue_result(self, operation):
         result_announced = operation.get("result_announced")
         next_step = operation["step"].get("after_result")
         if next_step is not None:
@@ -649,7 +688,8 @@ class ParticipantAgent:
                 or operation["request_start"] != self._request_start or not self.messages or self._latest_frame is not None
                 or set(args) - {"destination", "date"} or self.state["slots"] != args
                 or "?" in str(step.get("response_template", ""))
-                or len({op["operation_id"] for op in self.operations.values() if op["revision"] == self.revision}) != 1):
+                or len({op["operation_id"] for op in self.operations.values() if op["revision"] == self.revision}
+                       | {operation["operation_id"]}) != 1):
             return None
         search = _flight_discovery_search(self.tools, args)
         if search is None:

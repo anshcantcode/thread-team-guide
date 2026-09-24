@@ -308,6 +308,69 @@ class AsyncFreshnessTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.gather(task, return_exceptions=True)
 
 
+class CompletedReadFreshnessTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.source_call_id = None
+
+        def plan(context):
+            if context['revision'] == 1:
+                return {'intent': 'find_journey', 'slots': {'city': 'Oslo', 'day': 'Friday'},
+                        'tool_calls': [{'api_name': 'resolve_city', 'args': {}, 'after_result': {
+                            'api_name': 'journeys', 'args': {'day': 'Friday'},
+                            'bindings': {'city': 'city'},
+                            'response_template': 'Journey {journeys.0.ref}.'}}]}
+            return {'intent': 'find_journey',
+                    'slots': {'city': 'Oslo', 'day': 'Friday', 'sort': 'price'},
+                    'tool_calls': [{'api_name': 'journeys', 'args': {'city': 'Oslo', 'day': 'Friday'},
+                                    'result_bindings': {'city': {'call_id': self.source_call_id, 'path': 'city'}},
+                                    'response_template': 'Journey {journeys.0.ref}, sorted by price.'}]}
+
+        self.planner = ScriptedPlanner(plan)
+        self.agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue(), planner=self.planner)
+        self.task = asyncio.create_task(self.agent.run())
+        self.addAsyncCleanup(self.stop)
+        await self.event('tool_manifest', {'tools': {
+            'resolve_city': {'kind': 'read_only', 'description': 'Resolve a city.', 'args': {}},
+            'journeys': deepcopy(TOOLS['journeys'])}})
+
+    async def stop(self):
+        self.task.cancel()
+        await asyncio.gather(self.task, return_exceptions=True)
+
+    async def event(self, kind, payload=None):
+        await self.agent.in_queue.put({'event_type': kind, 'payload': payload or {}})
+
+    async def output(self, action):
+        async def find():
+            while True:
+                event = await self.agent.out_queue.get()
+                if event['action'] == action:
+                    return event
+        return await asyncio.wait_for(find(), 0.8)
+
+    async def result(self, call, result):
+        await self.event('tool_result', {**call['payload'], 'status': 'success',
+                                          'result': {'status': 'success', **result}})
+
+    async def test_correction_reuses_read_when_args_and_source_still_match_slots(self):
+        await self.event('user_speech_chunk', {'text': 'Find journeys to Oslo on Friday.', 'end_of_turn': True})
+        source = await self.output('tool_call')
+        self.source_call_id = source['payload']['call_id']
+        await self.result(source, {'city': 'Oslo'})
+        read = await self.output('tool_call')
+        self.assertEqual(read['payload']['api_name'], 'journeys')
+        await self.result(read, {'journeys': [{'ref': 'R-OSLO'}]})
+        await self.output('final_response')
+
+        await self.event('user_speech_chunk', {'text': 'Keep Oslo and sort by price.', 'end_of_turn': True})
+        final = await self.output('final_response')
+
+        self.assertIn('R-OSLO', final['payload']['text'])
+        self.assertIn('sorted by price', final['payload']['text'])
+        self.assertEqual(len(self.agent.operations), 2)
+        self.assertEqual(self.agent.state['slots'], {'city': 'Oslo', 'day': 'Friday', 'sort': 'price'})
+
+
 class AudioFallbackFreshnessTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         folder = tempfile.TemporaryDirectory()
