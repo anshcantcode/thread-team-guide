@@ -86,6 +86,30 @@ class MissingFrameAdmissionTests(unittest.IsolatedAsyncioTestCase):
                                      'the active request image source is unavailable')
                     self.assertNotIn('tool_call', [item['action'] for item in self.drain(agent)])
 
+    async def test_later_picture_reference_after_unrelated_text_clarifies(self):
+        for reference, corrupt in (('missing.png', False), ('corrupt.png', True)):
+            if corrupt:
+                (self.root / reference).write_bytes(b'not an image')
+            with self.subTest(reference=reference):
+                agent = self.agent()
+                self.reply = decision(response='Here is an unrelated fact.')
+                agent._handle({'event_type': 'video_frame', 'payload': {'image_ref': reference}})
+                agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+                    'text': 'Tell me something interesting.', 'end_of_turn': True}})
+                await self.complete_turn(agent)
+                self.drain(agent)
+
+                self.reply = self.lookup()
+                agent._handle({'event_type': 'user_speech_chunk', 'payload': {
+                    'text': 'What is the port in that picture?', 'end_of_turn': True}})
+                await self.complete_turn(agent)
+
+                actions = self.drain(agent)
+                self.assertNotIn('tool_call', [item['action'] for item in actions])
+                self.assertIn('clarification_request', [item['action'] for item in actions])
+                self.assertEqual(self.planner.evidence[-1]['validation_error'],
+                                 'the active request image source is unavailable')
+
     async def test_later_explicit_text_lookup_is_not_blocked_by_old_missing_frame(self):
         agent = self.agent()
         self.reply = decision(clarification='I could not read the frame. Please describe it.')

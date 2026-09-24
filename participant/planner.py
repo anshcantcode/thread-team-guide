@@ -1668,7 +1668,18 @@ class Planner:
                 isinstance(message, dict) and message.get('event_type') in
                 ('user_speech_chunk', 'user_audio_chunk', 'interruption')
                 for message in request_messages[current_frame_position + 1:current_turn_start])))
-        if frame_is_request_source and not current_frame_prepared and decision['tool_calls']:
+        current_request_messages = (request_messages[current_turn_start:]
+                                    if type(current_turn_start) is int
+                                    and 0 <= current_turn_start < len(request_messages) else [])
+        active_request_text = ' '.join(
+            message['payload']['text'] for message in current_request_messages
+            if isinstance(message, dict) and message.get('event_type') in ('user_speech_chunk', 'interruption')
+            and isinstance(message.get('payload'), dict) and isinstance(message['payload'].get('text'), str))
+        frame_is_referenced_in_request = bool(re.search(
+            r'\b(?:this|that|the|these|those|same)\s+(?:picture|image|photo|photograph|frame|screenshot)s?\b',
+            active_request_text, re.IGNORECASE))
+        if ((frame_is_request_source or frame_is_referenced_in_request)
+                and current_frame_position is not None and not current_frame_prepared and decision['tool_calls']):
             raise ValueError('the active request image source is unavailable')
         current_image = next((o for o in decision['observations'] if o['type'] == 'image'
                               and o['message_index'] == latest_frame_index), None) if current_frame_prepared else None
