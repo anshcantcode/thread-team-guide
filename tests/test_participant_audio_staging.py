@@ -496,6 +496,42 @@ class AudioStagingTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(result['tool_calls'])
         self.assertEqual(len(self.requests), 2)
 
+    async def test_audio_repair_overrides_a_stale_read_only_flight_search(self):
+        tool = {'flight_search': {'kind': 'read_only',
+            'description': 'Search flights to a destination city on a given date.', 'args': {
+                'destination': {'type': 'string', 'required': True,
+                                'description': 'Destination city name or airport code.'}}}}
+        transcripts = ['Book a flight to Alderford.', 'Actually make that Rivermouth.']
+        acoustic_transcripts = ['book a flight to Alderford', 'actually, make that Rivermouth']
+
+        async def handle(body):
+            acoustic = self.acoustic(body)
+            indices = self.targets(body)
+            source = acoustic_transcripts if acoustic else transcripts
+            decision = {'observations': [
+                {'message_index': index, 'type': 'audio', 'transcript': source[index], 'uncertain': False}
+                for index in indices]}
+            if not acoustic:
+                decision.update(intent='book_flight', slots={'destination': 'Alderford'}, tool_calls=[{
+                    'api_name': 'flight_search', 'args': {'destination': 'Alderford'},
+                    'response_template': 'Flights to Alderford: option {flights.0.flight_id}.'}],
+                    response=None, clarification=None)
+            return httpx.Response(200, json={'candidates': [{'finishReason': 'STOP', 'content': {'parts': [
+                {'text': json.dumps(decision)}]}}]})
+
+        planner = await self.planner(handle)
+        planner.observe_input(self.messages[0], 0)
+        result = await planner.plan(self.context(tools=tool))
+        self.assertEqual(result['tool_calls'][0]['args']['destination'], 'Rivermouth')
+        self.assertEqual(result['slots']['destination'], 'Rivermouth')
+        self.assertEqual([call['api_name'] for call in result['tool_calls']], ['flight_search'])
+        self.assertEqual(len(self.requests), 2)
+        self.assertEqual(sum(self.acoustic(body) for body in self.requests), 1)
+        self.assertTrue(all(self.clips(body) == CLIPS for body in self.requests))
+        audit = next(row for row in planner.evidence if row['phase'] == 'planning')
+        self.assertNotIn('audio_transcript_conflicts', audit)
+        self.assertEqual({row['message_index'] for row in audit['audio_format_equivalence']}, {0, 1})
+
     async def test_controller_never_dispatches_for_an_unclosed_audio_turn(self):
         planner = await self.planner()
         agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue(), planner=planner)

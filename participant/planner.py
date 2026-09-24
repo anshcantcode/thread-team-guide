@@ -524,8 +524,8 @@ def _simple_flight_discovery(context):
             'clarification': None, 'response': None}
 
 
-def _flight_read_audio_format_agreement(context, decision, heard):
-    """Bounded terminal-read agreement policy, never inherited authority."""
+def _flight_read_audio_format_agreement(context, decision, heard, *, repair_plan=False):
+    """Verify bounded flight reads; optionally repair a stale destination from both audio reads."""
     messages, state = context.get('messages'), context.get('state', {})
     start, revision = context.get('current_turn_start'), context.get('revision')
     if (type(start) is not int or type(revision) is not int or revision < 0
@@ -596,7 +596,7 @@ def _flight_read_audio_format_agreement(context, decision, heard):
               r'(?:[Bb]ook a flight to|[Ff]ind flights to|[Ss]earch flights to))'
               r'|(?P<confirmation>[Ii] said)|(?P<repair>' + repair + r')) '
               + name + r'(?P<period>\.?)')
-    agreements = {}
+    agreements, destinations = {}, []
     for index in range(start, len(messages)):
         pair = [main[index], heard[index]]
         texts = [unicodedata.normalize('NFC', o['transcript']) for o in pair]
@@ -635,6 +635,7 @@ def _flight_read_audio_format_agreement(context, decision, heard):
         destination = matches[0]['name']
         if any(word.casefold() in literal_words for word in destination.split()):
             return {}
+        destinations.append(unicodedata.normalize('NFC', destination))
         # Reuse existing name/manifest validation only; never execute this probe
         # or send synthetic text to the provider. Native audio remains unchanged.
         probe = {'revision': revision, 'current_turn_start': 0, 'tools': context.get('tools'),
@@ -665,10 +666,18 @@ def _flight_read_audio_format_agreement(context, decision, heard):
                 agreements[index].update(filler_omission)
     slots = decision.get('slots')
     if (not isinstance(slots, dict) or set(slots) != {'destination'}
-            or any(not isinstance(values['destination'], str)
-                   or unicodedata.normalize('NFC', values['destination']) != destination
-                   for values in (slots, calls[0]['args']))):
+            or any(not isinstance(values['destination'], str) for values in (slots, calls[0]['args']))):
         return {}
+    planned = [unicodedata.normalize('NFC', values['destination']) for values in (slots, calls[0]['args'])]
+    if any(value != destination for value in planned):
+        # Only replace a destination the user explicitly superseded in this turn.
+        if (not repair_plan or start != 0 or len(destinations) < 2
+                or planned[0] != planned[1] or planned[0] not in destinations[:-1]):
+            return {}
+        corrected = _simple_flight_search(probe)
+        if corrected is None:
+            return {}
+        decision.update({key: value for key, value in corrected.items() if key != 'observations'})
     return agreements
 
 
@@ -1223,9 +1232,13 @@ class Planner:
                 # alone cannot verify that sibling or seed its history cache.
                 decision['observations'] = [o for o in decision['observations'] if o['type'] != 'audio'
                     or not single_audio and o['message_index'] < current_start or o['message_index'] in heard]
+                checked_decision = _without_private(decision) if single_audio else decision
                 read_agreement = _flight_read_audio_format_agreement(
                     _without_private(context) if single_audio else context,
-                    _without_private(decision) if single_audio else decision, heard)
+                    checked_decision, heard, repair_plan=True)
+                if single_audio:
+                    for field in ('intent', 'slots', 'tool_calls', 'clarification', 'response'):
+                        decision[field] = checked_decision[field]
                 for observation in decision['observations']:
                     if observation['type'] == 'audio' and observation['message_index'] in heard:
                         actual = heard[observation['message_index']]
