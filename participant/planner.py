@@ -828,6 +828,8 @@ class Planner:
         self._transport = transport
         self._key = ''
         self.model = DEFAULT_MODEL
+        self.acoustic_provider = 'gemini'
+        self._local_asr = None
         self.timeout = 4.5
         self.acoustic_timeout = 3.5
         self.audio_mode = 'independent'
@@ -869,6 +871,10 @@ class Planner:
                 raise PlannerError('Conflicting configuration for ' + '/'.join(names) + '.')
             return next(iter(found), default)
 
+        self.acoustic_provider = value('PARTICIPANT_ACOUSTIC_PROVIDER', default='gemini')
+        if self.acoustic_provider not in ('gemini', 'local_whisper_cuda'):
+            raise PlannerError('PARTICIPANT_ACOUSTIC_PROVIDER must be gemini or local_whisper_cuda.')
+
         if value('THREAD_PROVIDER', default='gemini') != 'gemini':
             raise PlannerError('This participant supports THREAD_PROVIDER=gemini only; no fallback was selected.')
         self.model = value('PARTICIPANT_MODEL', 'THREAD_MODEL', default=DEFAULT_MODEL)
@@ -901,6 +907,18 @@ class Planner:
                 raise ValueError
         except ValueError:
             raise PlannerError('PARTICIPANT_TIMEOUT_SECONDS must be greater than zero and at most 5.5.') from None
+        if self.acoustic_provider == 'local_whisper_cuda' and self._local_asr is None:
+            try:
+                from .local_asr import LocalASR
+                local_asr = LocalASR(device='cuda', compute_type='float16')
+                await asyncio.to_thread(local_asr.prewarm)
+            except Exception as exc:
+                detail = str(exc).strip() or type(exc).__name__
+                raise PlannerError(
+                    'PARTICIPANT_ACOUSTIC_PROVIDER=local_whisper_cuda failed to prewarm: '
+                    f'{detail}; no fallback was selected.'
+                ) from None
+            self._local_asr = local_asr
         root = value('PARTICIPANT_MEDIA_ROOT', default=str(Path.cwd()))
         self.media = await asyncio.to_thread(MediaLoader, root)
         self.client = httpx.AsyncClient(transport=self._transport, follow_redirects=False,
