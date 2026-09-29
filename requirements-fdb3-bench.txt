@@ -1,0 +1,10 @@
+# Upstream FDB-v3 client/evaluator environment, from the pinned upstream README
+# (3e799c45). Upstream does not pin exact versions; record `pip freeze` with any run.
+livekit[crypto]~=1.0
+livekit-agents~=1.3
+numpy
+nemo_toolkit[asr]
+pydub
+ffmpeg-python
+openai
+python-dotenv

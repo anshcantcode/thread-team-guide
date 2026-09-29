@@ -1,0 +1,220 @@
+{
+  "preregistration_sha256": "e555f60d264867172503f766bc0a7090b42ea674441aa02fb36d7b37685bb878",
+  "status": "completed",
+  "rows": [
+    {
+      "model": "base.en",
+      "fixture": "heldout8_cancelled_filter",
+      "decoded": "Update my parking filter to required. Actually, forget it, leave the filters alone.",
+      "reference": "Update my parking filter to required. Actually, forget it, leave the filters alone.",
+      "word_errors": 0,
+      "reference_words": 13,
+      "seconds": 0.375,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_direct_booking",
+      "decoded": "Book the flight for Lina Fox.",
+      "reference": "Book the flight for Lena Fox.",
+      "word_errors": 1,
+      "reference_words": 6,
+      "seconds": 0.10899999999674037,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_max_price_filter",
+      "decoded": "Set my max price filter to 2200.",
+      "reference": "Set my max price filter to twenty two hundred.",
+      "word_errors": 3,
+      "reference_words": 9,
+      "seconds": 0.14100000000325963,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_pets_allowed",
+      "decoded": "Please update my filters so pets are allowed.",
+      "reference": "Please update my filter so pets are allowed.",
+      "word_errors": 1,
+      "reference_words": 8,
+      "seconds": 0.125,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_pets_not_allowed",
+      "decoded": "I'm allergic, so update my filters so pets are not allowed.",
+      "reference": "I'm allergic, so update my filter so pets are not allowed.",
+      "word_errors": 1,
+      "reference_words": 11,
+      "seconds": 0.13999999999941792,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_price_false_add",
+      "decoded": "Search for a phone case, and if you find one under twenty dollars, add it to my cart.",
+      "reference": "Search for a phone case, and if you find one under twenty dollars, add it to my cart.",
+      "word_errors": 0,
+      "reference_words": 18,
+      "seconds": 0.17199999999138527,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_price_false_book",
+      "decoded": "Look up flights to Boston on May 4, and if there's one under $200, book it for Anadias.",
+      "reference": "Look up flights to Boston on May fourth, and if there's one under two hundred dollars, book it for Ana Diaz.",
+      "word_errors": 6,
+      "reference_words": 21,
+      "seconds": 0.1870000000053551,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_price_true_add",
+      "decoded": "Search for a desk lamp under $40, and if you find one under $50, add it to my cart.",
+      "reference": "Search for a desk lamp under forty dollars, and if you find one under fifty dollars, add it to my cart.",
+      "word_errors": 4,
+      "reference_words": 21,
+      "seconds": 0.17199999999138527,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_subjective_condition",
+      "decoded": "convert 500 US dollars to euros, and if the rate looks good to me, switch my utilities autopay to savings.",
+      "reference": "Convert five hundred US dollars to euros, and if the rate looks good to me, switch my utilities autopay to savings.",
+      "word_errors": 2,
+      "reference_words": 21,
+      "seconds": 0.15700000000651926,
+      "status": "completed"
+    },
+    {
+      "model": "base.en",
+      "fixture": "heldout8_track_and_search",
+      "decoded": "Track order D4 and search for a coffee grinder.",
+      "reference": "Track order D four and search for a coffee grinder.",
+      "word_errors": 2,
+      "reference_words": 10,
+      "seconds": 0.13999999999941792,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_cancelled_filter",
+      "decoded": "update my parking filter to required, actually, forget it, leave the filters alone.",
+      "reference": "Update my parking filter to required. Actually, forget it, leave the filters alone.",
+      "word_errors": 0,
+      "reference_words": 13,
+      "seconds": 0.26600000000325963,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_direct_booking",
+      "decoded": "book the flight for Lena Fox.",
+      "reference": "Book the flight for Lena Fox.",
+      "word_errors": 0,
+      "reference_words": 6,
+      "seconds": 0.1870000000053551,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_max_price_filter",
+      "decoded": "set my max price filter to 2200.",
+      "reference": "Set my max price filter to twenty two hundred.",
+      "word_errors": 3,
+      "reference_words": 9,
+      "seconds": 0.21899999999732245,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_pets_allowed",
+      "decoded": "Please update my filter so pets are allowed.",
+      "reference": "Please update my filter so pets are allowed.",
+      "word_errors": 0,
+      "reference_words": 8,
+      "seconds": 0.1879999999946449,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_pets_not_allowed",
+      "decoded": "I'm allergic, so update my filters so pets are not allowed.",
+      "reference": "I'm allergic, so update my filter so pets are not allowed.",
+      "word_errors": 1,
+      "reference_words": 11,
+      "seconds": 0.23399999999674037,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_price_false_add",
+      "decoded": "search for a phone case, and if you find one under $20, add it to my cart.",
+      "reference": "Search for a phone case, and if you find one under twenty dollars, add it to my cart.",
+      "word_errors": 2,
+      "reference_words": 18,
+      "seconds": 0.26600000000325963,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_price_false_book",
+      "decoded": "Look up flights to Boston on May 4, and if there's one under $200, book it for Anna Diaz.",
+      "reference": "Look up flights to Boston on May fourth, and if there's one under two hundred dollars, book it for Ana Diaz.",
+      "word_errors": 5,
+      "reference_words": 21,
+      "seconds": 0.28100000000267755,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_price_true_add",
+      "decoded": "search for a desk lamp under $40, and if you find one under $50, add it to my cart.",
+      "reference": "Search for a desk lamp under forty dollars, and if you find one under fifty dollars, add it to my cart.",
+      "word_errors": 4,
+      "reference_words": 21,
+      "seconds": 0.28100000000267755,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_subjective_condition",
+      "decoded": "Convert US$500 to euros, and if the rate looks good to me, switch my utility's autopay to savings.",
+      "reference": "Convert five hundred US dollars to euros, and if the rate looks good to me, switch my utilities autopay to savings.",
+      "word_errors": 4,
+      "reference_words": 21,
+      "seconds": 0.28199999999196734,
+      "status": "completed"
+    },
+    {
+      "model": "small.en",
+      "fixture": "heldout8_track_and_search",
+      "decoded": "track order D4 and search for a coffee grinder.",
+      "reference": "Track order D four and search for a coffee grinder.",
+      "word_errors": 2,
+      "reference_words": 10,
+      "seconds": 0.21800000000803266,
+      "status": "completed"
+    }
+  ],
+  "qualification": false,
+  "paid_requests": 0,
+  "totals": {
+    "base.en": {
+      "word_errors": 20,
+      "reference_words": 138,
+      "seconds": 1.7179999999934807
+    },
+    "small.en": {
+      "word_errors": 21,
+      "reference_words": 138,
+      "seconds": 2.422000000005937
+    }
+  }
+}

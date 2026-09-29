@@ -1,0 +1,483 @@
+{
+  "retrospective": true,
+  "qualification": false,
+  "original_preregistration_unchanged": true,
+  "decision": "Keep guidance 1; guidance 3 ties strict total and introduces an unmatched ASR booking. Neither historical batch qualifies for promotion under the new provenance gate.",
+  "runs": {
+    "1": {
+      "eligible_for_next_experiment": false,
+      "qualification": false,
+      "expected_cells": 36,
+      "observed_cells": 36,
+      "strict_pass": 18,
+      "errors": [
+        "heldout9_two_documents/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_documents/text: evaluation provenance absent or mismatched",
+        "heldout9_two_documents/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_three_orders/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_three_orders/text: evaluation provenance absent or mismatched",
+        "heldout9_three_orders/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_direct_booking/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_direct_booking/text: evaluation provenance absent or mismatched",
+        "heldout9_direct_booking/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_items/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_items/text: incomplete execution",
+        "heldout9_two_items/text: incomplete evaluation",
+        "heldout9_two_items/text: evaluation provenance absent or mismatched",
+        "heldout9_two_items/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_conversions/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_conversions/text: evaluation provenance absent or mismatched",
+        "heldout9_two_conversions/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_cards/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_cards/text: evaluation provenance absent or mismatched",
+        "heldout9_two_cards/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_filters/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_filters/text: evaluation provenance absent or mismatched",
+        "heldout9_two_filters/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_single_search/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_single_search/text: evaluation provenance absent or mismatched",
+        "heldout9_single_search/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_booking_withdrawn/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_booking_withdrawn/text: evaluation provenance absent or mismatched",
+        "heldout9_booking_withdrawn/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_modes/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_modes/text: evaluation provenance absent or mismatched",
+        "heldout9_two_modes/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_track_then_book/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_track_then_book/text: evaluation provenance absent or mismatched",
+        "heldout9_track_then_book/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_narrowed_adds/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_narrowed_adds/text: evaluation provenance absent or mismatched",
+        "heldout9_narrowed_adds/asr_text: evaluation provenance absent or mismatched"
+      ],
+      "end_to_end_unmatched_writes": [],
+      "rows": [
+        {
+          "fixture": "heldout9_two_documents",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_documents",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_documents",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_three_orders",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_three_orders",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_three_orders",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_direct_booking",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_direct_booking",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_direct_booking",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_items",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_items",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_items",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_conversions",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_conversions",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_conversions",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_cards",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_cards",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_cards",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_filters",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_filters",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_filters",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_single_search",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_single_search",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_single_search",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_booking_withdrawn",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_booking_withdrawn",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_booking_withdrawn",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_modes",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_modes",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_modes",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_track_then_book",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_track_then_book",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_track_then_book",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_narrowed_adds",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_narrowed_adds",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_narrowed_adds",
+          "mode": "asr_text",
+          "strict_pass": true
+        }
+      ],
+      "policy": "All causes block, including ASR. No promotion with missing evidence or changed source/configuration.",
+      "scope": "Conservative authored-fixture check; not an official score or guarantee of safety.",
+      "source_commit": "fecb5c221e2609e39799b87627e1f7327a54da89"
+    },
+    "3": {
+      "eligible_for_next_experiment": false,
+      "qualification": false,
+      "expected_cells": 36,
+      "observed_cells": 36,
+      "strict_pass": 18,
+      "errors": [
+        "heldout9_two_documents/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_documents/text: evaluation provenance absent or mismatched",
+        "heldout9_two_documents/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_three_orders/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_three_orders/text: evaluation provenance absent or mismatched",
+        "heldout9_three_orders/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_direct_booking/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_direct_booking/text: evaluation provenance absent or mismatched",
+        "heldout9_direct_booking/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_items/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_items/text: incomplete execution",
+        "heldout9_two_items/text: incomplete evaluation",
+        "heldout9_two_items/text: evaluation provenance absent or mismatched",
+        "heldout9_two_items/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_conversions/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_conversions/text: evaluation provenance absent or mismatched",
+        "heldout9_two_conversions/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_cards/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_cards/text: evaluation provenance absent or mismatched",
+        "heldout9_two_cards/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_filters/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_filters/text: evaluation provenance absent or mismatched",
+        "heldout9_two_filters/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_single_search/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_single_search/text: evaluation provenance absent or mismatched",
+        "heldout9_single_search/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_booking_withdrawn/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_booking_withdrawn/text: evaluation provenance absent or mismatched",
+        "heldout9_booking_withdrawn/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_two_modes/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_two_modes/text: evaluation provenance absent or mismatched",
+        "heldout9_two_modes/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_track_then_book/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_track_then_book/text: evaluation provenance absent or mismatched",
+        "heldout9_track_then_book/asr_text: evaluation provenance absent or mismatched",
+        "heldout9_narrowed_adds/live_audio: evaluation provenance absent or mismatched",
+        "heldout9_narrowed_adds/text: evaluation provenance absent or mismatched",
+        "heldout9_narrowed_adds/asr_text: evaluation provenance absent or mismatched"
+      ],
+      "end_to_end_unmatched_writes": [
+        {
+          "fixture": "heldout9_track_then_book",
+          "mode": "asr_text",
+          "function": "book_flight",
+          "args": {
+            "passenger_name": "Yvonne Petrov"
+          }
+        }
+      ],
+      "rows": [
+        {
+          "fixture": "heldout9_two_documents",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_documents",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_documents",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_three_orders",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_three_orders",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_three_orders",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_direct_booking",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_direct_booking",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_direct_booking",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_items",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_items",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_items",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_conversions",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_conversions",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_conversions",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_cards",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_cards",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_cards",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_filters",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_filters",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_filters",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_single_search",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_single_search",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_single_search",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_booking_withdrawn",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_booking_withdrawn",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_booking_withdrawn",
+          "mode": "asr_text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_two_modes",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_modes",
+          "mode": "text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_two_modes",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_track_then_book",
+          "mode": "live_audio",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_track_then_book",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_track_then_book",
+          "mode": "asr_text",
+          "strict_pass": false
+        },
+        {
+          "fixture": "heldout9_narrowed_adds",
+          "mode": "live_audio",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_narrowed_adds",
+          "mode": "text",
+          "strict_pass": true
+        },
+        {
+          "fixture": "heldout9_narrowed_adds",
+          "mode": "asr_text",
+          "strict_pass": true
+        }
+      ],
+      "policy": "All causes block, including ASR. No promotion with missing evidence or changed source/configuration.",
+      "scope": "Conservative authored-fixture check; not an official score or guarantee of safety.",
+      "source_commit": "fecb5c221e2609e39799b87627e1f7327a54da89"
+    }
+  }
+}

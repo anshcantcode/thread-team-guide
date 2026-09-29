@@ -1,0 +1,398 @@
+{
+  "schema_version": 1,
+  "local_checkpoint_date": "2026-09-28",
+  "recorded_at_utc": "2026-09-27T20:59:16.912478+00:00",
+  "scope": "One exposed authored synthetic Android correction/persistence control, with preserved infrastructure failure and one preregistered recovery",
+  "frozen_source_commit": "fecb5c221e2609e39799b87627e1f7327a54da89",
+  "current_submission_candidate_tested": false,
+  "input": {
+    "path_relative_to_raw_evidence_root": "developer-audio/checklist-correction.wav",
+    "sha256": "97b5babb91f47021a6559954c73c936f485dc008b1991817fe63eee910f97443",
+    "bytes": 531382,
+    "audio": {
+      "channels": 1,
+      "sample_rate": 24000,
+      "duration_seconds": 11.0695
+    }
+  },
+  "input_provenance": "Independently authored Microsoft David Desktop SAPI synthetic speech; reused in earlier extension development; not held-out/human/benchmark speech",
+  "expected": {
+    "write_tool": "add_checklist_item",
+    "write_count": 1,
+    "persisted_text": "wash the spinach",
+    "forbidden_persisted_text": "chop the celery"
+  },
+  "configuration": {
+    "planner": {
+      "model": "Qwen3.5-4B-Q4_K_M.gguf",
+      "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+      "endpoint": "http://127.0.0.1:8098/v1",
+      "gpu_layers": 99,
+      "context_size": 8192,
+      "parallel": 1,
+      "cache_ram": 0
+    },
+    "whisper": {
+      "model": "faster-whisper-base.en",
+      "snapshot": "3d3d5dee26484f91867d81cb899cfcf72b96be6c",
+      "device": "cuda",
+      "files_sha256": {
+        "config.json": "f3bc3821e9fc76a27bae538e11ae5b677dcdd352b4600429ce7951d398569aeb",
+        "model.bin": "2a166925539a16005f14ff328359f9b9adb9dc4fb631bb3b227526862e93e2ef",
+        "tokenizer.json": "929c5252409436dce1b38a75d1abbcb5e132d170d8e324e4e04ed915fa2d22df",
+        "vocabulary.txt": "ff77588746d3a2595d32ab5b69ffd7b95ce2441ac57533cb66fc3eb575a115cf"
+      }
+    },
+    "tts": "windows-sapi-development",
+    "transport": "Local LiveKit WebRTC on port7880 -> desktop controller -> adb debug Activity",
+    "environment": {
+      "THREAD_FDB3_WHISPER_DEVICE": "cuda",
+      "THREAD_FDB3_WHISPER_PROMPT": "contract",
+      "THREAD_FDB3_PROMPT_CACHE": "1",
+      "THREAD_FDB3_ARG_NORMALIZE": "1",
+      "THREAD_FDB3_FOLLOW_UP": "1",
+      "THREAD_FDB3_PLANNER_GUIDANCE": "1"
+    },
+    "recovery_change": "Prepend existing local .runtime/llama directory to PATH for CUDA DLL loading; no runtime source/audio/criteria/model change",
+    "judge": null,
+    "judge_reason": "Extension device control; exact tools/native state/receipt evidence assessed directly; no benchmark judge used"
+  },
+  "environment": {
+    "python": "3.11.9",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "gpu_memory_mib": 6141,
+    "driver": "592.82",
+    "packages": {
+      "livekit-agents": "1.3.12",
+      "livekit": "1.0.23",
+      "faster-whisper": "1.2.1",
+      "ctranslate2": "4.8.2"
+    }
+  },
+  "android": {
+    "owned_serial": "emulator-5560",
+    "avd": "Medium_Phone_API_36.0",
+    "api": 36,
+    "emulator_version": "35.5.10.0",
+    "read_only": true,
+    "headless": true,
+    "software_renderer": "swiftshader_indirect",
+    "fresh_owned_data_directory": true,
+    "shared_avd_data_overlay_preserved": true,
+    "apk_sha256_installed_and_verified": "72d4d22c44f3044bd3b60391d4dda4eead5286d52fad8d96473041f5e964df1e",
+    "native_extension_activity_source_sha256": "7a93eb76713578086b14644c5cc29fe6cd445c16d49dafc811a40255f8b4d2a9"
+  },
+  "setup_disclosures": [
+    "Prepared script used unregistered Medium_Phone AVD name; changed to actual registered Medium_Phone_API_36.0 for the same AVD directory.",
+    "Initial APK install on existing read-only AVD failed insufficient storage; used fresh owned per-run initial userdata image, preserving original overlay.",
+    "013 missing DLL PATH failure retained; 014 registered before execution with identical inference/acceptance semantics and one environment-only recovery."
+  ],
+  "runs": [
+    {
+      "run_id": "extension-audio013",
+      "source_commit": "fecb5c221e2609e39799b87627e1f7327a54da89",
+      "source_dirty_at_start": false,
+      "source_unchanged": true,
+      "source_manifest_sha256": "4ab0263edaaeed775d643b6778303125433448aef775467a20ed5217830ebac2",
+      "started_at_utc": "2026-09-27T20:49:08.637355+00:00",
+      "finished_at_utc": "2026-09-27T20:53:50.426555+00:00",
+      "exit_code": 1,
+      "runtime_status": "infrastructure_error",
+      "assessment": "INFRASTRUCTURE_ERROR_NOT_VALID_CORRECTION_INFERENCE",
+      "actual_tool_calls": [],
+      "actual_write_calls": 0,
+      "exact_one_expected_write": false,
+      "forbidden_celery_present": false,
+      "persistence": {
+        "force_stop_exit_code": 0,
+        "items_before_force_stop": null,
+        "items_after_native_restart": null,
+        "native_readback_status": null,
+        "native_readback_detail": null,
+        "passed": false
+      },
+      "speech": {
+        "origin": "received WebRTC PCM",
+        "tts_texts": [],
+        "received_waveform_local_whisper_transcription": "",
+        "native_receipt_consistency_check": false,
+        "human_listening_review_performed": false,
+        "transcription_limitation": "Local output ASR is fallible; its wording is retained literally, separately from requested TTS text."
+      },
+      "whisper_prompt": "read checklist, add checklist item, set checklist item, request timer handoff, inspect timer handoff.",
+      "usage": {
+        "paid_requests": 0,
+        "local_model_requests": 0,
+        "model_reported_usage": [],
+        "input_stt_requests": 0,
+        "output_stt_requests": 1,
+        "tts_requests": 0,
+        "worker_cpu_seconds": 73.3125,
+        "wall_seconds": 281.7891993522644
+      },
+      "errors": [
+        "type='stt_error' timestamp=1790542171.8911543 label='thread_agent.fdb3_voice.WhisperSTT' error=RuntimeError('Library cublas64_12.dll is not found or cannot be loaded') recoverable=False"
+      ],
+      "failures": [
+        {
+          "stage": "runtime",
+          "error_type": "TimeoutError",
+          "error": ""
+        },
+        {
+          "stage": "evidence.output_transcription",
+          "error_type": "RuntimeError",
+          "error": "The generated waveform has no recognized speech"
+        }
+      ],
+      "root_cause": "Existing cublas64_12.dll directory missing from inherited PATH; failed before any successful input transcription or planner/device call.",
+      "artifacts": [
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013-preregistration.json",
+          "sha256": "cb327610714499bb6be04ed00934ba26d4913db9d9d41e74d3cf760de09e0544",
+          "bytes": 903
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013-execution.json",
+          "sha256": "d4411bde7960d19dcc1a97c86e9067d58f781fc9be00d1413a0b2a234d317cdd",
+          "bytes": 2475
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013.log",
+          "sha256": "cb130f32b9d0615cdb22876e5ae8487673a93403d8583c2b171572e122eaf8fa",
+          "bytes": 7458
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013-real.mp4",
+          "sha256": "bfb437ca267c2e2f9654d6d92ee3bfaca34b690b7acec417133e38177ce2c8a7",
+          "bytes": 275849
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013-screenrecord.json",
+          "sha256": "131efcc19f7621a3a0f5d35f9ae4f68826ca0d8c13481beac4aaec13ca0c3dc3",
+          "bytes": 314
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013/result.json",
+          "sha256": "22a0cf701296c72944980b602772328818d26430a5e092a563b396da71f6e492",
+          "bytes": 8666
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013/verification.json",
+          "sha256": "751202988841eacb23c9b124011ac1a61f14275be884833f08729667a36b3bad",
+          "bytes": 2441
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013/spoken.wav",
+          "sha256": "0c258e22e2b3b598d110b67de7e7c7bc8109ef3cbcb31d93198a72d931ce55f3",
+          "bytes": 12459404,
+          "audio": {
+            "channels": 1,
+            "sample_rate": 24000,
+            "duration_seconds": 259.57
+          }
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013/stt-requests.jsonl",
+          "sha256": "5379b223892c02bdf099f1064660baa49760874bd3423b7899f5270e185b0bf5",
+          "bytes": 822
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio013/device-after.png",
+          "sha256": "71b8644ee0382e231dd378f0f340a953081177520b2624cde9cc3088b73fad39",
+          "bytes": 1382754
+        }
+      ],
+      "qualification": false
+    },
+    {
+      "run_id": "extension-audio014",
+      "source_commit": "fecb5c221e2609e39799b87627e1f7327a54da89",
+      "source_dirty_at_start": false,
+      "source_unchanged": true,
+      "source_manifest_sha256": "4ab0263edaaeed775d643b6778303125433448aef775467a20ed5217830ebac2",
+      "started_at_utc": "2026-09-27T20:54:12.335871+00:00",
+      "finished_at_utc": "2026-09-27T20:54:53.259235+00:00",
+      "exit_code": 0,
+      "runtime_status": "diagnostic_completed",
+      "assessment": "PASS_EXPOSED_SYNTHETIC_CORRECTION_CONTROL",
+      "actual_tool_calls": [
+        {
+          "function": "add_checklist_item",
+          "args": {
+            "text": "wash the spinach"
+          },
+          "outcome": "success",
+          "timestamp_start_utc": "2026-09-27T20:54:34.713603+00:00",
+          "timestamp_end_utc": "2026-09-27T20:54:37.330005+00:00",
+          "receipt": {
+            "status": "success",
+            "detail": "Added checklist step: wash the spinach",
+            "items": [
+              {
+                "text": "wash the spinach",
+                "checked": false
+              }
+            ]
+          }
+        }
+      ],
+      "actual_write_calls": 1,
+      "exact_one_expected_write": true,
+      "forbidden_celery_present": false,
+      "persistence": {
+        "force_stop_exit_code": 0,
+        "items_before_force_stop": [
+          {
+            "text": "wash the spinach",
+            "checked": false
+          }
+        ],
+        "items_after_native_restart": [
+          {
+            "text": "wash the spinach",
+            "checked": false
+          }
+        ],
+        "native_readback_status": "success",
+        "native_readback_detail": "Unchecked: wash the spinach",
+        "passed": true
+      },
+      "speech": {
+        "origin": "received WebRTC PCM",
+        "tts_texts": [
+          "Added checklist step: wash the spinach"
+        ],
+        "received_waveform_local_whisper_transcription": "Add a checklist step, wash the spinach.",
+        "native_receipt_consistency_check": true,
+        "human_listening_review_performed": false,
+        "transcription_limitation": "Local output ASR is fallible; its wording is retained literally, separately from requested TTS text."
+      },
+      "whisper_prompt": "read checklist, add checklist item, set checklist item, request timer handoff, inspect timer handoff.",
+      "usage": {
+        "paid_requests": 0,
+        "local_model_requests": 4,
+        "model_reported_usage": [
+          null,
+          null,
+          {
+            "prompt_tokens": 2449,
+            "completion_tokens": 62,
+            "total_tokens": 2511,
+            "cached_tokens": 0
+          },
+          {
+            "prompt_tokens": 3038,
+            "completion_tokens": 14,
+            "total_tokens": 3052,
+            "cached_tokens": 0
+          }
+        ],
+        "input_stt_requests": 3,
+        "output_stt_requests": 1,
+        "tts_requests": 1,
+        "worker_cpu_seconds": 16.03125,
+        "wall_seconds": 40.92336392402649
+      },
+      "errors": [],
+      "failures": [],
+      "root_cause": null,
+      "artifacts": [
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014-preregistration.json",
+          "sha256": "57ad4a06f7a0d392e9b275b2e1ee4a70e0f3137ee7580e9520ff4395b834d561",
+          "bytes": 1648
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014-execution.json",
+          "sha256": "aa91dbec779dbbe91b4a86c455dbd5d6b783c387d7b2aa5f5e01a37423ac40fc",
+          "bytes": 2561
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014.log",
+          "sha256": "135465e0d594858f4fbaafc4b1671305ea5084d480ae91278b4d54dbfd387eec",
+          "bytes": 302
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014-real.mp4",
+          "sha256": "15e37a50bb1133d83756b3329d3bd6e741bfd4ecba65e3f3a67704641affd0ea",
+          "bytes": 1610072
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014-screenrecord.json",
+          "sha256": "c1ffe7102a4c3303bbada20e530095347df98e336fb6dba20eb7797fcbb7d43c",
+          "bytes": 478
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/result.json",
+          "sha256": "08c83df01d06a92f671125e81f9ff6cc80e4231f9889acb77cda5dbc36e4c876",
+          "bytes": 28703
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/verification.json",
+          "sha256": "271cd05860716475a93c085f28b456b9edf0e2fe3bd98ec72e9c5d73a28ac409",
+          "bytes": 8090
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/spoken.wav",
+          "sha256": "b233ae68bf4c5ccaa2742945c3c6b02b5590cdac2d8d5b010a21fd35a2eeb233",
+          "bytes": 1556204,
+          "audio": {
+            "channels": 1,
+            "sample_rate": 24000,
+            "duration_seconds": 32.42
+          }
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/stt-requests.jsonl",
+          "sha256": "d8758793adcde2a23870e208d2cfef77a1a698d17d133d603be70f675a71247e",
+          "bytes": 2083
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/device-after.png",
+          "sha256": "ea2a7b229c47a127956b5f9340b6a688a49f725ae5063860b8591606f7bb71a7",
+          "bytes": 1383125
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/model-requests.jsonl",
+          "sha256": "047fd94774917702f0a9e88b03a249641e39f9a05cc299c47c3286ff6916d329",
+          "bytes": 7162
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/tool-calls.jsonl",
+          "sha256": "3c5808b1aba5465d97c528d0be9e98c4b65fad8c86cb1b05964ffdedc2cbcf0d",
+          "bytes": 920
+        },
+        {
+          "path_relative_to_raw_evidence_root": "extension-audio014/tts-requests.jsonl",
+          "sha256": "eb7ffaf7136144628ae9d1f01b5d2cc002b6eba8222bd42b12cd649b827ed942",
+          "bytes": 429
+        }
+      ],
+      "qualification": false
+    }
+  ],
+  "cleanup": {
+    "recorded_at_utc": "2026-09-27T20:56:11.6206165Z",
+    "session_cleanup_exit": 0,
+    "owned_emulator_stop_exit": 0,
+    "owned_serial": "emulator-5560",
+    "base_avd_userdata_overlay_preserved": true,
+    "raw_output_preserved": true,
+    "owned_emulator_absent_after_shutdown": true,
+    "extension_workers_absent": true,
+    "gpu_released": true
+  },
+  "limitations": [
+    "Exposed synthetic tuning control; one successful execution does not establish held-out or human-speech reliability.",
+    "Frozen fecb5c2 source, not the evolving submission candidate.",
+    "Tethered desktop voice controller and debug Android persistence transport; no standalone Android voice agent.",
+    "Screen captures show actual launcher/debug Activity, not a visible checklist UI; persistence proof is native readback after force-stop/restart.",
+    "Screenrecord has no audio; received WebRTC speech is a separate saved WAV. No human listening review claimed.",
+    "No physical-device, live microphone, human interruption timing, timer correction/readback, benchmark or official judge result established here."
+  ],
+  "g7_complete": false,
+  "qualification": false,
+  "paid_requests_total": 0
+}

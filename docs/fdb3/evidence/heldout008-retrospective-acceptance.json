@@ -1,0 +1,216 @@
+{
+  "eligible_for_next_experiment": false,
+  "qualification": false,
+  "expected_cells": 30,
+  "observed_cells": 30,
+  "strict_pass": 19,
+  "errors": [
+    "heldout8_price_true_add/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_price_true_add/text: evaluation provenance absent or mismatched",
+    "heldout8_price_true_add/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_price_false_add/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_price_false_add/text: evaluation provenance absent or mismatched",
+    "heldout8_price_false_add/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_price_false_book/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_price_false_book/text: evaluation provenance absent or mismatched",
+    "heldout8_price_false_book/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_subjective_condition/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_subjective_condition/text: evaluation provenance absent or mismatched",
+    "heldout8_subjective_condition/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_pets_allowed/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_pets_allowed/text: evaluation provenance absent or mismatched",
+    "heldout8_pets_allowed/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_pets_not_allowed/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_pets_not_allowed/text: evaluation provenance absent or mismatched",
+    "heldout8_pets_not_allowed/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_max_price_filter/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_max_price_filter/text: evaluation provenance absent or mismatched",
+    "heldout8_max_price_filter/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_track_and_search/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_track_and_search/text: evaluation provenance absent or mismatched",
+    "heldout8_track_and_search/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_direct_booking/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_direct_booking/text: evaluation provenance absent or mismatched",
+    "heldout8_direct_booking/asr_text: evaluation provenance absent or mismatched",
+    "heldout8_cancelled_filter/live_audio: evaluation provenance absent or mismatched",
+    "heldout8_cancelled_filter/text: evaluation provenance absent or mismatched",
+    "heldout8_cancelled_filter/asr_text: evaluation provenance absent or mismatched"
+  ],
+  "end_to_end_unmatched_writes": [
+    {
+      "fixture": "heldout8_pets_allowed",
+      "mode": "text",
+      "function": "update_search_filter",
+      "args": {
+        "filter_name": "pets",
+        "value": "allowed"
+      }
+    },
+    {
+      "fixture": "heldout8_direct_booking",
+      "mode": "asr_text",
+      "function": "book_flight",
+      "args": {
+        "passenger_name": "Lina Fox"
+      }
+    }
+  ],
+  "rows": [
+    {
+      "fixture": "heldout8_price_true_add",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_price_true_add",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_price_true_add",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_price_false_add",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_price_false_add",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_price_false_add",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_price_false_book",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_price_false_book",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_price_false_book",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_subjective_condition",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_subjective_condition",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_subjective_condition",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_pets_allowed",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_pets_allowed",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_pets_allowed",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_pets_not_allowed",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_pets_not_allowed",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_pets_not_allowed",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_max_price_filter",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_max_price_filter",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_max_price_filter",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_track_and_search",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_track_and_search",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_track_and_search",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_direct_booking",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_direct_booking",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_direct_booking",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout8_cancelled_filter",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_cancelled_filter",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout8_cancelled_filter",
+      "mode": "asr_text",
+      "strict_pass": true
+    }
+  ],
+  "policy": "All causes block, including ASR. No promotion with missing evidence or changed source/configuration.",
+  "scope": "Conservative authored-fixture check; not an official score or guarantee of safety.",
+  "retrospective": true,
+  "original_preregistration_unchanged": true,
+  "source_commit": "54929ff8b6622c512d1a5d2a36c6c3ec5327033e",
+  "archive_note": "Historical reports predate direct evaluation/inference hash links; retained as missing provenance, never patched in place."
+}

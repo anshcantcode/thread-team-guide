@@ -1,0 +1,67 @@
+{
+  "recorded_at": 1790351754.3904612,
+  "status": "CHECKPOINTED_USER_STOP",
+  "run_id": "20260925T155233Z-a33c115c",
+  "requested_cases": 100,
+  "completed_cases": 1,
+  "valid_local_strict_passes": 1,
+  "partial_case_directories": [
+    "case-001"
+  ],
+  "remaining_not_completed": 99,
+  "qualification": false,
+  "reason": "User stop; no automatic resumption",
+  "services_stopped": true,
+  "subagents_interrupted": true,
+  "paid_spend_inr": 0,
+  "new_environment": ".venv-fdb3-repro-001",
+  "judge_preflight": "2/2 valid independent controls passed",
+  "source_commit": "0e51babd19a3c7a72dcba34c78d8df14a396c42c",
+  "raw_evidence_location": ".thread-run\\raw\\20260925T155233Z-a33c115c",
+  "files": {
+    "identity.json": {
+      "sha256": "a26dab33e5d80c9cb668fdf542ac0cf03195a112081af79d97d4b54ed9ff5e8f",
+      "bytes": 14126
+    },
+    "report.json": {
+      "sha256": "0c7c3d3969852892b3bad5ef6463cc4ae1ff67daa17b641f2f5e1dc56186e267",
+      "bytes": 3216
+    },
+    "report-before-user-stop.json": {
+      "sha256": "aa2108bae0d6249e313b6cd082ebb0244ee9f6b187ca9a9381debaf097551874",
+      "bytes": 3075
+    },
+    "case-000\\evaluation.json": {
+      "sha256": "b2976ed286e9ecc896443059d2d9047fa9a57eb56fbec9442252629b3ae64799",
+      "bytes": 18245
+    },
+    "case-000\\latency.json": {
+      "sha256": "44d6247f2352dd1fb491eee6572c7c478256c6ef0f9dbe833bb552b108d05e11",
+      "bytes": 24959
+    },
+    "case-000\\inference\\result.json": {
+      "sha256": "fdc302617adf33ccc6d2ab64b07148a05761ffad26d47063cee8e2356056d3f7",
+      "bytes": 12025
+    },
+    "case-000\\inference\\model-requests.jsonl": {
+      "sha256": "8917f067efe5687ac35b59afff784dc68d0bf912b5cb1beeb677050db3efef26",
+      "bytes": 1903
+    },
+    "case-000\\inference\\stt-requests.jsonl": {
+      "sha256": "289ce040f0c660ec82775d8617d8a85becd5f0787464368c3efe5dee1085a318",
+      "bytes": 1354
+    },
+    "case-000\\inference\\tts-requests.jsonl": {
+      "sha256": "df7e37e5956679ae707ebb32a4a9508cb2f1b78b427ac2d1de78b578023516e9",
+      "bytes": 421
+    },
+    "case-001\\inference\\stt-requests.jsonl": {
+      "sha256": "8667e54785b287a8c694c7ab44c5f3a7e5003c8f5c07a1b8c6454824a7f49352",
+      "bytes": 443
+    },
+    "case-000\\inference\\tool-calls.jsonl": {
+      "sha256": "0ec965fe397df2e2f2a3360d17160309a32fc44ba3874aa8fbfd04f8fbbe8e42",
+      "bytes": 650
+    }
+  }
+}

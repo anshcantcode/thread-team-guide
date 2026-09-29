@@ -1,0 +1,28 @@
+[
+  {
+    "path": "docs/fdb3/submission/CollegeName_TeamName_Submission_DRAFT.pptx",
+    "original_sha256": "9f0d6fb0c8864197a16558218b8b97e446c2dff4fc295fc84360c22a01ee13b0",
+    "published_sha256": "0b312ceaf539bb0b4f7b0c5f7226198102a69278bbaac5df94d765f36c018c6a",
+    "changed_notes": [
+      "ppt/notesSlides/notesSlide4.xml",
+      "ppt/notesSlides/notesSlide8.xml"
+    ],
+    "all_non_note_parts_byte_identical": true,
+    "visual_layout_changes": false,
+    "status": "Historical draft; not current final slides"
+  },
+  {
+    "path": "docs/fdb3/submission/THREAD-FDB3-evidence-draft.pptx",
+    "original_sha256": "4b29f2db2009a8add53f29e8f82a9dc80e08e06d289056f1c92a59507e415b68",
+    "published_sha256": "68e0cb3a2ea8822f13da9fd2f8fb32014e68a652da58cb3175c36518db8f0155",
+    "changed_notes": [
+      "ppt/notesSlides/notesSlide1.xml",
+      "ppt/notesSlides/notesSlide5.xml",
+      "ppt/notesSlides/notesSlide7.xml",
+      "ppt/notesSlides/notesSlide8.xml"
+    ],
+    "all_non_note_parts_byte_identical": true,
+    "visual_layout_changes": false,
+    "status": "Historical draft; not current final slides"
+  }
+]

@@ -1,0 +1,286 @@
+{
+  "eligible_for_next_experiment": true,
+  "qualification": false,
+  "expected_cells": 54,
+  "observed_cells": 54,
+  "strict_pass": 25,
+  "errors": [],
+  "end_to_end_unmatched_writes": [],
+  "rows": [
+    {
+      "fixture": "heldout16_corrected_code_polite_add",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_corrected_code_polite_add",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_corrected_code_polite_add",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_corrected_code_quantity_question",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_corrected_code_quantity_question",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_corrected_code_quantity_question",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_garden_search_same_one_add",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_garden_search_same_one_add",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_garden_search_same_one_add",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_garden_search_same_one_undecided",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_garden_search_same_one_undecided",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_garden_search_same_one_undecided",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_document_target_and_email_request",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_document_target_and_email_request",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_document_target_and_email_request",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_document_target_incomplete_number",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_document_target_incomplete_number",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_document_target_incomplete_number",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_due_date_independent_autopay",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_due_date_independent_autopay",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_due_date_independent_autopay",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_due_date_prerequisite_autopay",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_due_date_prerequisite_autopay",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_due_date_prerequisite_autopay",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_cashback_lookup_condition_met",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_cashback_lookup_condition_met",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_cashback_lookup_condition_met",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_cashback_lookup_condition_unmet",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_cashback_lookup_condition_unmet",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_cashback_lookup_condition_unmet",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_city_correction_bedrooms_supplied",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_city_correction_bedrooms_supplied",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_city_correction_bedrooms_supplied",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_city_correction_bedrooms_question",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_city_correction_bedrooms_question",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_city_correction_bedrooms_question",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_walking_lookup_allows_apartments",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_walking_lookup_allows_apartments",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_walking_lookup_allows_apartments",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_walking_lookup_blocks_apartments",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_walking_lookup_blocks_apartments",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_walking_lookup_blocks_apartments",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_passenger_correction_optional_seat",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_passenger_correction_optional_seat",
+      "mode": "text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_passenger_correction_optional_seat",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_passenger_correction_required_seat",
+      "mode": "live_audio",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_passenger_correction_required_seat",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_passenger_correction_required_seat",
+      "mode": "asr_text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_tracking_corrected_search_and_cart",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_tracking_corrected_search_and_cart",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_tracking_corrected_search_and_cart",
+      "mode": "asr_text",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_tracking_search_cart_retracted",
+      "mode": "live_audio",
+      "strict_pass": false
+    },
+    {
+      "fixture": "heldout16_tracking_search_cart_retracted",
+      "mode": "text",
+      "strict_pass": true
+    },
+    {
+      "fixture": "heldout16_tracking_search_cart_retracted",
+      "mode": "asr_text",
+      "strict_pass": false
+    }
+  ],
+  "policy": "All causes block, including ASR. No promotion with missing evidence or changed source/configuration.",
+  "scope": "Conservative authored-fixture check; not an official score or guarantee of safety.",
+  "audit_scope": "Recheck saved gate artifacts and exact historical source; not fresh inference or a gate for the checkpoint.",
+  "spec_sha256": "ac3916164155878dfedb46a9aae80333f3682b282f2d8d89074edabbdcdfc008",
+  "source_commit": "4f95fdcb5fa134aa703c1eb24477db46ed8df0c8"
+}

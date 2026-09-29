@@ -1,0 +1,2041 @@
+{
+  "source": ".thread-run/raw/expanded-discovery-complete.json",
+  "source_sha256": "d07d29d975d6bde6b0deccc4ab1bf0fff748fb4dc8ab88520417fc06ef3b0fc9",
+  "queries": [
+    {
+      "query": "Samsung PRISM",
+      "page": 1,
+      "total_count": 278,
+      "returned": 100,
+      "incomplete_results": false
+    },
+    {
+      "query": "Samsung interruptible",
+      "page": 1,
+      "total_count": 7,
+      "returned": 7,
+      "incomplete_results": false
+    },
+    {
+      "query": "FDB-v3",
+      "page": 1,
+      "total_count": 3,
+      "returned": 3,
+      "incomplete_results": false
+    },
+    {
+      "query": "Samsung PRISM",
+      "page": 2,
+      "total_count": 278,
+      "returned": 100,
+      "incomplete_results": false
+    },
+    {
+      "query": "Samsung PRISM",
+      "page": 3,
+      "total_count": 278,
+      "returned": 78,
+      "incomplete_results": false
+    }
+  ],
+  "unique_repositories": 284,
+  "decision_counts": {
+    "UNRESOLVED_METADATA_ONLY": 246,
+    "OTHER_TOPIC_METADATA_ONLY": 28,
+    "IN_COHORT": 8,
+    "BENCHMARK_DEMO_NOT_COMPETITOR": 1,
+    "OTHER_YEAR_SOURCE_INSPECTED": 1
+  },
+  "decisions": [
+    {
+      "repository": "09-ig/Clearvision-Samsung-Prism-Final",
+      "description": null,
+      "created_at": "2026-07-18T12:13:54Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "20L250/SAMSUNG_PRISM-5G_UI1",
+      "description": "Contains the codes for UI Tab used to determine the device throughput and cell information of device connected to 5G NR network",
+      "created_at": "2023-06-13T10:10:10Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "A263-abdul/samsung-prism-ai",
+      "description": null,
+      "created_at": "2025-08-27T09:15:39Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "AGmitmanipal/MINDMESH-1",
+      "description": "Repository for Samsung Prism WebAgent Hackathon Project",
+      "created_at": "2025-12-19T07:09:50Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "AJ1479/Samsung-PRISM-Audio-Captioning-Engine",
+      "description": "Work done on an Automated Audio Captioning (AAC) task as a part of my internship at Samsung R&D Institute India.",
+      "created_at": "2023-01-25T20:07:35Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Abdallah-Tah/miqaat",
+      "description": "Prayer-times dashboard for Samsung Tizen TV, with automatic Athan and media interruption",
+      "created_at": "2026-08-09T15:00:41Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Abhinav1281/SamsungPrism",
+      "description": null,
+      "created_at": "2021-09-07T15:42:09Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Achintya8/Prism_Samsung",
+      "description": null,
+      "created_at": "2026-04-30T16:48:53Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "AdithyaSakthimani/samsung_prism_A",
+      "description": null,
+      "created_at": "2025-12-28T12:10:01Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Aditya3012Purwar/Astute_Samsung_Prism",
+      "description": null,
+      "created_at": "2024-04-02T19:07:51Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Aditya3012Purwar/Samsung_Prism_24LAI14VIT",
+      "description": null,
+      "created_at": "2024-10-22T23:31:54Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Ajha2005/samsung-prism",
+      "description": null,
+      "created_at": "2026-09-18T06:34:56Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Akash35678/Samsung-prism-Access-points",
+      "description": null,
+      "created_at": "2022-12-11T05:10:55Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "AkshatoSharma/samsung-prism-ai-companion",
+      "description": "A vision-powered AI assistant \u2014 real-time object detection (TensorFlow.js MobileNet), Gemini-powered chat, screen sharing, screenshot analysis, and voice commands, all in a single HTML file.",
+      "created_at": "2026-09-01T17:29:43Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "Amoghk04/MLLM-for-Intent-and-Slot-Prediction",
+      "description": "Web UI for the samsung PRISM internship",
+      "created_at": "2025-03-10T19:16:21Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Anshika75/Samsung-Prism",
+      "description": null,
+      "created_at": "2023-08-02T05:46:35Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Anup-raj2002/VIT_F4",
+      "description": "Samsung PRISM Y2026 GenAI Hackathon - Agentic Code Intelligence",
+      "created_at": "2026-09-19T10:45:07Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Anurag-446/Samsung-prism",
+      "description": null,
+      "created_at": "2026-09-21T12:50:40Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Ariha910/samsung-prism",
+      "description": null,
+      "created_at": "2026-09-18T13:47:32Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Arnav-Purushotam/samsung_prism",
+      "description": null,
+      "created_at": "2023-04-30T16:50:03Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Arnavgoyal00/Samsung_prism",
+      "description": null,
+      "created_at": "2023-06-13T14:42:31Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ArundhatiChaturvedi/Stylesense_ai",
+      "description": "Samsung Prism GenAI Hackathon 2025 project",
+      "created_at": "2025-09-26T16:26:37Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Aryan-1805/Portfolio_v2",
+      "description": "\ud83d\ude80 Aryan Bhutyal - Portfolio Website A modern, responsive portfolio website showcasing my journey as a Software Engineer, Samsung PRISM Research Intern, and Computer Science student. Built with vanilla HTML, CSS, and JavaScript with a focus on performance, accessibility, and user experience.",
+      "created_at": "2025-06-17T21:01:30Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "AswathS2188/SamsungPRISM",
+      "description": null,
+      "created_at": "2024-09-02T16:44:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "AyushWaghe/Samsung-Prism",
+      "description": null,
+      "created_at": "2024-04-15T17:15:27Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Azrafathima06/log-template-mining-drift-detection",
+      "description": "Time-windowed log template mining with drift and spike detection. Developed under Samsung PRISM industry research initiative (privacy-compliant public demo).",
+      "created_at": "2026-02-23T17:47:53Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Bhavadharini-G/SAMSUNG_PRISM",
+      "description": null,
+      "created_at": "2025-09-19T13:43:37Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "BhuvanGarla/SamsungPrismTimeStampRecognisation",
+      "description": "To detect user, system and system date time",
+      "created_at": "2023-08-08T17:27:02Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Chintan-19/communication-Protocols",
+      "description": "Samsung Prism D2D voice enabling Communication",
+      "created_at": "2023-04-04T04:36:58Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "ChiragPaul/Samsung-PRISM---NFT-platform-using-Scalable-Blockchains-Sui-Aptos-Solana",
+      "description": null,
+      "created_at": "2026-07-07T12:18:28Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Cinchana1506/SamsungPrismProject1",
+      "description": null,
+      "created_at": "2024-12-25T11:32:50Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "CommandCipher/PRISM_GENAI_HACKATHON_Y2026",
+      "description": "Samsung PRISM GenAI Hackathon 2026 \u2014 Theme 2: Smart Guided Troubleshooting Engine",
+      "created_at": "2026-09-22T12:43:49Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "DILIP-SHEESH/Samsung-Prism",
+      "description": "Invisible watermarking for AI-generated text. Implements Unicode-based steganography and a contextual neural watermarking system (EnhancedHashNet) using PyTorch and HuggingFace Transformers. Embeds watermarks during token generation via green/red token lists and logit manipulation. Detects them statistically using z-score and p-values",
+      "created_at": "2024-11-25T16:23:21Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "DanielLin94144/FDB-v3-demo",
+      "description": null,
+      "created_at": "2026-03-28T17:17:55Z",
+      "decision": "BENCHMARK_DEMO_NOT_COMPETITOR",
+      "reason": "Inspected main 4c09d7552fa3f64dfe2ce78dde1fbaa3ea2710cb:index.html; benchmark paper link and prerecorded cross-model audio demo site."
+    },
+    {
+      "repository": "DarshanCHMSR/Samsung_prism",
+      "description": "Samsung Prism Banking System A comprehensive next-generation banking application ecosystem featuring AI-powered multi-agent assistance, advanced behavioral biometrics, location-based security, and modern Flutter architecture.",
+      "created_at": "2025-08-19T17:40:30Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Deeptanshub/Samsung-prism",
+      "description": null,
+      "created_at": "2024-08-20T06:40:42Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Devipriya1921/Malayalam_NLU_ASR_Samsung_Prism",
+      "description": null,
+      "created_at": "2022-08-08T15:54:26Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Dhruvmohapatra/Dhruvmohapatra",
+      "description": "IoT Developer | Embedded Systems | Raspberry Pi | ESP32 | Python | Samsung PRISM Research Intern",
+      "created_at": "2026-06-28T09:12:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Dishugarg/SamsungPrism",
+      "description": null,
+      "created_at": "2023-01-16T12:25:06Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "DoomDust7/Samsung-PRISM-Project",
+      "description": null,
+      "created_at": "2026-03-16T21:21:13Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ExynoX-Team/ExynoX-Code-Intelligence",
+      "description": "Agentic Code Intelligence system for large software repositories \u2014 Samsung PRISM Generative AI Hackathon 2026\u201327.",
+      "created_at": "2026-09-24T17:12:17Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Goyamjain05/Samsung-Prism-Project-Work",
+      "description": "Securing ML model State transfer using Android ODP",
+      "created_at": "2024-06-11T10:36:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "GurkiratSandhu13/PrismPunjabiProject",
+      "description": "Project I did for Samsung Prism Worklet for the Punjabi Language",
+      "created_at": "2025-12-04T12:08:00Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "HarishRagavan34698/Hardware-Asset-Sample-Verification",
+      "description": "SAMSUNG PRISM",
+      "created_at": "2025-09-14T14:18:38Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "HarishRagavan34698/OS-Weekly",
+      "description": "SAMSUNG PRISM PROJECT",
+      "created_at": "2025-08-18T17:28:18Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "HarshithaKss/final_samsung_prism",
+      "description": null,
+      "created_at": "2026-06-21T19:20:43Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "HarshithaKss/samsung-prism-app",
+      "description": null,
+      "created_at": "2026-06-21T13:27:34Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Hrithik875/SAMSUNG-PRISM-SEMANTIC-SEGMENTATION",
+      "description": null,
+      "created_at": "2026-07-07T04:57:24Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "IISF-SIF/SamsungPrismHack",
+      "description": null,
+      "created_at": "2024-04-02T11:11:57Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "IndulekhaA/PaperLens",
+      "description": "Samsung Prism Hackathon:GEN AI Research",
+      "created_at": "2026-05-08T18:26:29Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Janani250/Samsung-prism-project",
+      "description": null,
+      "created_at": "2022-08-22T09:21:32Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Jansxn/SamsungPrism",
+      "description": null,
+      "created_at": "2024-07-10T13:18:25Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Jawwad-akhter-1325/SAMSUNG_PRISM_object_detection_for_chair",
+      "description": null,
+      "created_at": "2021-03-23T15:15:51Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "JinuOffl/Samsung_Prism",
+      "description": "MarketPulse Ai Project - Web Agent Hackathon",
+      "created_at": "2026-02-22T04:18:49Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "JinuOffl/crewPulse",
+      "description": "SAMSUNG PRISM",
+      "created_at": "2026-01-04T15:20:18Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "JvlivsFreezer/samsung-Prism",
+      "description": "This repository will serve as a library for the documentation, codes and any other work produced under the Samsung Prism Worklet- Live Traffic Classifier.",
+      "created_at": "2025-10-14T14:30:37Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "KAKANURUYOGASREEDHARREDDY/SAMSUNG-PRISM-AI",
+      "description": null,
+      "created_at": "2023-12-13T12:51:37Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "KAKANURUYOGASREEDHARREDDY/SAMSUNG-PRISM-AI-",
+      "description": "AI RELATED CHATBOT MODEL NLP",
+      "created_at": "2023-12-20T12:53:53Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Karthik141003/Samsung-Prism",
+      "description": "Bandwidth Estimation Algorithm in Multi-device Experience use cases",
+      "created_at": "2024-08-20T03:45:46Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Karthik2924/Samsung-PRISM",
+      "description": null,
+      "created_at": "2020-09-11T15:24:49Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "KarthikKumaresan-179/Gen-AI_DDHVK",
+      "description": "SAMSUNG PRISM_GENAI_HACKATHON",
+      "created_at": "2025-09-26T14:57:30Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "KarthikKumaresan-179/SamsungPRISMGenAIHackathon2025",
+      "description": null,
+      "created_at": "2025-09-27T12:23:18Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "KrishnaKapoor612/samsung_Prism_gen_ai_hackthoan_theme_02",
+      "description": "This Repository is a solution to the problem of samsung_prism_gen_ai_Hackathon 3.0 by the team Nexora.",
+      "created_at": "2026-09-19T22:33:25Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "LIKHITHA-PRIYA/Demosaicing-High-Megapixel-CFA",
+      "description": "This repository showcases advanced demosaicing techniques for high megapixel color filter arrays. Designed as part of Samsung PRISM, it features robust algorithms to reconstruct vibrant, artifact-free full-color images from raw sensor data for next-gen imaging devices.",
+      "created_at": "2025-07-16T15:58:14Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "LakraAnshul/Samsung_Prism",
+      "description": null,
+      "created_at": "2025-12-15T19:33:41Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "LakshyaSharma2003/Samsung-Prism-AI-Chatbot",
+      "description": null,
+      "created_at": "2026-06-18T15:02:33Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Luciana45/minecraft",
+      "description": "------------------ System Information ------------------ Time of this report: 8/20/2013, 21:40:50        Machine name: SONY-PC    Operating System: Windows 7 Professional 64-bit (6.1, Build 7601) Service Pack 1 (7601.win7sp1_rtm.101119-1850)            Language: Portuguese (Regional Setting: Portuguese) System Manufacturer: Sony Corporation        System Model: VGN-FZ420E                BIOS: Ver 1.00PARTTBL           Processor: Intel(R) Core(TM)2 Duo CPU     T5550  @ 1.83GHz (2 CPUs), ~1.8GHz   [truncated; exact original in hashed raw log]",
+      "created_at": "2013-08-21T01:01:52Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Reviewed description: Minecraft system dump or printer-repair advertising, unrelated keyword collisions."
+    },
+    {
+      "repository": "Lucifergene/samsung-prism-worklet",
+      "description": null,
+      "created_at": "2021-06-18T18:06:52Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Madhav-Soni/samsung-prism",
+      "description": null,
+      "created_at": "2026-08-19T19:10:15Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Madhumasa84/Samsung_Prism",
+      "description": null,
+      "created_at": "2026-09-16T15:41:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Mansi2801-dev/Samsung_PrismAI",
+      "description": "Gesture_to_Indian_Dialect_Model",
+      "created_at": "2025-08-28T16:28:35Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "MelloHyu/Samsung-Prism-GenAI-GameProject",
+      "description": null,
+      "created_at": "2025-09-12T18:55:06Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Mohit2001Singh/SamsungPrismProject",
+      "description": null,
+      "created_at": "2025-08-15T08:07:58Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "MonikashreeDev/smart-guided-troubleshooting",
+      "description": "Evidence-grounded guided troubleshooting engine - Samsung PRISM Theme 2 prototype using synthetic demo data",
+      "created_at": "2026-09-21T05:43:30Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "MonikashreeDev/smart-troubleshooting-advanced",
+      "description": "Advanced Smart Guided Troubleshooting Engine (Samsung PRISM Theme 02, team ECLIPSE): multi-turn diagnosis, session memory, predictive maintenance, feedback ranking, One UI PWA. AI proposes, code disposes.",
+      "created_at": "2026-09-24T10:58:32Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Monish21072004/23GAI32_Reverse_prompt_generator-main",
+      "description": "A project i did in collaboration with Samsung Prism team   ",
+      "created_at": "2024-09-04T03:42:40Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "MridulNegi2005/AccessFlow",
+      "description": "Samsung PRISM Theme 5 prototype: conversational corrections, turn-taking and safe mock actions.",
+      "created_at": "2026-09-13T09:02:59Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "Nexusnode1/smartSolveTroubleGuide",
+      "description": "Samsung Prism Hackathon Project[\"Smart Guided Troubleshooting Engine\"]",
+      "created_at": "2026-09-17T15:36:34Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "NihaalKrishna/Ticket_Reservation_System-Samsung_Prism",
+      "description": "Ticket Reservation System to book and reserve tickets and displaying reservation analytics",
+      "created_at": "2026-06-13T08:47:25Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "NikhilGaur1022/samsung-prism-privacy",
+      "description": null,
+      "created_at": "2026-07-06T20:04:01Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Nilay611/Samsung-PRISM-IOT-Project",
+      "description": null,
+      "created_at": "2025-01-23T20:43:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "NisargaGondi/notification_collector",
+      "description": "a samsung prism collaboration",
+      "created_at": "2024-04-13T11:22:58Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Nishantliftz/SamsungPRISMGenAIHackathon2025",
+      "description": null,
+      "created_at": "2025-10-05T17:19:17Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "NotVivek12/SamsungPrism",
+      "description": null,
+      "created_at": "2025-09-23T12:11:56Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "P7rakhar/Samsung-Prism",
+      "description": "Real Time Anomaly Detection",
+      "created_at": "2025-08-28T19:01:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "PProodle/Samsung-Prism-Demo1",
+      "description": null,
+      "created_at": "2024-08-09T15:42:12Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "PProodle/Samsung-Prism-Demo2",
+      "description": null,
+      "created_at": "2024-08-12T13:33:51Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "PaRougv/SamsoongPRISM",
+      "description": "Samsung PRISM Development - Weekly",
+      "created_at": "2024-07-23T17:50:14Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Paveshkamalan/Gaste_AI-Troubleshooting-Engine",
+      "description": "An enterprise-grade, sub-300ms, zero-LLM-cost AI microservice built for the Samsung PRISM GenAI Hackathon 3.0. GASTE transforms unstructured, colloquial device complaints into machine-actionable troubleshooting plans complete with verified, one-tap Bixby deeplinks.",
+      "created_at": "2026-09-17T16:55:58Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Phoenix101135/Samsung_Prism",
+      "description": null,
+      "created_at": "2022-04-23T16:44:58Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Poobalan1210/Samsung-Prism",
+      "description": null,
+      "created_at": "2021-01-08T11:13:49Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Poseidon0070/Samsung-PRISM",
+      "description": null,
+      "created_at": "2023-09-08T18:26:57Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Praddyumn16/Samsung-PRISM",
+      "description": null,
+      "created_at": "2022-12-26T21:27:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Pranamyamp/samsung-prism-surface-detection",
+      "description": "surface detection from RGB images using DeepLabV3 and Mask R-CNN \u2014 Samsung PRISM AI/ML project",
+      "created_at": "2026-06-18T15:25:22Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Prasannakbhat123/Samsung-Prism",
+      "description": null,
+      "created_at": "2025-04-04T09:34:23Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Prasannakbhat123/Samsung_Prism",
+      "description": null,
+      "created_at": "2024-12-02T17:15:12Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "PreethamKolli2002/Samsung_Prism_Bixby",
+      "description": null,
+      "created_at": "2023-04-10T14:49:48Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Priyanka-16-10/Calendar-Detection-Dataset_Samsung-Prism",
+      "description": "Calendar Images detection",
+      "created_at": "2024-12-19T20:02:37Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "PsuedoGuy2020/Samsung-Prism-Code",
+      "description": "I am integrating code for development of my intern project on \"Whatsapp Shopping Experience ChatBot\"",
+      "created_at": "2023-01-16T06:14:35Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Pubgmad/Samsung_prism",
+      "description": null,
+      "created_at": "2025-03-24T10:58:22Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "RD-16/Samsung-Prism-AI-challenge",
+      "description": null,
+      "created_at": "2025-08-27T08:47:17Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Raghav-Somasundaram/Game-Identification-with-Docker",
+      "description": "SAMSUNG PRISM",
+      "created_at": "2025-06-23T08:20:16Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "RahulR-007/PrivacyLens",
+      "description": "AI-powered Chrome extension that autonomously handles cookie consent banners and scores privacy policies/ToS using a local-first LLM cascade (Ollama \u2192 OpenAI \u2192 Gemini \u2192 Groq). Built for Samsung PRISM Hackathon.",
+      "created_at": "2026-07-27T15:13:20Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Rajheshwar-V/SAMSUNG-PRISM",
+      "description": "Created on 20.08.2022",
+      "created_at": "2022-08-20T08:34:41Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Raven007306/SAMSUNG_PRISM",
+      "description": null,
+      "created_at": "2024-06-03T04:54:09Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Revanth00001/NLP_CHATBOT_USING_BIGDATA_SAMSUNG-PRISM",
+      "description": null,
+      "created_at": "2023-06-17T08:13:46Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "RockRK2405/Samsung_PRISM_Project_1",
+      "description": "This is a great project to learn from because it combines Computer Vision, Deep Learning, Video Processing, Digital Forensics, Explainable AI, and Research into one system.",
+      "created_at": "2026-07-02T06:30:37Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "RohanSoni0507/SamsungPrismProject",
+      "description": null,
+      "created_at": "2024-02-06T16:38:33Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "RomitDeokar/TriageLine",
+      "description": "Samsung Prism",
+      "created_at": "2026-09-24T12:36:16Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "SAHIL-m4/-SAMSUNG-PRISM-GEN-AI-HACKATHON-PHASE--2",
+      "description": "Gen Ai hackathon phase 2 .       Theme : Home ai and Smart automation  ",
+      "created_at": "2025-09-27T17:28:58Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SUMUKHASRIVATSAL-OFFICIAL/SamsungPRISMInternship_EnhancedDocumentScanUsingCamera",
+      "description": null,
+      "created_at": "2025-04-10T08:37:03Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Sahil-122/Samsung_Prism_selective_encryption",
+      "description": null,
+      "created_at": "2024-10-25T11:21:26Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SahilMehar/Samsung_Prism",
+      "description": "This repository is for storing work done by Team CP214.",
+      "created_at": "2021-09-24T02:49:59Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Sahitya3105/RIT_CodeRock",
+      "description": "\ud83e\udd9e Autonomous Research-to-PR pipeline for Samsung PRISM \u2014 monitors ArXiv, maps breakthroughs to Samsung repos, auto-generates code and opens Pull Requests via AI, 24/7.",
+      "created_at": "2026-05-07T13:12:47Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SaileshPusarla/-Ramaiah-Institute-of-Technology-_-LockedIn-AI-",
+      "description": "Samsung PRISM Hackathon",
+      "created_at": "2026-05-08T12:34:26Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Samrudhp/anomaly-detection-TriFusion",
+      "description": "Finalist : Samsung PRISM GenAI Hackathon 2025 ",
+      "created_at": "2025-09-20T05:43:31Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Sanjay007008/Samsung-PRISM_Works",
+      "description": null,
+      "created_at": "2025-02-14T14:17:42Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ShaikShahidAleem/Samsung-Prism-Metadata-downloader",
+      "description": "Small website created for the benefit of other project",
+      "created_at": "2025-11-13T21:27:29Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ShashankaShekharSharma/SamsungPrismHackathon",
+      "description": null,
+      "created_at": "2025-10-04T12:26:43Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Shreyasdk28/prism",
+      "description": "samsung",
+      "created_at": "2025-07-07T13:56:49Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Shrinidhi064/SAMSUNG-PRISM",
+      "description": "AI/ML - Test case generation and classification",
+      "created_at": "2023-11-28T05:03:07Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Shrivarsha1209/samsung-prism",
+      "description": null,
+      "created_at": "2025-06-24T14:31:28Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Sidd2465/FixRoute",
+      "description": "Samsung PRISM GenAI Hackathon Theme 2 - Smart Guided Troubleshooting Engine",
+      "created_at": "2026-09-24T10:56:09Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Sinchana46/CrossLayer-RAN-Samsung-Prism",
+      "description": null,
+      "created_at": "2026-08-10T20:12:11Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SinghDevansh-2006/prism-code-intelligence",
+      "description": "Samsung PRISM GenAI Hackathon 3.0 Theme 1: Agentic code retrieval with a CPU-portable demo UI",
+      "created_at": "2026-09-24T17:18:01Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Skanda-18/PRISM---Critical-Device-Offline-notification-for-Samsung-SmartThings",
+      "description": null,
+      "created_at": "2024-01-19T06:06:52Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Souptik-Hazra/Samsung-Prism",
+      "description": null,
+      "created_at": "2026-09-16T06:48:56Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Sprivideo4/Samsung-Prism-Project",
+      "description": null,
+      "created_at": "2020-10-05T12:06:54Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Sriharshith1863/Decentralised-Marketplace-Samsung-Prism-",
+      "description": null,
+      "created_at": "2025-03-28T08:22:26Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Srinu-jaddu/Samsung-Prism-",
+      "description": null,
+      "created_at": "2024-07-02T13:29:00Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SrivatsaMalipatil/Samsung-Prism-Internship-certificate",
+      "description": null,
+      "created_at": "2024-12-19T08:16:55Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SukratiMadariya/Samsung_PRISM",
+      "description": "5 G MAC Decoder",
+      "created_at": "2022-12-27T11:42:32Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SunagP/SamsungPrism",
+      "description": null,
+      "created_at": "2021-04-08T11:37:09Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "SunilKumarPradhan/Samsung-Prism-",
+      "description": "This contains all the probable Question for the Prism Internship.",
+      "created_at": "2023-03-10T17:11:09Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Surag-CSE/DeblurGAN",
+      "description": "Samsung PRISM Virtual Internship '24-25",
+      "created_at": "2025-08-25T02:03:27Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Surya-kiran-paluru/Samsung-Prism",
+      "description": null,
+      "created_at": "2022-08-29T05:09:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Swarnendu-Bhattacharjee/samsung-prism-streaming-live-rag",
+      "description": "Samsung PRISM GenAI Hackathon (Theme 04: Streaming Live RAG) - Dual-Mode Speculative Conversational Architecture",
+      "created_at": "2026-09-23T21:23:43Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "Synisterflare02/mycustomdetekt",
+      "description": "For samsung prism",
+      "created_at": "2025-01-12T14:31:27Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "TanmayVasishta/CrossLayer-RAN-Samsung-Prism-",
+      "description": null,
+      "created_at": "2026-04-10T05:43:38Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "TanmayVasishta/Samsung-prism-Crosslayer-RAN",
+      "description": null,
+      "created_at": "2026-08-10T09:41:22Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "TarunSAkkatangerhal/SamsungPrism_Worklet_Management_System",
+      "description": null,
+      "created_at": "2025-09-21T07:44:55Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "TarunVisva07/Samsung_Prism_Offloading",
+      "description": "Samsung Prism 2021",
+      "created_at": "2021-07-29T10:40:44Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "TejasriK-888/GenAI-Extending-the-Accuracy-and-Length-for-Context-Window",
+      "description": "Samsung Prism",
+      "created_at": "2025-12-10T05:12:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "TejvirG/Samsung-Prism-Generative-AI-Hackathon-2025-Entry",
+      "description": "An AI camera that anticipates the perfect shot.It uses multimodal sensor fusion to eliminate shutter lag and automatically select the ideal mode, transforming reactive capture into a proactive experience.",
+      "created_at": "2025-09-17T16:12:12Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "UmeshKumaar15/PlatterAR-SAMSUNG-PRISM-SRI-B",
+      "description": "PlatterAR is an innovative Unity-based augmented reality (AR) application developed as part of the Samsung Prism Metaverse program. This project enhances the dining experience by leveraging AR to present immersive and interactive content related to food and dining.",
+      "created_at": "2025-01-10T08:05:08Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "UtkarshChhabra49/SAMSUNG-prism-hackathon-project",
+      "description": null,
+      "created_at": "2025-10-16T17:38:11Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "V-KennyPhilip/Samsung-Prism-Project",
+      "description": "let's keep the description optional :D",
+      "created_at": "2024-05-16T05:53:17Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "VishaalPillay/OneClick",
+      "description": "Vague complaint in, one-tap fix out. Grounded troubleshooting plans with verified Galaxy Settings deeplinks, served in under 300 ms. Samsung PRISM GenAI Hackathon 2026.",
+      "created_at": "2026-09-18T17:46:22Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "VishaalPillay/Samsung-Prism-Research",
+      "description": "Research and Implementation plans for Data Discovery, DSAR,  Rights Execution, Compliance Evidence Layer,  Revocation Orchestration + Re-consent & Purpose Change Management",
+      "created_at": "2026-06-30T05:26:31Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Vishal1732/Todo-List-2.0---Working-with-Forms-User-inputs-Adding-Two-Way-Binding-Child----v3s4fdbmmj3z",
+      "description": null,
+      "created_at": "2023-03-19T09:58:45Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "WWFelina/samsung_prism",
+      "description": "Text classification of voice assistant commands",
+      "created_at": "2021-04-25T12:27:45Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "YashP001/Samsung_prism",
+      "description": null,
+      "created_at": "2026-05-08T07:59:02Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "Ydmallikarjuna1/Samsung-PRISM-LID",
+      "description": null,
+      "created_at": "2026-07-20T12:05:48Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "aaditrychoudhury/samsung_prism",
+      "description": null,
+      "created_at": "2023-10-09T16:05:56Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "aayushxrj/ai-sast-dast-pipeline-ci-cd",
+      "description": "A CI/CD-driven security automation project that integrates SAST, DAST, and AI/NLP classification for early detection & remediation of code vulnerabilities \u2014 built under the Samsung PRISM 2025 program.",
+      "created_at": "2025-07-11T04:53:59Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "abeersethia/Samsung-Prism-2024",
+      "description": null,
+      "created_at": "2024-07-10T14:56:59Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "abhaykrishna2010/SAMSUNG_PRISM_Evaluate-RLHF-combined-with-RLAIF-as-an-approach-against-RLHF-RLAIF-alone",
+      "description": "Evaluateint RLHF combined with RLAIF as an approach against RLHF & RLAIF alone on LLM models.",
+      "created_at": "2024-07-23T09:18:52Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "abhyuday25/ImageAnnotation",
+      "description": "Image annotation agent - Made as a part of Samsung Prism Project",
+      "created_at": "2026-09-19T17:07:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "adrija29/Samsung-Prism-Lightweight-Transformer-Based-Human-Action-Recognition-Engine",
+      "description": null,
+      "created_at": "2024-07-28T14:49:31Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "agrawalrishabh008/SAMSUNG-Prism",
+      "description": null,
+      "created_at": "2024-02-06T16:16:46Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "akshayavinash2006/openclaw_discord_reddit",
+      "description": "for samsung prism",
+      "created_at": "2026-05-06T16:52:23Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "alisha3693/Railroading-Large-Language-Models-Output---SAMSUNG-PRISM",
+      "description": null,
+      "created_at": "2026-08-21T07:49:19Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "anand3eight/Multi-KWS-using-RNN-Architectures",
+      "description": "Samsung PRISM Project",
+      "created_at": "2024-02-16T15:11:46Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ananya-ak02/echoverse_backend",
+      "description": "AI-Powered Memory Companion for the Samsung PRISM Hackathon.",
+      "created_at": "2025-09-29T12:24:04Z",
+      "decision": "OTHER_YEAR_SOURCE_INSPECTED",
+      "reason": "Read README and main.py at 0a08fa95aa1158b96aa92eaebfcb285ed69059c7: explicitly 2025 multimodal theme; FastAPI upload transcription, emotion classification, memory keyword search. Not an observed 2026 Theme 5/FDB-v3 agent."
+    },
+    {
+      "repository": "anushree10000/Driver-classification-app",
+      "description": "Samsung PRISM \u2013 Driver Behavior Analysis App An intelligent app that collects up to 30 days of driving data to analyze driving patterns, classify drivers into Safe, Average, or Risky categories, and award badges based on performance. Built for enhancing driver safety and awareness.",
+      "created_at": "2025-10-02T19:13:18Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "architlatkar27/kernelDevelopmentPractice",
+      "description": "I learnt and practiced linux kernel development and device drivers for my Samsung PRISM research project. Here are some samples of it",
+      "created_at": "2020-09-26T04:22:46Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "arnavtyagi6964-glitch/samsung-prism-troubleshoot-",
+      "description": null,
+      "created_at": "2026-09-25T11:18:11Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "arunima1406/InfinitySearch",
+      "description": "Made for Samsung Prism GenAI Hackathon",
+      "created_at": "2025-09-19T11:52:13Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "avishikta18/Samsung-prism-",
+      "description": null,
+      "created_at": "2025-10-02T06:49:22Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ayushpandey0201/Samsung-Prism",
+      "description": null,
+      "created_at": "2026-03-28T11:32:49Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "bhaveesarna/Samsung-Prism",
+      "description": null,
+      "created_at": "2022-10-20T06:49:32Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "bhaveshgoyal27/SAMSUNG-PRISM",
+      "description": "Model for shadow removal from an image",
+      "created_at": "2020-08-13T05:39:45Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "brocolli-head/Samsung-Prism-Website-for-App-Distribution",
+      "description": null,
+      "created_at": "2022-09-23T06:12:42Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "chandraPrakash-tripathi/SAMSUNG-PRISM",
+      "description": null,
+      "created_at": "2023-10-04T11:31:42Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "chouhanpriyanshi59-web/samsung_prism",
+      "description": null,
+      "created_at": "2026-05-07T15:43:31Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "crazysandy1/Banking-app-Samsung-Prism",
+      "description": "Developed a Functional Protype Banking application as a part of Samsung prism 2025 Hackathon  ",
+      "created_at": "2025-11-03T17:33:24Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "datta0201/Audio-Super-Resolution",
+      "description": "This project, developed as part of the Samsung PRISM program, focuses on applying Audio Super-Resolution techniques to enhance low-resolution audio signals into higher-quality versions.",
+      "created_at": "2025-01-29T07:05:21Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "devinfo07/Samsung_Prism-voice-intelligence",
+      "description": null,
+      "created_at": "2024-03-11T09:07:15Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "dhanushrama/samsung_prism",
+      "description": null,
+      "created_at": "2023-09-10T19:04:27Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "dhavalats/PostLinkOptimizationSamsung",
+      "description": "Repository of PGO Post Link Optimization Worklet of Samsung Prism",
+      "created_at": "2024-10-20T08:46:32Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "diivm/IQA_Prism",
+      "description": "Repo for Samsung Prism IQA project.",
+      "created_at": "2020-03-08T22:08:29Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "dinonomous/Samsung_Prism_Network-FCAPS",
+      "description": null,
+      "created_at": "2024-12-03T14:19:09Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "djdiptayan1/Samsung_Prism",
+      "description": "Samsung Prism Internship files",
+      "created_at": "2024-01-26T19:21:54Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "emberwing-dash/Crimson-Valor",
+      "description": "submission for Samsung Prism Hackathon",
+      "created_at": "2026-01-10T13:28:21Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "firecodespace/samsung-prism-frontend",
+      "description": null,
+      "created_at": "2025-08-28T07:14:48Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "funky-SB-stubbz/Samsung_Prism_v2",
+      "description": "Created with CodeSandbox",
+      "created_at": "2023-03-11T15:08:34Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "funky-SB-stubbz/Samsung_Prism_v3",
+      "description": "Created with CodeSandbox",
+      "created_at": "2023-03-18T15:00:25Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "gawthamprasathvp/Kaizen",
+      "description": "Samsung Prism Hackathon",
+      "created_at": "2026-09-23T15:28:39Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "geethaloshini008/samsung_prism",
+      "description": "Human activity intent detection using smartphone imu sensors",
+      "created_at": "2023-11-05T06:49:17Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "gitshiven/Samsung-Prism",
+      "description": null,
+      "created_at": "2022-10-27T14:58:10Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "gururajbg/Converting-Normal-Photos-to-Spatial-Photos-using-MiDaS",
+      "description": "This is the project given by Samsung PRISM . This involves an app creating which converts normal photos to spatial photos.",
+      "created_at": "2024-10-30T04:52:33Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "haizenb3rg1/loadstring-game-HttpGet-https-api.luarmor.net-files-v3-loaders-fdbac487b2e7ceafb89f7c26351fddb6.lua-",
+      "description": "loadstring(game:HttpGet(\"https://api.luarmor.net/files/v3/loaders/fdbac487b2e7ceafb89f7c26351fddb6.lua\"))()",
+      "created_at": "2025-06-01T10:11:52Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "hamdan-codes/samsung-prism-solutions",
+      "description": "The repo contains a jupyter notebook having all the questions and their solutions asked to me in today's(15th Feb, 2021) test.",
+      "created_at": "2021-02-15T18:39:47Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "harshith7304/GenAI_Generate_DSL_query_from_natural_language_using_advanced_RAG_pipeline-main",
+      "description": "Modular RAG system translating natural language to DSL queries (e.g. PromQL), developed as a project intern at Samsung R&D Bangalore prism for observability backends.  ",
+      "created_at": "2025-07-09T12:20:48Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "hidingbehindrainbows/Samsung-Prism",
+      "description": null,
+      "created_at": "2024-03-30T09:13:08Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "hongducdev/prism",
+      "description": "Samsung One UI customisation app and Xposed module",
+      "created_at": "2026-08-11T18:51:44Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "hrishikeshkh/DeFlicker-PRISM",
+      "description": "Samsung PRISM project: removing flickering in high fps videos",
+      "created_at": "2023-12-05T16:38:41Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "iamgroot1123/Samsung-Prism",
+      "description": null,
+      "created_at": "2024-09-07T11:07:07Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "iamsam15/Samsung_Prism",
+      "description": null,
+      "created_at": "2025-04-01T08:21:14Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "iashishanand/Samsung-Prism",
+      "description": null,
+      "created_at": "2023-03-19T09:00:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "iivanhaj/samsung_prism",
+      "description": null,
+      "created_at": "2024-11-12T06:05:56Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ishagupta0506/Low-Light-Video-Distortion-Removal_Samsung-Prism_Worklet",
+      "description": "Low-Light-Video-Distortion-Removal_Samsung-Prism_Worklet",
+      "created_at": "2026-06-21T21:36:14Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ishiray/Samsung_Prism",
+      "description": null,
+      "created_at": "2023-01-11T02:52:10Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "itsramhere/samsung_prism",
+      "description": null,
+      "created_at": "2026-09-17T02:56:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "iwantacrepe/COGNIFIX-SamsungPRISMGenAIHackathon2025",
+      "description": null,
+      "created_at": "2025-10-05T02:39:31Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "jakshat173/Command-Classification",
+      "description": "Voice Assistant Commands are classified into general, private and non\u2010private commands. This Project is given by Samsung Prism to us. Dataset for the problem is created manually and various text classification models are applied to it.",
+      "created_at": "2021-07-17T14:20:26Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "jarvis-sharma/Samsung_Prism",
+      "description": null,
+      "created_at": "2022-04-03T14:35:10Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "joannamariyajames/interject",
+      "description": "An interruptible, full-duplex real-time agent. Samsung PRISM Y2026 GenAI Hackathon, Theme 05.",
+      "created_at": "2026-09-21T17:28:24Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "johnohhh1/Seamless-AI",
+      "description": "Winning Project - Samsung Prism Gen AI Hackathon",
+      "created_at": "2026-04-05T20:54:19Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "k4thir/Samsung_prism",
+      "description": null,
+      "created_at": "2021-07-19T10:59:19Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "kalyx35/Teachable-Voice-Assistant",
+      "description": "Prototype for Gen AI Hackathon by Samsung Prism",
+      "created_at": "2026-09-16T11:01:36Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "kammarohan55-crypto/samsung-prism",
+      "description": null,
+      "created_at": "2026-05-07T08:56:13Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "kartik1pandey/SAMSUNG_PRISM_PAGE_COMPRESSIBILITY_ALGO_TESTING",
+      "description": null,
+      "created_at": "2026-01-18T19:08:01Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "kish0025/SamsungPRISM",
+      "description": null,
+      "created_at": "2024-07-02T05:18:40Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "kk8565/SAMSUNG-PRISM-AI-",
+      "description": null,
+      "created_at": "2024-06-26T12:00:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ksanjaytnu/samsung-prism",
+      "description": null,
+      "created_at": "2025-12-31T17:21:42Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ksanjaytnu/samsung-prism-hackathon",
+      "description": null,
+      "created_at": "2026-01-03T18:06:11Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ksenthurkumaran18052004/Samsung-Prism-RnD-Developing_a_Unified_Platform_for_Notification_Sending",
+      "description": null,
+      "created_at": "2025-04-28T14:14:13Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "lakshmi-priya-3/UnauthorizedSW_SamsungPrism",
+      "description": null,
+      "created_at": "2025-09-08T13:52:39Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "lalit-96/samsung_prism",
+      "description": "AI_Point_Cloud_Densification",
+      "created_at": "2022-05-23T09:38:34Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "lazycoder-git/SEED-Prism",
+      "description": "AttendEase - Automated Attendance & Payroll System (Built for Samsung PRISM)",
+      "created_at": "2026-06-22T12:08:50Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "madhenkumar/samsung-prism",
+      "description": null,
+      "created_at": "2025-09-29T11:52:12Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "manaswini-kunala/SamsungPRISM",
+      "description": null,
+      "created_at": "2024-06-19T22:00:19Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "md-arshaq/Multilingual-g2p",
+      "description": "Multilingual Grapheme-to-Phoneme (G2P) pipeline for Hindi, Gujarati, and Marathi developed as part of the Samsung PRISM research Internship.",
+      "created_at": "2026-03-21T05:24:41Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "metal0bird/prism_hackathon",
+      "description": "Samsung Prism Hackathon for GenAI",
+      "created_at": "2024-02-09T05:28:43Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "moni545/Printer-Repair-Dubai",
+      "description": "Note-D3 technology (www.printerrepairdubai.ae). is an independent and locally technology company. We https://printerrepairdubai.ae/index.phpRepair service Any Printers brands!  Our experts will easily solve all your problems! Printer Repair in Dubai is not an easy task, but the most experienced specialists of our center will cope with a problem of any complexity. We work with HP, Canon and brands of other well-known manufacturers. We solve problems with the power supply, control boards, paper fe [truncated; exact original in hashed raw log]",
+      "created_at": "2020-05-04T18:07:54Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Reviewed description: Minecraft system dump or printer-repair advertising, unrelated keyword collisions."
+    },
+    {
+      "repository": "moni545/Printer-Repair-Dubai-",
+      "description": "Note-D3 technology (www.printerrepairdubai.ae). is an independent and locally technology company. We Repair service Any Printers brands!  Our experts will easily solve all your problems! Printer Repair in Dubai is not an easy task, but the most experienced specialists of our center will cope with a problem of any complexity. We work with HP, Canon and brands of other well-known manufacturers. We solve problems with the power supply, control boards, paper feed mechanism, gearbox, malfunctions in  [truncated; exact original in hashed raw log]",
+      "created_at": "2020-05-04T18:06:07Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Reviewed description: Minecraft system dump or printer-repair advertising, unrelated keyword collisions."
+    },
+    {
+      "repository": "mvamarnath/ClawSight",
+      "description": "Samsung Prism Clash of Claws 2026 Hackathon",
+      "created_at": "2026-05-08T12:58:50Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "navix1456/CODESTRIX_SRMIST_1_NavinMuthuM",
+      "description": "SAMSUNG PRISM -MEDITRANSLATE - AI ",
+      "created_at": "2025-10-05T17:36:51Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "neha441-beep/A-Software-Tool-For-Avatar-Creation-Samsung-PRISM-",
+      "description": null,
+      "created_at": "2025-07-01T08:46:31Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "nightfury12901/SamsungProjectPrism",
+      "description": null,
+      "created_at": "2025-09-17T20:44:36Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "nimisha243/ANDRIOD-MOBILITY-APP-PRISM",
+      "description": "Samsung Prism Project",
+      "created_at": "2025-04-30T01:18:54Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "nimisha243/prism-app",
+      "description": "samsung prism proejct",
+      "created_at": "2024-10-22T16:51:22Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "ns7824002-gif/SamsungPRISM-2026",
+      "description": "Samsung PRISM GenAI Hackathon 2026 \u2014 Interruptible Real-Time Agent",
+      "created_at": "2026-09-13T20:57:35Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "oshish/samsung-prism-adaptive-compression",
+      "description": "Samsung PRISM (Worklet ID: 26VI11) \u2014 Adaptive Frame Compression for Memory Optimization (Steps 1\u20136: Dataset & Feature Extraction)",
+      "created_at": "2026-09-11T19:26:51Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "prajeshkvinod-be4/Collaborative-Construction-Robot-Samsung-PRISM",
+      "description": "Developed a robotic construction framework where two 4-DOF robotic arms autonomously assembled a 3\u00d73 block grid, demonstrating automation in construction tasks. \u2022 Implemented synchronization strategies using Arduino Uno and Raspberry Pi, achieving over 80% block placement accuracy during autonomous 3\u00d73 grid trials.",
+      "created_at": "2026-01-15T16:01:32Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "priyangshusarkar77/Samsung-prism",
+      "description": null,
+      "created_at": "2024-03-06T09:03:53Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "pylrn/talent-atlas-realtime-agent",
+      "description": "Samsung PRISM Y2026 Theme 05 interruptible realtime recruiting agent with guarded tools and hybrid RAG",
+      "created_at": "2026-09-22T17:42:13Z",
+      "decision": "IN_COHORT",
+      "reason": "Source audit included; see individual source classification."
+    },
+    {
+      "repository": "r-abhinav1/Samsung_Prism_EvaluationOfLLMs",
+      "description": null,
+      "created_at": "2025-05-12T12:39:40Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "raghanharkesh/Samsung-Prism-Smart-Homework",
+      "description": "Samsung Prism Project based on AI and ML.",
+      "created_at": "2023-06-03T08:42:55Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "rahulanand16nov/Samsung-PRISM",
+      "description": "Code for Samsung PRISM de-masking research project",
+      "created_at": "2021-07-23T14:13:43Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "revanth050105/Samsung-PRISM",
+      "description": null,
+      "created_at": "2025-02-19T09:19:19Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "revou-fundamental-course/Speech-Super-Resolution-Samsung-PRISM",
+      "description": "17-feb-25-Mahdi-id created by GitHub Classroom",
+      "created_at": "2025-02-22T17:48:52Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "riyagupta1107/samsung-prism-chatbot",
+      "description": null,
+      "created_at": "2026-08-13T05:36:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "rohitsakkatangerhal/SamsungPrismWorkletManagement",
+      "description": null,
+      "created_at": "2025-09-22T12:39:19Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "saishagoel27/Samsung-Prism",
+      "description": "Our Submission for the Samsung-Prism Hackathon",
+      "created_at": "2025-08-28T16:22:11Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "saivarunkonda/Samsung_Prism",
+      "description": null,
+      "created_at": "2025-05-07T06:20:16Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "samsung-prism-citnc/image-quality-assessment",
+      "description": "Samsung PRISM",
+      "created_at": "2024-04-10T03:05:21Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "samsungprismpunjabi-wq/Samsung-Prism-Punjabi",
+      "description": null,
+      "created_at": "2025-12-05T16:28:04Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "sangamn0406/SAMSUNG-PRISM",
+      "description": null,
+      "created_at": "2025-03-31T05:31:01Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "sanyabhasin864-dev/Samsung-Prism-Project",
+      "description": null,
+      "created_at": "2026-01-21T19:08:17Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "sarangan19/samsungPrism",
+      "description": null,
+      "created_at": "2026-06-11T08:16:37Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "saswat0/Samsung-PRISM",
+      "description": null,
+      "created_at": "2020-03-25T15:21:46Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "shirishamarnath/PlatterAR-SAMSUNG-PRISM-SRI-B",
+      "description": "PlatterAR is an innovative Unity-based augmented reality (AR) application developed as part of the Samsung Prism Metaverse program. This project enhances the dining experience by leveraging AR to present immersive and interactive content related to food and dining.",
+      "created_at": "2025-11-15T19:37:02Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "shreyaladdha/SAMSUNG_PRISM",
+      "description": null,
+      "created_at": "2021-04-06T12:43:28Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "shubhbansal9/fine-tuning",
+      "description": "Project for Samsung PRISM",
+      "created_at": "2024-02-28T09:31:13Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "shubhbansal9/softprompts-vs-lora",
+      "description": "Soft Prompts vs LoRa: Text Generative Models Analysis - Project for Samsung PRISM",
+      "created_at": "2024-01-30T05:05:28Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "sinchana0901/Nexus",
+      "description": "NEXUS: Sovereign Local Agentic OS \u2014 Samsung PRISM OpenClaw",
+      "created_at": "2026-04-27T17:38:58Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "skand1883/Samsung-Prism",
+      "description": null,
+      "created_at": "2025-04-15T14:02:15Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "skunkworksdev/Surface_Detection_Samsung",
+      "description": "Samsung PRISM Project",
+      "created_at": "2023-08-11T07:53:06Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "skyvory/ARies",
+      "description": "Prism Recollection-inspired Gear Watch Design for Samsung Gear Fit 2",
+      "created_at": "2017-03-02T08:49:30Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "smash273/Multimodal-AI-Driven-Contextual-Story-Title-Generation-Samsung-PRISM-",
+      "description": "Multimodal AI framework capable of understanding and fusing visual information, speech transcripts, OCR text, audio-event semantics to generate contextually accurate and human-like video story titles in real time using CLIP/SigLIP visual encoders, Whisper ASR, EasyOCR, CLAP audio encoders.",
+      "created_at": "2026-06-01T03:59:22Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "soumyajit1010/Samsung-Prism-DSA-2025",
+      "description": "Solutions to Samsung Prism coding questions",
+      "created_at": "2025-09-08T17:25:57Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "souradeepdutta/Speech-Super-Resolution-Samsung-PRISM",
+      "description": "Audio super-resolution with an ECA-enhanced encoder-decoder CNN. Upsamples low-rate speech (2/4/8 kHz \u2192 16 kHz) to improve ASR performance, trained on LibriSpeech with Wav2Vec2-based perceptual loss.",
+      "created_at": "2025-09-29T06:59:59Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "sreevanth15/samsung-prism---rag-based-kafka-tagging",
+      "description": null,
+      "created_at": "2026-03-24T06:57:38Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "suhan-s22/Samsung-Prism",
+      "description": null,
+      "created_at": "2026-05-13T08:02:45Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "sujal-prakash15/Tiltle_generation",
+      "description": "Samsung prism",
+      "created_at": "2023-07-28T12:48:10Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "sumanthkv-bmsce/Samsung_Prism_TCP",
+      "description": null,
+      "created_at": "2021-07-14T09:45:42Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "swastika-projects/Double-Exposure-Videography",
+      "description": "This was a project assigned by Samsung PRISM which aimed at creating a double exposure video using Machine Learning/Deep Learning model for human segmentation followed by video processing to generate the required double exposure effect using Python Image Processing libraries. ",
+      "created_at": "2021-05-29T20:12:52Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "takkritagya16/Samsung_Prism",
+      "description": "Project based on Openclaw, AI research verifier based on actual research papers",
+      "created_at": "2026-05-07T14:58:49Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "the-kataksh/redactyl",
+      "description": "Privacy Firewall for AI Web Agents | Samsung PRISM Hackathon",
+      "created_at": "2025-12-13T06:25:59Z",
+      "decision": "OTHER_TOPIC_METADATA_ONLY",
+      "reason": "Name/description indicates another topic/year; full source not inspected, exclusion remains provisional."
+    },
+    {
+      "repository": "tush-86/Samsung-Prism-5G-Research",
+      "description": null,
+      "created_at": "2025-06-01T09:23:59Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "uditi-12/Samsung-Prism-Project",
+      "description": null,
+      "created_at": "2023-07-11T07:37:09Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "uragirii/Samsung-PRISM",
+      "description": "The code and notebooks for Samsung PRISM Project",
+      "created_at": "2020-10-04T12:41:09Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "vairavela2006/Samsung_Prism",
+      "description": null,
+      "created_at": "2026-01-16T15:55:06Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "vanshnanda08/samsung-prism",
+      "description": null,
+      "created_at": "2026-09-16T11:34:43Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "vatsalya16/Samsung_prism",
+      "description": null,
+      "created_at": "2023-08-02T01:45:21Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "vermayajat/Samsung-Prism",
+      "description": null,
+      "created_at": "2025-09-10T06:00:59Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "vibha-vs/Samsung-PRISM",
+      "description": null,
+      "created_at": "2023-05-03T08:18:08Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "vinitpatil519/Samsung-Research-Internship",
+      "description": "Project repo of ML Research Internship at Samsung Prism (RnD) ",
+      "created_at": "2026-09-03T20:18:01Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "wendemsky/DirectS2SFinalReview",
+      "description": "These are the Files for my Samsung Prism Final Review, Direct Speech to Speech Translation",
+      "created_at": "2023-11-12T13:46:59Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "yasharth2004/Samsung-Prism-AI-Chatbot",
+      "description": null,
+      "created_at": "2025-09-29T21:41:52Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "zenodefault/codesentinel",
+      "description": "CodeSentinel is an AI-powered repository analyzer and automated remediation engine designed for the Samsung PRISM Hackathon",
+      "created_at": "2026-05-02T17:35:44Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    },
+    {
+      "repository": "zero-raven/samsung-prism",
+      "description": null,
+      "created_at": "2026-05-01T15:22:40Z",
+      "decision": "UNRESOLVED_METADATA_ONLY",
+      "reason": "No clear Theme 5 identity in returned name/description; source not inspected, not a definitive exclusion."
+    }
+  ],
+  "exhaustive": false,
+  "limitation": "Pagination complete for the three recorded query strings only. Unauthenticated code search was not performed. Ambiguous metadata-only leads are explicitly unresolved, not excluded competitors."
+}

@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "variant": "minified release; not debuggable",
+  "entry": "MainActivity > Settings > Open Kitchen",
+  "checks": "real release launch, navigation, scoped Kitchen UI and disconnected controls",
+  "microphone_requested": false,
+  "model_calls": 0,
+  "scope": "UI smoke in a separate Java-only companion process; no app test keep rules or internal APIs"
+}

@@ -1,0 +1,171 @@
+{
+  "team": "LOCAL_DRAFT_TEAM_METADATA_REQUIRED",
+  "entry_point": "participant.agent:ParticipantAgent",
+  "reps": 3,
+  "time_scale": 1.0,
+  "scenarios": [
+    {
+      "scenario_id": "pub_01_text_simple",
+      "modality": "text",
+      "difficulty": "L1",
+      "weight": 1.0,
+      "rep_totals": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "median_total": 100.0,
+      "median_breakdown": {
+        "task": 61.5,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    },
+    {
+      "scenario_id": "pub_02_text_interrupt",
+      "modality": "text",
+      "difficulty": "L2",
+      "weight": 1.0,
+      "rep_totals": [
+        100.0,
+        56.8,
+        58.2
+      ],
+      "median_total": 58.2,
+      "median_breakdown": {
+        "task": 15.7,
+        "recovery": 17.5,
+        "latency": 15.0,
+        "safety": 10.0
+      }
+    },
+    {
+      "scenario_id": "pub_03_text_chained_booking",
+      "modality": "text",
+      "difficulty": "L2",
+      "weight": 1.0,
+      "rep_totals": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "median_total": 100.0,
+      "median_breakdown": {
+        "task": 61.5,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    },
+    {
+      "scenario_id": "pub_04_text_no_tool",
+      "modality": "text",
+      "difficulty": "L1",
+      "weight": 1.0,
+      "rep_totals": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "median_total": 100.0,
+      "median_breakdown": {
+        "task": 61.5,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    },
+    {
+      "scenario_id": "pub_05_audio_asr_ambiguity",
+      "modality": "audio",
+      "difficulty": "L2",
+      "weight": 1.5,
+      "rep_totals": [
+        72.3,
+        72.3,
+        60.8
+      ],
+      "median_total": 72.3,
+      "median_breakdown": {
+        "task": 33.8,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    },
+    {
+      "scenario_id": "pub_06_audio_disfluency",
+      "modality": "audio",
+      "difficulty": "L2",
+      "weight": 1.5,
+      "rep_totals": [
+        56.9,
+        56.9,
+        56.9
+      ],
+      "median_total": 56.9,
+      "median_breakdown": {
+        "task": 18.5,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    },
+    {
+      "scenario_id": "pub_07_visual_port_lookup",
+      "modality": "visual",
+      "difficulty": "L2",
+      "weight": 1.5,
+      "rep_totals": [
+        47.7,
+        47.7,
+        47.7
+      ],
+      "median_total": 47.7,
+      "median_breakdown": {
+        "task": 9.2,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    },
+    {
+      "scenario_id": "pub_08_text_tool_failure",
+      "modality": "text",
+      "difficulty": "L3",
+      "weight": 1.25,
+      "rep_totals": [
+        100.0,
+        80.8,
+        100.0
+      ],
+      "median_total": 100.0,
+      "median_breakdown": {
+        "task": 61.5,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    },
+    {
+      "scenario_id": "pub_09_text_unseen_tool",
+      "modality": "text",
+      "difficulty": "L2",
+      "weight": 1.0,
+      "rep_totals": [
+        100.0,
+        100.0,
+        100.0
+      ],
+      "median_total": 100.0,
+      "median_breakdown": {
+        "task": 61.5,
+        "latency": 23.1,
+        "safety": 15.4
+      }
+    }
+  ],
+  "summary": {
+    "plain_average": 81.7,
+    "weighted_score": 78.9,
+    "by_modality": {
+      "text": 93.0,
+      "audio": 64.6,
+      "visual": 47.7
+    }
+  }
+}
