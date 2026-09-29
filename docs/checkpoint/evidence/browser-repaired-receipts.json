@@ -1,0 +1,75 @@
+{
+  "session_id": "5f085e898db84ff98f6fab82a95b6922",
+  "items": [
+    {
+      "item_id": "420d0a99e4554e3fb7ddec08d3994311",
+      "text": "rinse the coriander",
+      "checked": false
+    },
+    {
+      "item_id": "83ccb90597cf47c69328de7312d9aa33",
+      "text": "dry the serving bowl",
+      "checked": false
+    }
+  ],
+  "requests": {
+    "1470f67ad64c5bdf9fb69b98d9651105": {
+      "fingerprint": "[\"add_checklist_item\",[[\"text\",\"rinse the coriander\"]]]",
+      "result": {
+        "status": "success",
+        "detail": "Added checklist step: rinse the coriander",
+        "session_id": "5f085e898db84ff98f6fab82a95b6922",
+        "request_id": "1470f67ad64c5bdf9fb69b98d9651105",
+        "item_id": "420d0a99e4554e3fb7ddec08d3994311",
+        "items": [
+          {
+            "item_id": "420d0a99e4554e3fb7ddec08d3994311",
+            "text": "rinse the coriander",
+            "checked": false
+          }
+        ]
+      }
+    },
+    "b786f97c81525de6b19fc50f1b0307ad": {
+      "fingerprint": "[\"add_checklist_item\",[[\"text\",\"dry the serving bowl\"]]]",
+      "result": {
+        "status": "success",
+        "detail": "Added checklist step: dry the serving bowl",
+        "session_id": "5f085e898db84ff98f6fab82a95b6922",
+        "request_id": "b786f97c81525de6b19fc50f1b0307ad",
+        "item_id": "83ccb90597cf47c69328de7312d9aa33",
+        "items": [
+          {
+            "item_id": "420d0a99e4554e3fb7ddec08d3994311",
+            "text": "rinse the coriander",
+            "checked": false
+          },
+          {
+            "item_id": "83ccb90597cf47c69328de7312d9aa33",
+            "text": "dry the serving bowl",
+            "checked": false
+          }
+        ]
+      }
+    }
+  },
+  "last_receipt": {
+    "status": "success",
+    "detail": "Added checklist step: dry the serving bowl",
+    "session_id": "5f085e898db84ff98f6fab82a95b6922",
+    "request_id": "b786f97c81525de6b19fc50f1b0307ad",
+    "item_id": "83ccb90597cf47c69328de7312d9aa33",
+    "items": [
+      {
+        "item_id": "420d0a99e4554e3fb7ddec08d3994311",
+        "text": "rinse the coriander",
+        "checked": false
+      },
+      {
+        "item_id": "83ccb90597cf47c69328de7312d9aa33",
+        "text": "dry the serving bowl",
+        "checked": false
+      }
+    ]
+  }
+}

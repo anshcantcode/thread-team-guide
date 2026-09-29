@@ -1,0 +1,53 @@
+# Credentials and private state
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.jks
+*.keystore
+*phone-config-import*
+data/
+*.sqlite*
+.runtime/
+.thread-run/raw/
+.thread-run/submission-build/
+.thread-run/task-b-prep/
+.thread-run/task-b-phase2.json
+.thread-run/*.lock
+
+# Local environments and generated build output
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.gradle/
+android/.kotlin/
+android/**/build/
+android/local.properties
+node_modules/
+*.apk
+*.aab
+*.log
+reports/*
+!reports/README.md
+!reports/public-source-validation.json
+
+# Rendered production outputs remain outside source history
+motion/output/
+motion/v2/output/
+motion/audio/*.wav
+motion/v2/audio/*.wav
+
+# Editor and operating-system state
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.repro-*/
+
+# Private campaign notes and release preparation stay on the owner's machine.
+.thread-run/
+/*-plan/
+docs/peer-audits/

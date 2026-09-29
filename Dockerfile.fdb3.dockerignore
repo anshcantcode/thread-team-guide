@@ -1,0 +1,16 @@
+**
+!Dockerfile.fdb3
+!requirements-fdb3.lock
+!requirements-fdb3-cuda.txt
+!config/
+!config/fdb3-candidate.json
+!participant/
+!participant/**
+!thread_agent/
+!thread_agent/**
+!scripts/
+!scripts/fdb3_agent.py
+!scripts/fdb3_config.py
+!scripts/fdb3_linux_smoke.py
+**/__pycache__/
+**/*.pyc

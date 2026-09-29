@@ -1,0 +1,15 @@
+{
+  "format": "Derived portable evidence export",
+  "files": 2918,
+  "included_files": 2478,
+  "historical_cases_per_run": 100,
+  "history_runs": [
+    "run7",
+    "run8"
+  ],
+  "asset": "THREAD-0.7.0-checkpoint-evidence.zip",
+  "bytes": 6059700,
+  "sha256": "cc249cbd3e9687611efb94378007f336a7a17b2cdc263a1a9d017be47ebc7d02",
+  "normalization": "Machine-specific path prefixes only; original and exported hashes are inside the archive.",
+  "full_historical_audio": "Original local archive retained, input and output audio hashes inventoried; not redistributed in this portable export."
+}

@@ -1,0 +1,42 @@
+{
+  "route": "gemini",
+  "model": "gemini-2.5-flash",
+  "public_scenarios_only": true,
+  "reps": 1,
+  "time_scale": 1,
+  "pause_s": 0,
+  "complete": true,
+  "rate_limited": false,
+  "thinking_level": "minimal",
+  "image_embedding": true,
+  "audio_mode": "independent",
+  "planning_timeout_s": 4.5,
+  "acoustic_timeout_s": 3.5,
+  "weighted_score": 56.9,
+  "scenarios": [
+    {
+      "scenario_id": "pub_06_audio_disfluency",
+      "modality": "audio",
+      "weight": 1.5,
+      "scores": [
+        56.9
+      ],
+      "median": 56.9,
+      "planner_timings": [
+        {
+          "phase": "acoustic",
+          "status": "timeout",
+          "elapsed_ms": 3501.05
+        },
+        {
+          "phase": "planning",
+          "status": "acoustic_unverified",
+          "elapsed_ms": 3501.91
+        }
+      ]
+    }
+  ],
+  "api_calls": null,
+  "requests": [],
+  "planner_sha256": "61d9b369ed1fb10b5ee63dcd283d7de0793faf5a12fc5a768797c73a315543f9"
+}

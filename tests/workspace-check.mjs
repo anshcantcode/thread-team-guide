@@ -1,0 +1,57 @@
+import assert from 'node:assert/strict';
+// Import the production renderer without creating a browser or running a timer.
+globalThis.document={getElementById:()=>null,addEventListener:()=>{},querySelectorAll:()=>[]};
+const interval=globalThis.setInterval;globalThis.setInterval=()=>0;
+const {renderCards,safeUrl,esc,asMarkdown}=await import('../web/workspace.js');
+globalThis.setInterval=interval;
+let checks=0;
+function check(condition,message){assert.ok(condition,message);checks++;}
+const wrap=(domain,item,extra={})=>({id:'result-one',domain,source:'Test evidence',provenance:'computed',items:[{id:'one',title:'A result',kind:domain,...item}],...extra});
+check(esc('<script>"&')==='&lt;script&gt;&quot;&amp;','HTML escaping');
+for(const url of ['javascript:alert(1)','data:text/html,bad','file:///C:/secret','https://user:password@example.com','not a URL'])check(safeUrl(url)==='','Reject unsafe source link');
+check(safeUrl('https://example.com/source')==='https://example.com/source','Keep valid source link');
+const flight=wrap('travel',{kind:'flight',airline:'Aster Air',airline_code:'AS',origin:'Chennai',destination:'Mumbai',date:'2026-10-08',departure:'21:40',passengers:2,price:10600,currency:'INR',nonstop:true});
+const ticket=renderCards(flight,{results:flight});
+for(const text of ['Aster Air','Chennai','Mumbai','21:40','8 Oct','10,600','airline-mark','Demo fare'])check(ticket.includes(text),'Flight detail '+text);
+const selected=renderCards(flight,{results:flight,selection:{id:'one'}});check(selected.includes('flight-card selected'),'Selection state');
+const weather=renderCards(wrap('weather',{temperature:31.4,code:0,condition:'Clear sky',humidity:70,wind:12,forecast:[{date:'2026-09-13',high:32,low:25,code:0,rain:40}],observed_at:'2026-09-13T12:30',timezone:'Asia/Kolkata'}));
+for(const text of ['31.4','Clear sky','Humidity','Wind','40%','Asia/Kolkata'])check(weather.includes(text),'Weather detail '+text);
+const calculation=renderCards(wrap('calculate',{value:'21830',expression:'18500*1.18'}));check(calculation.includes('21830')&&calculation.includes('18500*1.18'),'Calculation evidence');
+const conversion=renderCards(wrap('convert',{value:1.609344,from_value:1,from_unit:'mi',to_unit:'km',dimension:'length'}));check(conversion.includes('1.609344')&&conversion.includes('km'),'Conversion evidence');
+const exchange=renderCards(wrap('currency',{value:9556,amount:100,base:'USD',target:'INR',rate:95.56,date:'2026-09-11'}));check(exchange.includes('11 September 2026')&&exchange.includes('Reference rate'),'Exchange date');
+const clock=renderCards(wrap('clock',{value:'04:30',from_time:'2026-10-08T14:00',date:'2026-10-08',from_zone:'Asia/Kolkata',to_zone:'America/New_York'}));check(clock.includes('04:30')&&clock.includes('America/New York'),'Timezone card');
+const cities=renderCards(wrap('world_clocks',{title:'Manchester',zone:'Europe/London',value:'14:00',date:'2026-09-13'}));
+check(cities.includes('data-world-zone="Europe/London"')&&cities.includes('Manchester'),'Current city clock retains its timezone for browser ticking');
+check(!renderCards(wrap('world_clocks',{title:'<script>bad</script>',zone:'x" onmouseover="bad',value:'00:00'})).includes('<script>'),'World clock escapes provider labels');
+const note=renderCards(wrap('notes',{body:'<img src=x onerror=alert(1)>\nA real note'}));check(!note.includes('<img')&&note.includes('&lt;img'),'Notebook XSS safety');
+const source=renderCards(wrap('research',{kind:'source',url:'javascript:alert(1)',title:'<script>alert(1)</script>',detail:'<b>hostile snippet</b>'}));check(!source.includes('<script>')&&!source.includes('href='),'Source XSS safety');
+const validSource=renderCards(wrap('research',{kind:'paper',title:'A study',url:'https://doi.org/10.1234/test',published:'2025',provider:'Crossref'}));check(validSource.includes('noopener noreferrer')&&validSource.includes('https://doi.org/10.1234/test'),'Source attribution and link isolation');
+for(const kind of ['plan','itinerary','checklist','recipe','comparison','writing','study','code','brief']){
+ const result=wrap('document',{document:{kind,title:'A '+kind,blocks:[{heading:'Part one',text:'<script>not executable</script>',items:['A useful item']}]}});
+ const markup=renderCards(result);check(markup.includes('A '+kind)&&!markup.includes('<script>'),'Typed document '+kind);
+ check(asMarkdown(result).includes('Source: Test evidence'),'Download provenance '+kind);
+}
+const table=renderCards(wrap('document',{document:{kind:'comparison',title:'A vs B',columns:['Feature','A','B'],rows:[['Offline','Yes','No']],blocks:[{heading:'Recommendation',text:'A for offline use.'}]}}));check(table.includes('<table>')&&table.includes('Offline'),'Comparison table');
+const malformed=renderCards(wrap('weather',{title:'Malformed provider output'}));check(malformed.includes('Malformed provider output'),'Malformed specialised output falls back without crashing');
+const match={date:'2026-09-09T16:45Z',competition:'UEFA Champions League',home:'Barcelona',away:'Feyenoord',home_score:5,away_score:1,result:'W',status:'FT',home_logo:'https://a.espncdn.com/i/83.png',away_logo:'https://a.espncdn.com/i/142.png',url:'https://www.espn.com/soccer/match/_/gameId/123'};
+const sports=wrap('sports',{title:'Barcelona',team:'Barcelona',entity_type:'team',logo:match.home_logo,matches:[match],scope:'Club competitions',url:'https://www.espn.com/soccer/team/_/id/83'});
+const matchCard=renderCards(sports);
+for(const text of ['Barcelona','Feyenoord','UEFA Champions League','9 Sept','club-crest','ESPN team record'])check(matchCard.includes(text),'Football evidence '+text);
+const playerCard=renderCards(wrap('sports',{title:'Bruno Fernandes',team:'Manchester United',entity_type:'player',goals:2,assists:null,matches:[{...match,goals:0,assists:null}],scope:'Current club'}));
+check(playerCard.includes('Last 1 recorded appearance')&&playerCard.includes('<b>0</b> goals')&&playerCard.includes('<b>—</b> assists'),'Actual appearances and missing statistics remain distinct');
+const hostileSport=renderCards(wrap('sports',{title:'<script>bad</script>',team:'<img src=x>',entity_type:'team',matches:[{...match,home:'<script>bad</script>',home_score:'<img src=x>',url:'javascript:alert(1)'}],logo:'https://example.com/tracker.png',scope:'<b>text</b>'}));
+check(!hostileSport.includes('<script>')&&!hostileSport.includes('<img src=x>')&&!hostileSport.includes('javascript:')&&!hostileSport.includes('src="https://example.com'),'Football provider fields and images are not executable');
+check(asMarkdown(sports).includes('UEFA Champions League')&&asMarkdown(sports).includes(match.url),'Football export retains competition and source');
+const choices=renderCards(wrap('sports',{kind:'sports_choice',id:'7',entity_type:'player',title:'Bruno Fernandes',detail:'Manchester United',logo:'javascript:alert(1)'}));
+check(choices.includes('data-prompt=')&&choices.includes('record 7')&&!choices.includes('javascript:'),'Player clarification uses returned identity');
+const boxscore=wrap('sports',{kind:'sports_profile',title:'A player',sport:'basketball',sport_label:'Basketball',entity_type:'player',portrait:'https://a.espncdn.com/i/headshots/nba/players/full/1966.png',metrics:[{label:'Points / game',value:'24.2'}],records:[{date:'2026-05-12T02:30Z',title:'Thunder',score:'110 – 115',result:'L',stats:[{key:'points',label:'Points',value:'24'},{key:'minutes',label:'Minutes',value:'40'}],url:'https://www.espn.com/nba/game/_/gameId/123'}],coverage:'2025–26 postseason'});
+const boxhtml=renderCards(boxscore);
+for(const text of ['athlete-photo','Points / game','24.2','Full box score','Thunder','2025–26 postseason'])check(boxhtml.includes(text),'Sport-specific profile '+text);
+check(asMarkdown(boxscore).includes('Minutes: 40')&&asMarkdown(boxscore).includes('110 – 115'),'Full sport-specific statistics survive export');
+const attack=renderCards(wrap('sports',{...boxscore.items[0],title:'<script>bad</script>',records:[{date:'2026-01-01',title:'<img src=x>',score:'<script>x</script>',stats:[],url:'javascript:bad'}],portrait:'https://attacker.invalid/track.png'}));
+check(!attack.includes('<script>')&&!attack.includes('<img src=x>')&&!attack.includes('attacker.invalid')&&!attack.includes('javascript:'),'Multisport profile escapes provider markup');
+const requestedChoice=renderCards({...wrap('sports',{kind:'sports_choice',id:'7',entity_type:'player',sport:'basketball',title:'Jordan Clarkson',detail:'NBA'}),arguments:{limit:3}});
+check(requestedChoice.includes('last 3 games')&&requestedChoice.includes('Sport: basketball'),'Clarification preserves count and sport');
+check(renderCards({domain:'research',items:[],note:'Nothing found'}).includes('Nothing found'),'Empty-state reason');
+const timer=renderCards(wrap('timer',{seconds:600,end_at:'2026-09-13T14:10:00+00:00',cancelled:true}));check(timer.includes('Timer cancelled.')&&timer.includes('data-cancelled="true"'),'Timer cancellation state');
+console.log(JSON.stringify({suite:'workspace rendering and export',passed:true,checks}));

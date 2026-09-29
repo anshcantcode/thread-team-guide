@@ -1,0 +1,21 @@
+.git
+.venv
+.runtime
+.env
+.env.*
+data
+reports
+android
+design
+motion
+.github
+# The submission Dockerfile needs these onboarding files; other docs stay out.
+docs/*
+!docs/GEMINI_SETUP.md
+!docs/submission/
+docs/submission/*
+!docs/submission/GEMINI_QUICKSTART.md
+!.env.example
+**/__pycache__
+**/*.pyc
+**/node_modules

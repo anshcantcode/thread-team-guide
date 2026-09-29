@@ -1,0 +1,11 @@
+{
+  "scope": "Owned native audio authority regression. Synthetic English TTS; not Live-model semantics or microphone performance.",
+  "cases": [
+    {"id":"n01","mode":"audio","speech":"Book the selected flight.","writes":1},
+    {"id":"n02","mode":"audio","speech":"Yes, that information looks correct.","writes":0},
+    {"id":"n03","mode":"audio","speech":"Do not book it.","writes":0},
+    {"id":"n04","mode":"audio","speech":"Actually, Hyderabad. Keep the departure city and date.","writes":0},
+    {"id":"n05","mode":"audio","speech":"Save the selected note.","writes":0},
+    {"id":"n06","mode":"audio","silence":true,"writes":0}
+  ]
+}

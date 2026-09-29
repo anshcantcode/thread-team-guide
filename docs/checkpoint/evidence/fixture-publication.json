@@ -1,0 +1,37 @@
+[
+  {
+    "path": "evaluation/fdb3_authored/heldout-012.json",
+    "original_sha256": "82a928e2c39cc25baab58a88f384049842b0481459af2d3db80a5b1408e765b0",
+    "published_sha256": "f21e6db8b07c0873f8eadea3359b495ac64568d76c16eefebbb0090edffdf31d",
+    "fixture_content_sha256": "a35708b78c67042ce9fba6d599b5d4e6b6a31b3ed89153af82c3e6da671faecd",
+    "fixture_values_changed": false
+  },
+  {
+    "path": "evaluation/fdb3_authored/heldout-013.json",
+    "original_sha256": "598087390c49c002f400e6ab7963f9e5fab7c00ff9f6c405fb83ccbe62e53b1f",
+    "published_sha256": "897691504ce0cd94e09fd6dd7b855e4962bd287e0370b99d79a45cae78890979",
+    "fixture_content_sha256": "9df9644d35697a06257ade8fb4206f43cf4d5e3673c2295f5b1e24954311e3b3",
+    "fixture_values_changed": false
+  },
+  {
+    "path": "evaluation/fdb3_authored/heldout-014.json",
+    "original_sha256": "d799dfc5cc40c8b6b93a53dc428d6bac28a1e56eee1d9e8b4c95112894e5b087",
+    "published_sha256": "32e6ac2356987fef08f4262066034e2aecf35066cab6798297f8a6a32158e76c",
+    "fixture_content_sha256": "44f8f29a5becc7acb1bfe053483d27e278b3cfaa2e4f9219bb61d01b41395baa",
+    "fixture_values_changed": false
+  },
+  {
+    "path": "evaluation/fdb3_authored/heldout-015.json",
+    "original_sha256": "5aa17a9679378dfcb0df4ef3a06ea17eebae618729d709f212d9e872d1c81870",
+    "published_sha256": "00e84f26986b99d2e353da8296e599a71dc06280a6bbab98078895a3f61fe18b",
+    "fixture_content_sha256": "2e1cd7ebe4a731f0b0d7134c1fe9568d3144a5c0e94a3f9b1dc9d7c7909982cf",
+    "fixture_values_changed": false
+  },
+  {
+    "path": "evaluation/fdb3_authored/heldout-016.json",
+    "original_sha256": "ac3916164155878dfedb46a9aae80333f3682b282f2d8d89074edabbdcdfc008",
+    "published_sha256": "0d97055fee41b5c86a092e86b0be4d10982ce30a6dc9061bd169c08d7c8c5310",
+    "fixture_content_sha256": "cc6f86e42fb44f4bf6c0c213a39fd5a80aad0ec601ff750f2fb503074313060b",
+    "fixture_values_changed": false
+  }
+]

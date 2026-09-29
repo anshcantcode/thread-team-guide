@@ -1,0 +1,33 @@
+{
+  "session_id": "8770bb207cc949cf83e75495b9d84007",
+  "passed": true,
+  "input": "typed, no microphone",
+  "scope": "actual local host to native persisted checklist and receipt; AudioTrack PCM playout; restart retained; no physical acoustic measurement",
+  "saved_items": [
+    {
+      "item_id": "a8bf0ba0a5e7421797adc349c1d1494f",
+      "text": "wash the radishes",
+      "checked": false
+    }
+  ],
+  "spoken_caption": "THREAD: Added checklist step: wash the radishes",
+  "tool_receipts": [
+    {
+      "fingerprint": "{\"command\":\"add_checklist_item\",\"args\":{\"text\":\"wash the radishes\"}}",
+      "result": {
+        "status": "success",
+        "detail": "Added checklist step: wash the radishes",
+        "session_id": "8770bb207cc949cf83e75495b9d84007",
+        "request_id": "7b77225e60105f638eeb9dd921e55db4",
+        "item_id": "a8bf0ba0a5e7421797adc349c1d1494f",
+        "items": [
+          {
+            "item_id": "a8bf0ba0a5e7421797adc349c1d1494f",
+            "text": "wash the radishes",
+            "checked": false
+          }
+        ]
+      }
+    }
+  ]
+}

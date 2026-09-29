@@ -1,0 +1,536 @@
+{
+  "observed_at": "2026-09-25T12:19:49.764678+00:00",
+  "method": "Human static review of selected code paths plus complete tracked-tree and source-blob inventories; no runtime validation. Feature presence is not feature correctness.",
+  "repositories": [
+    {
+      "repository": "tannnmayy/DUET-SAMSUNGPRISM-HACKATHON-TEAM-SE7EN",
+      "comparison_status": "BLOCKED",
+      "source_summary": "Public unauthenticated ls-remote failed; source and participation identity unknown.",
+      "build_test_entrypoints_summary": "",
+      "evidence_paths": [],
+      "commits": [],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "MridulNegi2005/AccessFlow",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Epoch/revision-aware queue controller, write authorization, process-owned perception cancellation, browser voice UI; three branches differ in perception, frontend and tests.",
+      "build_test_entrypoints_summary": "pyproject.toml; Dockerfile; tests/",
+      "evidence_paths": [
+        "src/accessflow/engine.py",
+        "src/accessflow/adapters/process_perception.py",
+        "demo/live-voice.js"
+      ],
+      "commits": [
+        "c599e30b2395a8e824e883823f2c73f1865dce4e",
+        "5dd2a56ce7f063335fb2fcb0fbfe4f127640e9a6",
+        "81699c9c1d656e3ba600372fa168d3e330140749"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "xan-antx/aura-samsung",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Dependency-indexed invalidation, delayed commit gate and idempotency keys in synchronous event controller. Main adds confirmation/reconciliation logic and live-server/UI changes; genai-scenarios differs in harness; ml-perception changes perception and lacks visualizer files.",
+      "build_test_entrypoints_summary": "harness.py; requirements-live.txt / requirements-ml.txt where present; ui/package.json",
+      "evidence_paths": [
+        "agent.py",
+        "perception.py",
+        "live_server.py",
+        "ui/src/App.jsx"
+      ],
+      "commits": [
+        "36e3f674b94b3274c3409f1a9df29a268c27497c",
+        "c2ff74aff915eadcc820d4d573616ab363144473",
+        "ca5c49c97f42391af10a6b4d82497c0e615b1217",
+        "bd5e300bbee40900d255d2767cfc47c30675c1b8"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "pylrn/talent-atlas-realtime-agent",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Recruiting tools and retrieval pipeline, realtime session/state/speculation modules and Gemini Live adapter. Two complete tracked trees differ only in README.md; do not count them as distinct implementations.",
+      "build_test_entrypoints_summary": "pyproject.toml; requirements.txt; Dockerfile; scripts/evaluate_realtime_agent.py",
+      "evidence_paths": [
+        "pipeline/agent.py",
+        "pipeline/realtime_session.py",
+        "pipeline/realtime_state.py",
+        "pipeline/gemini_live.py"
+      ],
+      "commits": [
+        "1f53ba02297a5e3f8ae501a4d6e3faf92e1dbea6",
+        "4874b991f7584c61d436dd03d17e52bf2c06cd6e"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "joannamariyajames/interject",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Async turn cancellation, checkpoint/resume, goal stack, retrieval/speculation and browser TSX interface. Exact tracked-tree match to interjectsamsung main despite different commits.",
+      "build_test_entrypoints_summary": "Makefile; server/requirements.txt; server/pytest.ini; web/package.json",
+      "evidence_paths": [
+        "server/app/runtime.py",
+        "server/app/session.py",
+        "web/src/App.tsx"
+      ],
+      "commits": [
+        "df269b2dbbabc4dcc74d65f49633e2db685e607f"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "RomitDeokar/TriageLine",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Queue-controller ledger and revision handling, LiveKit adapter, cascaded STT/TTS worker and FDB tool definitions. Main and developer branch differ in adapter/cascaded wiring. Adapter calls controller and starts owned tool tasks; default cascaded worker declares no LLM planner.",
+      "build_test_entrypoints_summary": "requirements.txt; livekit_agent/cascaded_agent.py; livekit_agent/adapter_tests/; tests/",
+      "evidence_paths": [
+        "agent/agent.py",
+        "agent/ledger.py",
+        "livekit_agent/adapter.py",
+        "livekit_agent/cascaded_agent.py",
+        "livekit_agent/fdb_tools.py"
+      ],
+      "commits": [
+        "e9b794865dc7169a23a6b8720499819a7093d532",
+        "1484b774f78f58799732bc5b5be4a79cb221874a"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "harshith7002/CHRONOS",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Snapshot-bound prepare/confirm/commit tokens, idempotency registry, reconciliation, interruption controller and tool DAG. Includes queue adapter, FastAPI/browser surface and deterministic evaluation modules.",
+      "build_test_entrypoints_summary": "requirements.txt; Dockerfile; tests/",
+      "evidence_paths": [
+        "chronos/commit/commit_controller.py",
+        "chronos/commit/reconciliation.py",
+        "chronos/engine/chronos_agent.py"
+      ],
+      "commits": [
+        "e902b01a81dc3bdbabc555787c695233c379eafe"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "ns7824002-gif/SamsungPRISM-2026",
+      "comparison_status": "BLOCKED",
+      "source_summary": "Tracked tree contains .gitignore and PROJECT_DIRECTION.md only; no executable agent inspected. Theme metadata is a lead, not a runtime measurement.",
+      "build_test_entrypoints_summary": "No executable build/test entrypoint in inspected tree",
+      "evidence_paths": [],
+      "commits": [
+        "89edbcdba7cb5570941d3dbd23b79f293d24fc92"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "samyjoseph25/Interruptible-real-time-agent",
+      "comparison_status": "BLOCKED",
+      "source_summary": "Tracked tree contains template manifests/configuration and README but no agent/UI implementation source.",
+      "build_test_entrypoints_summary": "package.json; pnpm-lock.yaml; vite.config.ts",
+      "evidence_paths": [
+        "vite.config.ts"
+      ],
+      "commits": [
+        "5815429c3692d933196ec8bbe7f6796ec581ae71"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "Tanya-garg10/VoiceFlow-Real-Time-Interruptible-AI-Voice-Agent",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "React request-ID cancellation UI and Express travel/agent/TTS routes; Gemini chat and Rime proxy with explicit client fallback. Also contains separate Python conversation/interruption prototype; its presence alone does not prove it is the npm runtime.",
+      "build_test_entrypoints_summary": "package.json scripts: dev=tsx server.ts; build=Vite plus esbuild; Python tests/ separately",
+      "evidence_paths": [
+        "src/App.tsx",
+        "server.ts",
+        "backend/agent/voice_agent.py",
+        "backend/agent/interruption.py"
+      ],
+      "commits": [
+        "c02d9d8850cf6adc357538037e32f3ad7ee99cf8"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "rajharshit25/VoiceFlow-Agent",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "LiveKit Node agent with task IDs, AbortController and intentionally slow search that rejects stale completion. Shares core source with voiceflow but web/app.js, HTML and CSS differ.",
+      "build_test_entrypoints_summary": "package.json: Node >=24, pnpm >=10; vitest --run; node src/main.ts start",
+      "evidence_paths": [
+        "src/agent.ts",
+        "src/main.ts",
+        "src/task-manager.ts",
+        "web/app.js"
+      ],
+      "commits": [
+        "9b734bd6f6d695c68d8a9bfd0d6293b51f6e6d7f"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "rajharshit25/voiceflow",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Same nontrivial agent/core source as VoiceFlow-Agent; frontend app, HTML, CSS and README differ. Retain separate runtime snapshots.",
+      "build_test_entrypoints_summary": "package.json; pnpm-lock.yaml; src/agent.test.ts",
+      "evidence_paths": [
+        "src/agent.ts",
+        "src/main.ts",
+        "src/task-manager.ts",
+        "web/app.js"
+      ],
+      "commits": [
+        "6f8cc705de02451322752e26e65507c906a6f549"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "rajharshit25/talkflow",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Browser speech recognition plus generation-fenced AI/TTS responses and AbortController cancellation; server proxies OpenRouter and Rime. Frontend contains deployed backend URLs and deterministic interruption-lab paths.",
+      "build_test_entrypoints_summary": "package.json; server/server.cjs; Vite frontend",
+      "evidence_paths": [
+        "src/App.jsx",
+        "server/server.cjs"
+      ],
+      "commits": [
+        "0992514223d96d912c8e4eb67ab04d1544b7514c"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "divyanshmishra3015-a/voicepilot-ai",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "WebSocket session generation fencing, cancellation event, Rime adapter and tool registry. Inspected orchestrator uses parsed intents/template responses; that source is not evidence of a general FDB-v3 planner. Main/master have identical full tracked tree.",
+      "build_test_entrypoints_summary": "backend/requirements.txt; backend/pytest.ini; frontend/package.json; scripts/run_acceptance.py",
+      "evidence_paths": [
+        "backend/app/realtime/session.py",
+        "backend/app/agent/orchestrator.py",
+        "backend/app/tts/rime_adapter.py"
+      ],
+      "commits": [
+        "eaa25c1d0692196846dc61b4ed38c805fb3843d5"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "omksiraskarpict/Rime-interruptible-voice-agent",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Async voice session with generation checks, cancellation event, stale-result suppression and streamed Rime TTS; separate synthetic TTS implementation for tests.",
+      "build_test_entrypoints_summary": "rime-voice-agent/backend/requirements.txt; frontend/package.json; pytest.ini; tests/",
+      "evidence_paths": [
+        "rime-voice-agent/backend/voice/session.py",
+        "rime-voice-agent/backend/tts/rime.py"
+      ],
+      "commits": [
+        "43d227690af5c10ad2c381892972208d3b01a63b"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "vivenkumarXR/Real-Time-Interruptible-Voice-AI-Agent",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Flask text endpoint checks stop/greeting strings and calls Ollama synchronously with stream=false and timeout=10; browser HTML supplies voice surface. No current FDB adapter established by this inspection.",
+      "build_test_entrypoints_summary": "environment.yml; server.py; templates/index.html",
+      "evidence_paths": [
+        "server.py",
+        "templates/index.html"
+      ],
+      "commits": [
+        "92d1d2fa298b564cd4418104efea7bca0f2b47b0"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "shubhisingh1510/dhairya",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Frontend plan graph supports correction, tangent and cancellation confirmation; server asks model for classifier/plan/answer JSON. Browser form state and mocked side-effect presentation need separate verification from real tool dispatch.",
+      "build_test_entrypoints_summary": "frontend/package.json; server/package.json",
+      "evidence_paths": [
+        "frontend/src/hooks/usePlanGraphEngine.ts",
+        "server/src/agent.ts",
+        "frontend/src/lib/planGraph.ts"
+      ],
+      "commits": [
+        "edf2a351240ce967ef8ddcc61c71623586885f2b"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "DN816/BargeIn",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "LiveKit order-agent adapter, VAD confirmation timer, cancellable speech handles, generation checks at order mutation and turn fence for decisions. Offline harness and real adapter are separate execution paths.",
+      "build_test_entrypoints_summary": "pyproject.toml; client/package.json; harness/",
+      "evidence_paths": [
+        "agent/core/livekit_adapter.py",
+        "agent/state/session.py",
+        "agent/tools/fenced_tool.py",
+        "agent/main.py"
+      ],
+      "commits": [
+        "ac5e60efa83b1476f307abd682f81ffa8b600ce0"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "joannamariyajames/interjectsamsung",
+      "comparison_status": "STATIC_INSPECTION",
+      "source_summary": "Main matches interject exactly; other branches add bookmark/work handling or backspace dependency graphs, claim invalidation and Gemini extraction/provider code. Shared files do not justify collapsing these branches.",
+      "build_test_entrypoints_summary": "Makefile; server/requirements.txt; server/tests/; web/package.json",
+      "evidence_paths": [
+        "server/app/runtime.py",
+        "server/app/session.py",
+        "server/app/backspace/core.py",
+        "server/app/backspace/invalidation.py",
+        "web/src/App.tsx"
+      ],
+      "commits": [
+        "62fc7c01daa08c161060386147dbd1e3a66c3bab",
+        "6a36e51fd516030af81888e1fe201f13c8294c0b",
+        "eb5f4f7c8f36d28638d95ec3dc2d902117e6c01b",
+        "b7ae565ce2e02c44a6eef83f8bc208b34ad81af3"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "kalyx35/Teachable-Voice-Assistant",
+      "comparison_status": "NOT_COMPARABLE",
+      "source_summary": "Kotlin Android accessibility workflow recorder: click/text/scroll events, deduplication/debounce, sensitive-screen guard and stored workflow inspection. Service onInterrupt logs Android accessibility interruption; it is not evidence of duplex conversational interruption. No Theme 5/FDB-v3 implementation established.",
+      "build_test_entrypoints_summary": "Gradle Kotlin build files; gradlew; Android instrumented/unit test templates",
+      "evidence_paths": [
+        "app/src/main/java/com/example/teachablevoiceassistant/workflow/WorkflowRecorder.kt",
+        "app/src/main/java/com/example/teachablevoiceassistant/WorkflowAccessibilityService.kt",
+        "app/src/main/java/com/example/teachablevoiceassistant/MainActivity.kt"
+      ],
+      "commits": [
+        "4401a099d495ba323099ebfb41249e8fdb51ac62"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "AkshatoSharma/samsung-prism-ai-companion",
+      "comparison_status": "NOT_COMPARABLE",
+      "source_summary": "Single HTML vision/chat prototype: MobileNet object detection, screenshots/screen sharing, Gemini request, browser SpeechRecognition/SpeechSynthesis. Microphone click cancels speech; no continuous duplex tool controller or current FDB adapter established.",
+      "build_test_entrypoints_summary": "index.html; external browser/CDN/model services unverified",
+      "evidence_paths": [
+        "index.html"
+      ],
+      "commits": [
+        "a55cab68a7be20ca2c4a4a90b254384901dbf672"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    },
+    {
+      "repository": "devinfo07/Samsung_Prism-voice-intelligence",
+      "comparison_status": "NOT_COMPARABLE",
+      "source_summary": "Legacy audio-feature extraction/classification: librosa preprocessing and XGBoost training, alternative classifiers and 2023/2024 report assets. Not an observed 2026 Theme 5 agent.",
+      "build_test_entrypoints_summary": "Python training scripts; dependency reproducibility not established",
+      "evidence_paths": [
+        "Final_Machine_Model_XGB_Classifier/preprocess.py",
+        "Final_Machine_Model_XGB_Classifier/training.py"
+      ],
+      "commits": [
+        "233dc711f4b4230617138a7617bf3c517b8161bb"
+      ],
+      "tests_executed": false,
+      "strict_pass": null,
+      "latency": null,
+      "unknowns": [
+        "Build/test success",
+        "Fresh FDB-v3 strict pass and response quality",
+        "Real audio interruption behavior",
+        "Runtime provider/dependency availability",
+        "Official comparable judge performance"
+      ]
+    }
+  ]
+}

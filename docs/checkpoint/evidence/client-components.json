@@ -1,0 +1,115 @@
+{
+  "format": "THREAD client component verification v1",
+  "version": "0.7.0-checkpoint",
+  "scope": "Current Kitchen client code and local emulator checks. This record is not an end-to-end speech or benchmark score.",
+  "build": {
+    "gradle": "8.14.3",
+    "command": "gradlew --offline --no-daemon --max-workers=2 :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease",
+    "result": "passed",
+    "elapsed_seconds": 216,
+    "release_minification_and_lint": "passed",
+    "source_asset_identity": "Verified separately on the final published APK"
+  },
+  "checks": [
+    {
+      "suite": "Android JVM",
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": [
+        "camera ownership",
+        "rotation",
+        "actual playback-head accounting",
+        "interleaved message spans",
+        "flush and resume offsets"
+      ]
+    },
+    {
+      "suite": "Android emulator targeted instrumentation",
+      "passed": 9,
+      "failed": 0,
+      "elapsed_seconds": 19.8,
+      "classes": [
+        "Fdb3ClientDeviceTest",
+        "Fdb3ExtensionDeviceTest",
+        "Fdb3ChecklistViewerDeviceTest"
+      ],
+      "coverage": [
+        "Kitchen UI opens without credentials or microphone",
+        "private checklist persistence",
+        "durable duplicate receipts",
+        "stale-input rejection",
+        "network tool whitelist",
+        "host URL validation",
+        "host interruption before local VAD cancels queued playback"
+      ]
+    },
+    {
+      "suite": "tests/fdb3-client-check.mjs",
+      "passed": true,
+      "assertions": 21
+    },
+    {
+      "suite": "tests/workspace-check.mjs",
+      "passed": true,
+      "assertions": 72
+    },
+    {
+      "suite": "tests/live-audio-check.mjs",
+      "passed": true,
+      "coverage": [
+        "continuous PCM",
+        "exact pause and resume offsets",
+        "late microphone permission cleanup",
+        "single continuation"
+      ]
+    },
+    {
+      "suite": "tests/audio-check.mjs",
+      "passed": true,
+      "coverage": [
+        "PCM WAV encoding",
+        "clipping boundaries",
+        "microphone lifecycle"
+      ]
+    },
+    {
+      "suite": "tests.test_android_backend and tests.test_android_package",
+      "passed": 10,
+      "failed": 0
+    }
+  ],
+  "environment": {
+    "device": "owned read-only Android 16 x86_64 emulator",
+    "physical_phone_touched": false,
+    "paid_model_calls": 0
+  },
+  "limits": [
+    "Kitchen and legacy Gemini are separate runtime modes.",
+    "Kitchen requires the local host and exposes exactly three device checklist tools.",
+    "Component checks do not establish real recognition, acoustic quality, Samsung device qualification, full benchmark success, or Play production signing."
+  ],
+  "source_files_sha256": {
+    "web/fdb3.css": "4e559f35fa92969006a4ea361bfe91df923859fa22b444a6bcd71c5d97f7d1ff",
+    "web/fdb3.html": "c9c57352e150a877617304cd039a61101cf149563b8e37339d81bd8ed70b571a",
+    "web/fdb3.js": "32204343bb9a12a78ad3ee33f3950453b3b75664b55e61880700f64bf6d5e573",
+    "web/fdb3-store.js": "37a699b4e84b13e246a9af36ad54ef0524691f80e39853e3e0c444e89ab4a817",
+    "web/live-audio.js": "23b4cafeb94126c8239dbb3a148b8bc241ffa88c9974e405bc6bd97d2bcddca7",
+    "android/app/src/main/java/com/thread/app/Fdb3Activity.kt": "8ebed291716e7e6374ec90a465e25f17a24fd270b898a12af16b23ced335bb05",
+    "android/app/src/main/java/com/thread/app/Fdb3ExtensionStore.kt": "5a21aa4ebed7c47cf35e3d3f60aedcb122477cdc6a06eb695d2b25e216cffd15",
+    "android/app/src/main/java/com/thread/app/LiveAudio.kt": "83dcd6a9d16a70f9074cdb1ea2dd6093ce7ea99d2f8f7617f322add8446abb38",
+    "android/app/src/main/java/com/thread/app/PlaybackLedger.kt": "95f366aef96c858ee25e667e022f976cef170516d8df03ea7031a29e7be491c6",
+    "android/app/src/androidTest/java/com/thread/app/Fdb3ClientDeviceTest.kt": "d029942d9e047108162617638a71aebe2efac9c07cfae54a65d64378bbc4a3c5",
+    "android/app/src/test/java/com/thread/app/PlaybackLedgerTest.kt": "1d5b8d904a4b75bf2bfea7b917f92946787f3092edcc7075ffcfc256e2e8c1ef",
+    "tests/fdb3-client-check.mjs": "88d55ee1088e9b6e36d253e6350ca3d4fa6c0e35c8d2ff7fa89007e4168fc83f",
+    "web/index.html": "e68eed8cf27b8b4231158a76bb6e497e08fab322f3f9173109efa20433788fd3",
+    "android/app/src/main/java/com/thread/app/ThreadUi.kt": "468346589fc98c076d66f7077fb93e2b17cd983754735a1c568fd8c93dd26bb5",
+    "android/app/src/main/AndroidManifest.xml": "02bab0c24f7197cf51e70bdcc9afa584601742024aa5332a5d7c195af32ed2fe",
+    "android/app/build.gradle.kts": "01b97b971b4169fe1027292af6eeead9ac9c8393e88d0dce7f16074b72e34331",
+    "scripts/build-android.ps1": "c824bf49d9341c873023234acaada99d0d298db3210e8ff0e8d1ef55228c064e",
+    "android/app/src/debug/java/com/thread/app/Fdb3ExtensionActivity.kt": "e25d149ab55bf146f52720651a0c6542c0bdfcf93ae87c2a8af05c692ebdef27",
+    "android/app/src/androidTest/java/com/thread/app/Fdb3ClientHostTest.kt": "16b0f268f63f6a126897e900695398d6ef9783b9bd7ae0fdb667c6039e6528e7",
+    "android/ui-probe/src/main/AndroidManifest.xml": "70adc6c6581b9bb999900a75415ec8c293d36b83308b3f65c2b52aa7693ff440",
+    "android/ui-probe/src/main/java/com/thread/probe/KitchenReleaseProbe.java": "10e18cc98ab08c07c967f1338f6ea8f82538f4eb0e3659782c82d6b809e6a4f1"
+  }
+}

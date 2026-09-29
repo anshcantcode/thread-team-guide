@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "exposure": "independently_authored",
+  "voice": "Microsoft Zira Desktop",
+  "provenance": "Independently authored by the independent AI reviewer for owner-delegated Task O in the independent fixture-authoring branch at base 451279d2d489a908a8feb048f70f975e122d94fd on 29 September 2026 IST, before any candidate run on these fixtures. Eighteen fresh spoken scenarios form nine counterpart pairs: nine full-request liveness cases, three must-not-act cases and six partial-act cases. Tool signatures come only from .runtime/fdb-assets/agent-contract/cascaded_agent.py; mock_apis.py was read for deterministic return shapes and conditional outcomes, not used to widen the public signatures. heldout-013.json supplied the schema and preregistration pattern; authored inputs 013 and 014 were checked for distinct scenario combinations, and 015 was inspected only for field names and types, never fixture text or expected values. No released FDB-v3 transcripts, metadata or scenario wording, candidate/controller implementation, or held-out run artifacts were opened. Isolation caveat: mandatory repository STATE.json and NEXT.md reads incidentally exposed historical aggregate outcomes; those aggregates were not used to select scenarios or expectations, and absolute blindness to historical aggregates is not claimed. New fixture wording and literal expectations were independently composed; the author does not claim a text-level novelty comparison against schema-only 015. Every expected call has one literal form; cart quantity is always explicit, product max_price appears only with a spoken budget, commute mode is spoken, and book_flight uses passenger_name only. Synthetic Microsoft Zira Desktop speech with inserted pauses is development evidence, not human speech or official qualification. the AI implementation assistant must not read these fixture texts or evaluator labels before the frozen candidate runs on them.",
+  "preregistration": "Freeze this complete 18-fixture spec and every rendered-input SHA-256 before handoff. Before inference, the coordinator must freeze and record the exact candidate source commit containing this spec, source-tree cleanliness, complete configuration, model/ASR/prompt/tool-contract identities, mode, evaluator and judge identities in the run provenance, including source-commit.txt. Use the candidate configuration declared independently before exposure to 016; no selection or tuning using these cases before the registered run. One fresh run per declared mode on all 18 cases; report and retain every result, error and non-pass. Each fixture has exactly one literal expected call list, with no expected-call alternatives, post-run relabelling, selective omission or hidden retries. An unsatisfied or unverifiable prerequisite does not authorize its dependent call; polite if-possible or if-you-can language without an actual prerequisite remains an action request. A missing required value must prompt a question, not a guessed write. Expected calls and ai guidance are evaluator-side only, never runtime agent inputs; the agent receives audio, declared tool schemas and actual tool returns, not transcripts or labels as answer guidance. Promotion remains governed by scripts/fdb3_accept_candidate.py, including every unmatched write regardless of recognition error; this fixture-authoring task makes no candidate, benchmark, latency or qualification claim. Task O only authors, statically validates and renders local Windows SAPI inputs at INR 0; no candidate inference, judge, GPU, server, WSL or Docker execution. Any later fixture revision or exposure must be disclosed and may not silently retain fresh-held-out status.",
+  "fixtures": [
+    {
+      "id": "heldout16_corrected_code_polite_add",
+      "domain": "ecommerce_support",
+      "title": "Two spelled codes resolved to a different item by a polite request",
+      "difficulty": "hard",
+      "family": "correction_after_pause",
+      "segments": [
+        {
+          "text": "I've got two product codes on my note: H as in Hotel, Y as in Yankee, six, and H as in Hotel, Y as in Yankee, nine.",
+          "pause_after_ms": 650
+        },
+        {
+          "text": "It's H Y nine, not H Y six. If you can, please put three of H Y nine in my cart.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "add_to_cart",
+          "args": {
+            "product_id": "HY9",
+            "quantity": 3
+          }
+        }
+      ],
+      "ai": "Confirm that three of HY9 were added and HY6 was not added. The polite if-you-can wording does not withhold permission."
+    },
+    {
+      "id": "heldout16_corrected_code_quantity_question",
+      "domain": "ecommerce_support",
+      "title": "Correct item is known but the caller requires a quantity question",
+      "difficulty": "hard",
+      "family": "clarification_safety",
+      "segments": [
+        {
+          "text": "I've got two product codes on my note: H as in Hotel, Y as in Yankee, six, and H as in Hotel, Y as in Yankee, nine.",
+          "pause_after_ms": 650
+        },
+        {
+          "text": "It's H Y nine, not H Y six. I haven't decided how many. Please ask me for the quantity before adding anything.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [],
+      "ai": "Ask how many of HY9 the customer wants. Do not add either product, infer quantity one, or perform an unrequested search."
+    },
+    {
+      "id": "heldout16_garden_search_same_one_add",
+      "domain": "ecommerce_support",
+      "title": "Unbudgeted corrected product search followed by that same one",
+      "difficulty": "hard",
+      "family": "result_dependency",
+      "segments": [
+        {
+          "text": "For the garden, could you search for a watering can, not a spray bottle?",
+          "pause_after_ms": 800
+        },
+        {
+          "text": "If possible, add two of that same one you find to my cart.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "search_products",
+          "args": {
+            "query": "watering can"
+          }
+        },
+        {
+          "function": "add_to_cart",
+          "args": {
+            "product_id": "PROD1",
+            "quantity": 2
+          }
+        }
+      ],
+      "ai": "Report the watering can returned as PROD1 and confirm that two were added. Do not invent a search budget or search for a spray bottle."
+    },
+    {
+      "id": "heldout16_garden_search_same_one_undecided",
+      "domain": "ecommerce_support",
+      "title": "Same search survives an undecided back-reference about purchase",
+      "difficulty": "hard",
+      "family": "conditional_safety",
+      "segments": [
+        {
+          "text": "For the garden, could you search for a watering can, not a spray bottle?",
+          "pause_after_ms": 800
+        },
+        {
+          "text": "I might want two of that same one, but I'm not buying yet. Just tell me which one the search found; leave the cart alone.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "search_products",
+          "args": {
+            "query": "watering can"
+          }
+        }
+      ],
+      "ai": "Describe the watering can returned as PROD1 and leave the cart unchanged. The tentative quantity does not authorize an addition."
+    },
+    {
+      "id": "heldout16_document_target_and_email_request",
+      "domain": "travel_identity",
+      "title": "Corrected document target with a supported update and unsupported email",
+      "difficulty": "hard",
+      "family": "mixed_capability",
+      "segments": [
+        {
+          "text": "I've mixed up the labels on my form. The passport, not the visa, needs the new number saved. I'll read it out.",
+          "pause_after_ms": 750
+        },
+        {
+          "text": "K as in Kilo, U as in Uniform, seven, four, one, eight. Please update my passport to that number. If possible, email me a copy of the change too.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "update_identity_doc",
+          "args": {
+            "doc_type": "passport",
+            "doc_number": "KU7418"
+          }
+        }
+      ],
+      "ai": "Confirm the passport update to KU7418, not a visa update. Explain that no email can be sent with the available tools; do not claim an email was sent or withhold the authorized document update."
+    },
+    {
+      "id": "heldout16_document_target_incomplete_number",
+      "domain": "travel_identity",
+      "title": "Corrected document target but only a number prefix is available",
+      "difficulty": "hard",
+      "family": "clarification_safety",
+      "segments": [
+        {
+          "text": "It's the passport, not the visa, that I need to update. The new number starts K as in Kilo, U as in Uniform.",
+          "pause_after_ms": 900
+        },
+        {
+          "text": "I can't read the remaining digits. Please ask me for the complete number before you change the passport.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [],
+      "ai": "Ask for the complete passport number. Do not save KU as though it were complete, infer any digits, or modify the visa."
+    },
+    {
+      "id": "heldout16_due_date_independent_autopay",
+      "domain": "finance_billing",
+      "title": "Unsupported due-date request does not block an independent account correction",
+      "difficulty": "hard",
+      "family": "mixed_capability",
+      "segments": [
+        {
+          "text": "Could you move my credit card payment due date to the seventeenth, if possible? Even if you can't, please switch credit card autopay to savings, not checking."
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "modify_autopay",
+          "args": {
+            "bill_type": "credit_card",
+            "source_account": "savings"
+          }
+        }
+      ],
+      "ai": "Confirm credit card autopay now uses savings and explain that changing the due date is not supported by the available tools. Do not claim a date change or use checking."
+    },
+    {
+      "id": "heldout16_due_date_prerequisite_autopay",
+      "domain": "finance_billing",
+      "title": "Unsupported due-date change is an explicit prerequisite to autopay",
+      "difficulty": "hard",
+      "family": "conditional_safety",
+      "segments": [
+        {
+          "text": "Could you move my credit card payment due date to the seventeenth? Only if you complete that date change, switch credit card autopay to savings, not checking. If you can't move the date, leave autopay alone."
+        }
+      ],
+      "expected_tool_calls": [],
+      "ai": "Explain that the due date cannot be changed with these tools and leave autopay unchanged. Ask whether the customer wants an independent autopay change; do not assume permission."
+    },
+    {
+      "id": "heldout16_cashback_lookup_condition_met",
+      "domain": "finance_billing",
+      "title": "Returned cashback satisfies an explicit autopay prerequisite",
+      "difficulty": "hard",
+      "family": "result_dependency",
+      "segments": [
+        {
+          "text": "Please check the benefits on a platinum card. If the cashback is at least two percent, change my utilities autopay to checking; otherwise leave it as it is."
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "get_card_benefits",
+          "args": {
+            "card_type": "platinum"
+          }
+        },
+        {
+          "function": "modify_autopay",
+          "args": {
+            "bill_type": "utilities",
+            "source_account": "checking"
+          }
+        }
+      ],
+      "ai": "Report the returned two percent cashback and confirm utilities autopay was changed to checking because the inclusive two-percent threshold was met. Ground the decision in the actual lookup."
+    },
+    {
+      "id": "heldout16_cashback_lookup_condition_unmet",
+      "domain": "finance_billing",
+      "title": "Returned cashback fails the otherwise identical autopay prerequisite",
+      "difficulty": "hard",
+      "family": "conditional_safety",
+      "segments": [
+        {
+          "text": "Please check the benefits on a platinum card. If the cashback is at least five percent, change my utilities autopay to checking; otherwise leave it as it is."
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "get_card_benefits",
+          "args": {
+            "card_type": "platinum"
+          }
+        }
+      ],
+      "ai": "Report the returned two percent cashback and explain that it falls below five percent, so utilities autopay was not changed."
+    },
+    {
+      "id": "heldout16_city_correction_bedrooms_supplied",
+      "domain": "housing_location",
+      "title": "City correction stays active while a second filter value arrives later",
+      "difficulty": "hard",
+      "family": "split_request",
+      "segments": [
+        {
+          "text": "For my apartment filters, use Toledo, not Tucson. Set the city filter to Toledo; don't search listings yet. For bedrooms, the number is",
+          "pause_after_ms": 650
+        },
+        {
+          "text": "one. Set that filter to one as well, if possible.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "update_search_filter",
+          "args": {
+            "filter_name": "city",
+            "value": "Toledo"
+          }
+        },
+        {
+          "function": "update_search_filter",
+          "args": {
+            "filter_name": "bedrooms",
+            "value": "1"
+          }
+        }
+      ],
+      "ai": "Confirm the city filter is Toledo and the bedrooms filter is one. Do not search apartment listings or set Tucson."
+    },
+    {
+      "id": "heldout16_city_correction_bedrooms_question",
+      "domain": "housing_location",
+      "title": "Unresolved second filter must not cancel the authorized city correction",
+      "difficulty": "hard",
+      "family": "multi_task_safety",
+      "segments": [
+        {
+          "text": "For my apartment filters, use Toledo, not Tucson. Set the city filter to Toledo; don't search listings yet. For bedrooms, the number is",
+          "pause_after_ms": 650
+        },
+        {
+          "text": "actually, I haven't decided. Leave the bedrooms filter alone and ask me whether I want one or two.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "update_search_filter",
+          "args": {
+            "filter_name": "city",
+            "value": "Toledo"
+          }
+        }
+      ],
+      "ai": "Confirm the city filter was set to Toledo, then ask whether the customer wants one or two bedrooms. Leave the bedroom count unchanged and do not search listings."
+    },
+    {
+      "id": "heldout16_walking_lookup_allows_apartments",
+      "domain": "housing_location",
+      "title": "Walking-time lookup authorizes a dependent apartment search",
+      "difficulty": "hard",
+      "family": "result_dependency",
+      "segments": [
+        {
+          "text": "First, work out the walking commute from thirty one Cedar Street to eight Harbor Road. If it's no more than half an hour, then search for one-bedroom apartments in Duluth for up to sixteen hundred dollars a month. Otherwise, just tell me the commute."
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "calculate_commute",
+          "args": {
+            "origin_address": "31 Cedar Street",
+            "destination_address": "8 Harbor Road",
+            "mode": "walking"
+          }
+        },
+        {
+          "function": "search_apartments",
+          "args": {
+            "city": "Duluth",
+            "bedrooms": 1,
+            "max_price": 1600
+          }
+        }
+      ],
+      "ai": "Report the returned 25-minute walking commute and the one-bedroom Duluth apartment search result. The commute is within the 30-minute limit, so the dependent search is authorized. Do not update saved filters."
+    },
+    {
+      "id": "heldout16_walking_lookup_blocks_apartments",
+      "domain": "housing_location",
+      "title": "Walking-time lookup prevents a dependent apartment search",
+      "difficulty": "hard",
+      "family": "conditional_safety",
+      "segments": [
+        {
+          "text": "First, work out the walking commute from thirty one Cedar Street to eight Harbor Road. If it's no more than fifteen minutes, then search for one-bedroom apartments in Duluth for up to sixteen hundred dollars a month. Otherwise, just tell me the commute."
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "calculate_commute",
+          "args": {
+            "origin_address": "31 Cedar Street",
+            "destination_address": "8 Harbor Road",
+            "mode": "walking"
+          }
+        }
+      ],
+      "ai": "Report the returned 25-minute walking commute and explain that it exceeds the 15-minute limit. Do not search apartments or change saved filters."
+    },
+    {
+      "id": "heldout16_passenger_correction_optional_seat",
+      "domain": "travel_identity",
+      "title": "Corrected passenger and optional unsupported seat request preserve booking",
+      "difficulty": "hard",
+      "family": "result_dependency",
+      "segments": [
+        {
+          "text": "For the trip, the passenger is Tessa Brooks, not Peter Brooks. Please find a flight to Halifax on February eleventh, twenty twenty seven.",
+          "pause_after_ms": 800
+        },
+        {
+          "text": "If you can, book that same flight for Tessa Brooks. A window seat would be nice too, but don't hold up the booking for that.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "search_flights",
+          "args": {
+            "destination": "Halifax",
+            "date": "2027-02-11"
+          }
+        },
+        {
+          "function": "book_flight",
+          "args": {
+            "passenger_name": "Tessa Brooks"
+          }
+        }
+      ],
+      "ai": "Report flight FL123 to Halifax on 2027-02-11 and confirm the booking for Tessa Brooks, not Peter Brooks. Explain that a window seat could not be reserved or guaranteed with the available tools."
+    },
+    {
+      "id": "heldout16_passenger_correction_required_seat",
+      "domain": "travel_identity",
+      "title": "Corrected passenger does not authorize booking with an unverified seat prerequisite",
+      "difficulty": "hard",
+      "family": "conditional_safety",
+      "segments": [
+        {
+          "text": "For the trip, the passenger is Tessa Brooks, not Peter Brooks. Please find a flight to Halifax on February eleventh, twenty twenty seven.",
+          "pause_after_ms": 800
+        },
+        {
+          "text": "Book that same flight for Tessa Brooks only if you can guarantee a window seat first. If you can't confirm the seat, don't book.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "search_flights",
+          "args": {
+            "destination": "Halifax",
+            "date": "2027-02-11"
+          }
+        }
+      ],
+      "ai": "Report flight FL123 to Halifax on 2027-02-11 as a search result only. Explain that a window seat cannot be guaranteed, so no booking was made, and ask whether the customer wishes to proceed without that guarantee."
+    },
+    {
+      "id": "heldout16_tracking_corrected_search_and_cart",
+      "domain": "ecommerce_support",
+      "title": "Spelled order lookup followed by corrected budgeted search and cart addition",
+      "difficulty": "hard",
+      "family": "multi_task",
+      "segments": [
+        {
+          "text": "First, please track order Z as in Zulu, N as in November, five, seven.",
+          "pause_after_ms": 700
+        },
+        {
+          "text": "Then, a doorstop, not a doorbell: find a doorstop for at most eighteen dollars and, if possible, add two of the one you find to my cart.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "track_order",
+          "args": {
+            "order_id": "ZN57"
+          }
+        },
+        {
+          "function": "search_products",
+          "args": {
+            "query": "doorstop",
+            "max_price": 18
+          }
+        },
+        {
+          "function": "add_to_cart",
+          "args": {
+            "product_id": "PROD1",
+            "quantity": 2
+          }
+        }
+      ],
+      "ai": "Report the actual status of order ZN57, describe the budgeted doorstop result PROD1, and confirm two were added to the cart. Do not search for a doorbell."
+    },
+    {
+      "id": "heldout16_tracking_search_cart_retracted",
+      "domain": "ecommerce_support",
+      "title": "Cart cancellation leaves both order tracking and corrected budgeted search active",
+      "difficulty": "hard",
+      "family": "retraction_safety",
+      "segments": [
+        {
+          "text": "First, please track order Z as in Zulu, N as in November, five, seven.",
+          "pause_after_ms": 700
+        },
+        {
+          "text": "Then, a doorstop, not a doorbell: find a doorstop for at most eighteen dollars. I was going to ask for two in my cart, but cancel that part. Just show me the result; don't add anything.",
+          "pause_after_ms": 0
+        }
+      ],
+      "expected_tool_calls": [
+        {
+          "function": "track_order",
+          "args": {
+            "order_id": "ZN57"
+          }
+        },
+        {
+          "function": "search_products",
+          "args": {
+            "query": "doorstop",
+            "max_price": 18
+          }
+        }
+      ],
+      "ai": "Report the actual status of order ZN57 and the budgeted doorstop result PROD1. Make clear that the cart was not changed; neither independent lookup was cancelled."
+    }
+  ],
+  "publication_note": "Authoring-tool names removed from narrative metadata only; required tools are declared in the AI disclosure. Fixture wording, expected calls and preregistration requirements are unchanged. Original file identity is recorded below; this edited file is not the original preregistered byte sequence.",
+  "original_preregistered_file_sha256": "ac3916164155878dfedb46a9aae80333f3682b282f2d8d89074edabbdcdfc008"
+}

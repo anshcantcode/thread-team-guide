@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import {wavBlob,VoiceCapture} from '../web/audio.js';
+const samples = new Float32Array([0,1,-1,.5,-.5]);
+const blob = wavBlob([samples],16000);
+const bytes = await blob.arrayBuffer(), view = new DataView(bytes);
+assert.equal(blob.size,54);
+assert.equal(new TextDecoder().decode(bytes.slice(0,4)),'RIFF');
+assert.equal(view.getUint32(24,true),16000);
+assert.equal(view.getUint16(22,true),1);
+assert.equal(view.getUint16(34,true),16);
+assert.equal(view.getUint32(40,true),10);
+assert.equal(view.getInt16(46,true),32767);
+assert.equal(view.getInt16(48,true),-32768);
+console.log('Browser WAV encoder: valid 16-bit mono PCM and clipping boundaries verified.');
+
+let grantPermission, stoppedTracks=0;
+const states=[];
+Object.defineProperty(globalThis,'navigator',{configurable:true,value:{mediaDevices:{getUserMedia:()=>new Promise(resolve=>{grantPermission=resolve;})}}});
+const capture=new VoiceCapture({onStart:()=>assert.fail('Cancelled microphone must not start'),onAudio:()=>assert.fail('Cancelled microphone must not emit audio'),onLevel:()=>{},onState:s=>states.push(s),threshold:()=>.018});
+const opening=capture.start();
+await capture.stop();
+grantPermission({getTracks:()=>[{stop:()=>stoppedTracks++}]});
+await opening;
+assert.equal(stoppedTracks,1);
+assert.equal(capture.stream,null);
+assert.equal(states.at(-1),'Mic off');
+console.log('Microphone lifecycle: a permission result arriving after Stop cannot begin capture.');

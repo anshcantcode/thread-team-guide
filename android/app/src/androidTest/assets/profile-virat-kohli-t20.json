@@ -1,0 +1,201 @@
+{
+  "status": "completed",
+  "source": "Cricbuzz",
+  "provenance": "live",
+  "retrieved_at": "2026-09-13T13:56:19.738109+00:00",
+  "items": [
+    {
+      "id": "cricket-253802",
+      "kind": "sports_profile",
+      "title": "Virat Kohli",
+      "sport": "cricket",
+      "sport_label": "Cricket",
+      "entity_type": "player",
+      "team": "India",
+      "league": "Cricket",
+      "portrait": "https://a.espncdn.com/i/headshots/cricket/players/full/253802.png",
+      "logo": "https://a.espncdn.com/i/teamlogos/cricket/500/6.png",
+      "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+      "requested_count": 5,
+      "position": "Top-order batter",
+      "flag": "https://a.espncdn.com/i/teamlogos/cricket/500/6.png",
+      "country": "IND",
+      "identity_source": "ESPN player profile",
+      "records": [
+        {
+          "id": "f2d076b2c93d14d0",
+          "date": "2026-05-31",
+          "title": "GT",
+          "subtitle": "T20 · Indian Premier League 2026 · Ahmedabad",
+          "score": "75*(42)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "75"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "42"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "178.5"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "T20",
+          "record_type": "innings",
+          "not_out": true
+        },
+        {
+          "id": "ee39fd9aec62d3b0",
+          "date": "2026-05-26",
+          "title": "GT",
+          "subtitle": "T20 · Indian Premier League 2026 · Dharamsala",
+          "score": "43(25)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "43"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "25"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "172"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "T20",
+          "record_type": "innings",
+          "not_out": false
+        },
+        {
+          "id": "f5e8ce78bf85a06e",
+          "date": "2026-05-22",
+          "title": "SRH",
+          "subtitle": "T20 · Indian Premier League 2026 · Hyderabad",
+          "score": "15(11)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "15"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "11"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "136.3"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "T20",
+          "record_type": "innings",
+          "not_out": false
+        },
+        {
+          "id": "c3a29f297b018fdd",
+          "date": "2026-05-17",
+          "title": "PBKS",
+          "subtitle": "T20 · Indian Premier League 2026 · Dharamsala",
+          "score": "58(37)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "58"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "37"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "156.7"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "T20",
+          "record_type": "innings",
+          "not_out": false
+        },
+        {
+          "id": "42bfc0353303e606",
+          "date": "2026-05-13",
+          "title": "KKR",
+          "subtitle": "T20 · Indian Premier League 2026 · Raipur",
+          "score": "105*(60)",
+          "stats": [
+            {
+              "key": "runs",
+              "label": "Runs",
+              "value": "105"
+            },
+            {
+              "key": "balls",
+              "label": "Balls",
+              "value": "60"
+            },
+            {
+              "key": "strike_rate",
+              "label": "Strike rate",
+              "value": "175"
+            }
+          ],
+          "result": "",
+          "url": "https://www.cricbuzz.com/profiles/1413/virat-kohli/all-matches/batting",
+          "format": "T20",
+          "record_type": "innings",
+          "not_out": true
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Runs",
+          "value": "296"
+        },
+        {
+          "label": "Average",
+          "value": "98.7"
+        },
+        {
+          "label": "Strike rate",
+          "value": "169.1"
+        }
+      ],
+      "coverage": "Cricbuzz public batting table · T20 formats · source first page only · innings, not distinct matches",
+      "coverage_status": "available",
+      "latest_record_at": "2026-05-31"
+    }
+  ],
+  "summary": "Virat Kohli: 5 dated Cricket records. Cricbuzz public batting table · T20 formats · source first page only · innings, not distinct matches. Latest returned date: 2026-05-31. Use only the returned rows and sport-specific statistics. Distinguish these dates from today's retrieval date.",
+  "id": "qa-kohli-t20",
+  "domain": "sports",
+  "arguments": {
+    "query": "Virat Kohli",
+    "sport": "cricket",
+    "entity_type": "player",
+    "limit": 5,
+    "cricket_skill": "batting",
+    "cricket_format": "T20"
+  }
+}

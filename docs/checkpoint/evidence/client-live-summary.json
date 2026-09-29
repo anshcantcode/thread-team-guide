@@ -1,0 +1,67 @@
+{
+  "format": "THREAD client live verification v1",
+  "runtime": "Current controller with local Qwen3.5-4B, LiveKit AgentSession and local speech synthesis; WebSocket PCM transport",
+  "input_scope": "Three independent typed UI requests, not microphone input or Samsung benchmark cases",
+  "local_model_turns": 3,
+  "paid_api_calls": 0,
+  "actual_client_tool_requests_total": 3,
+  "attempts": [
+    {
+      "client": "browser",
+      "input": "Add rinse the coriander to my checklist.",
+      "tool_write": "passed",
+      "narration": "failed: internal receipt identifiers were narrated",
+      "evidence": "browser-first-turn.json",
+      "journal": "browser-first-turn-receipts.json"
+    },
+    {
+      "client": "browser after shared response repair",
+      "input": "Add dry the serving bowl to my checklist.",
+      "tool_write": "passed",
+      "assistant_caption": "Added checklist step: dry the serving bowl",
+      "narration_identifiers_removed": true,
+      "ended_and_reloaded_persistence": true,
+      "journal": "browser-repaired-receipts.json",
+      "journal_scope": "Contains both real browser calls, including the earlier failed spoken summary; this turn added exactly one new request."
+    },
+    {
+      "client": "native Android debug APK after shared response repair",
+      "input": "Add wash the radishes to my checklist.",
+      "tool_write": "passed",
+      "assistant_caption": "Added checklist step: wash the radishes",
+      "actual_audio_track_playback_head_completed": true,
+      "reopened_persistence": true,
+      "tool_requests": 1,
+      "instrumentation": "Fdb3ClientHostTest, 1 passed, 18.205 seconds",
+      "evidence": "native-client-live.json",
+      "screenshot": "native-client-live.png"
+    }
+  ],
+  "release_test_boundary": {
+    "direct_debug_runner_against_minified_release": "Failed before host connection: AndroidX runner required kotlin.jvm.internal.Intrinsics removed or renamed by R8. No model turn was spent.",
+    "follow_up": "Separate Java companion UI smoke and independent signature/package/upgrade checks verify the minified release. Actual host tool and AudioTrack run above used the debug APK.",
+    "companion_smoke": "passed; native-release-smoke.json and native-release-smoke.png"
+  },
+  "limits": [
+    "No physical acoustic measurement or physical Samsung phone was used.",
+    "Typed UI verification does not establish speech recognition; recorded PCM verification is separate.",
+    "These are three-tool Kitchen client checks, not official benchmark success or full consumer-mode parity."
+  ],
+  "host_sources_sha256": {
+    "participant/__init__.py": "5b1551bd4404843cf14c2d5adbcba9ed5c50a3b7d5b006f2e8b930fdb08a2aa1",
+    "participant/agent.py": "868921da86b97b10076dcb623c77d9593d2c8df30347918e4eaee967bb1c4507",
+    "participant/authorization.py": "f6767ade4e7d3ccfe88b68ddaf961f4dfe9268c4728f28dcbb9884c495b4ffd4",
+    "participant/embedding.py": "662030098c137ff6e7830a9d8cde8443d9b8c8beff5e675a57ab7fe3b838be5e",
+    "participant/local_asr.py": "874e0a7e45b102756a53a763b539f55c3ed2cfcce809146015c5e12813fa7562",
+    "participant/media.py": "37cd3741bc40ec339ab2df033cd77571a4ee43a889ba6304a9a6044bbf3fa18f",
+    "participant/planner.py": "1b5a257a7106e964fe2606374010a3592cffc631bc42d2c5bcfb34178a90a14a",
+    "participant/presentation.py": "cf20ea88ba20214a04735a64e74449638f89bca5143b7e73ae54de2daa5caad5",
+    "participant/schema.py": "f2e794373caa59445a2acfdcae90545e5d15c5d6e75eb15c28b9d6763845563b",
+    "participant/spoken.py": "0f83411133f652bca5b02d7df934368a65d8d27ab183fd8998e1335ac60a2ca8",
+    "thread_agent/fdb3.py": "86ff17bc4e4264a83d2dc25dcd113deaa094659bdbf57834b10bfd0e304daac8",
+    "thread_agent/fdb3_client.py": "51cbc8de339dcd246ae6b4cfd0724f11f759064a7570cea34b93f4fc853d0485",
+    "thread_agent/fdb3_extension.py": "3a81c6430c3158cf8e2eac3a463c6ac87db9208f32bddf41234e7eb3c0615c3e",
+    "thread_agent/fdb3_voice.py": "a3b1c38915f589d9f706e2db30b9e0043122f658e9f7514f510bd0077e263d7b"
+  },
+  "native_debug_apk_sha256": "1f28eda0d860d64b7f7c9bea233318d04379bee2366524947d54cab9a0bf2a62"
+}

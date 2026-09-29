@@ -1,0 +1,21 @@
+{
+  "format": "THREAD browser live integration observation v1",
+  "input": "Add rinse the coriander to my checklist.",
+  "input_mode": "typed through the actual browser UI; no microphone requested",
+  "runtime": "local Qwen3.5-4B planner, current controller, host LiveKit AgentSession, browser localStorage tools and PCM output",
+  "typed_model_turns": 1,
+  "actual_client_tool_requests": 1,
+  "tool": "add_checklist_item",
+  "argument": {"text": "rinse the coriander"},
+  "saved_item": "rinse the coriander",
+  "receipt": "Added checklist step: rinse the coriander",
+  "receipt_journal": "browser-first-turn-receipts.json",
+  "write_and_receipt": "passed",
+  "ended_and_reloaded_persistence": "passed",
+  "speech_output": "Browser entered THREAD is speaking and returned to Connected after its playback queue completed. No physical acoustic measurement was performed.",
+  "spoken_summary_quality": "failed: response unnecessarily narrated internal session, request and item identifiers instead of the human-readable receipt detail",
+  "observed_assistant_caption": "Done. session id: 5f085e898db84ff98f6fab82a95b6922; request id: 1470f67ad64c5bdf9fb69b98d9651105; item id: 420d0a99e4554e3fb7ddec08d3994311; items: item id: 420d0a99e4554e3fb7ddec08d3994311; text: rinse the coriander; checked: false.",
+  "follow_up": "Retained as the first live failure. A shared controller response repair and an independent native release run follow; do not describe this original spoken output as polished or corrected.",
+  "paid_model_calls": 0,
+  "benchmark_case": false
+}

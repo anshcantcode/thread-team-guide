@@ -1,0 +1,128 @@
+{
+  "duration": 43.0,
+  "sample_rate": 48000,
+  "cues": [
+    {
+      "take": "request",
+      "start": 0.1,
+      "end": 3.11,
+      "source_seconds": 3.01,
+      "tempo_factor": 1.0,
+      "text": "Thread. Chennai to Delhi. Tomorrow, after nine."
+    },
+    {
+      "take": "reply_take2",
+      "start": 3.14,
+      "end": 4.16,
+      "source_seconds": 1.89,
+      "tempo_factor": 1.0,
+      "text": "Here are the best\u2014"
+    },
+    {
+      "take": "change",
+      "start": 4.02,
+      "end": 4.97,
+      "source_seconds": 0.95,
+      "tempo_factor": 1.0,
+      "text": "Actually, Mumbai."
+    },
+    {
+      "take": "confirm",
+      "start": 5.1,
+      "end": 7.84,
+      "source_seconds": 2.74,
+      "tempo_factor": 1.0,
+      "text": "Mumbai. Same date. Same time."
+    },
+    {
+      "take": "weather",
+      "start": 8.04,
+      "end": 8.77,
+      "source_seconds": 0.73,
+      "tempo_factor": 1.0,
+      "text": "Weather there?"
+    },
+    {
+      "take": "plan",
+      "start": 11.04,
+      "end": 11.94,
+      "source_seconds": 0.9,
+      "tempo_factor": 1.0,
+      "text": "Plan my morning."
+    },
+    {
+      "take": "packing",
+      "start": 14.02,
+      "end": 15.73,
+      "source_seconds": 1.71,
+      "tempo_factor": 1.0,
+      "text": "Make a packing list. Save it."
+    },
+    {
+      "take": "sports",
+      "start": 17.04,
+      "end": 18.81,
+      "source_seconds": 1.77,
+      "tempo_factor": 1.0,
+      "text": "Kohli's form. Just T20."
+    },
+    {
+      "take": "search",
+      "start": 21.03,
+      "end": 23.23,
+      "source_seconds": 2.2,
+      "tempo_factor": 1.0,
+      "text": "Google cat images. Videos instead."
+    },
+    {
+      "take": "research",
+      "start": 24.04,
+      "end": 25.599999999999998,
+      "source_seconds": 1.56,
+      "tempo_factor": 1.0,
+      "text": "Find sources on black holes."
+    },
+    {
+      "take": "split",
+      "start": 27.02,
+      "end": 28.57,
+      "source_seconds": 1.55,
+      "tempo_factor": 1.0,
+      "text": "Split twelve hundred by four."
+    },
+    {
+      "take": "timer",
+      "start": 29.52,
+      "end": 30.58,
+      "source_seconds": 1.06,
+      "tempo_factor": 1.0,
+      "text": "Twenty-minute timer."
+    },
+    {
+      "take": "clocks",
+      "start": 32.04,
+      "end": 33.91,
+      "source_seconds": 1.87,
+      "tempo_factor": 1.0,
+      "text": "London and Mumbai. Make it a widget."
+    },
+    {
+      "take": "recall",
+      "start": 36.08,
+      "end": 37.019999999999996,
+      "source_seconds": 0.94,
+      "tempo_factor": 1.0,
+      "text": "Back to my trip."
+    },
+    {
+      "take": "close",
+      "start": 39.03,
+      "end": 41.92,
+      "source_seconds": 2.89,
+      "tempo_factor": 1.0,
+      "text": "Ask. Interrupt. Keep going. Thread."
+    }
+  ],
+  "score": "Original composition. F minor / Db / Ab / Eb, 120 BPM.",
+  "synthetic_voices": true
+}

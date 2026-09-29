@@ -1,0 +1,1797 @@
+{
+  "run_id": "20260925T120349Z-74ba3f7c",
+  "recorded_at": 1790346049.1640737,
+  "status": "complete_diagnostic",
+  "qualification": false,
+  "expected": 100,
+  "attempted": 100,
+  "unattempted": 0,
+  "counts": {
+    "valid_local_strict_pass": 33,
+    "infrastructure": 13,
+    "tool_selection": 47,
+    "arguments_or_response": 7
+  },
+  "cases": [
+    {
+      "index": 0,
+      "recording": "ecommerce_01_65e8cf8f4c7424fa062e54a3",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-000",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 1,
+      "recording": "ecommerce_01_69a9cf80f4d7668d5c815038",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-001",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 2,
+      "recording": "ecommerce_02_5f4a4da1575d605c43bef871",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-002",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 3,
+      "recording": "ecommerce_04_6998abd731d2ec50d067d5bd",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-003",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 4,
+      "recording": "ecommerce_05_695bd157114f0d2317f88617",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_products']; Unexpected tools: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-004",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 5,
+      "recording": "ecommerce_06_66c4f3cb14cbfc4db836bd4e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']; Unexpected tools: ['search_products']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-005",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 6,
+      "recording": "ecommerce_07_66f59c766e7e22e1f90d08f6",
+      "category": "arguments_or_response",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Wrong arguments for: ['track_order']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-006",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 7,
+      "recording": "ecommerce_08_5ff07b5ee7a1d23e719e421e",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-007",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 8,
+      "recording": "ecommerce_08_61517db6a7589569521b2356",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-008",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 9,
+      "recording": "ecommerce_09_695bd157114f0d2317f88617",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-009",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 10,
+      "recording": "ecommerce_10_6998abd731d2ec50d067d5bd",
+      "category": "arguments_or_response",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Wrong arguments for: ['track_order']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order",
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-010",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 11,
+      "recording": "ecommerce_11_62a885d5b6af18b3d4579e1b",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']; Unexpected tools: ['search_products']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-011",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 12,
+      "recording": "ecommerce_12_6998abd731d2ec50d067d5bd",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-012",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 13,
+      "recording": "ecommerce_13_5ff07b5ee7a1d23e719e421e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']; Unexpected tools: ['search_products']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products",
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-013",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 14,
+      "recording": "ecommerce_13_61517db6a7589569521b2356",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart', 'track_order']; Unexpected tools: ['search_products']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-014",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 15,
+      "recording": "ecommerce_14_5ff07b5ee7a1d23e719e421e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']; Unexpected tools: ['search_products']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-015",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 16,
+      "recording": "ecommerce_14_61517db6a7589569521b2356",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-016",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 17,
+      "recording": "ecommerce_15_56780a5a89319e0011644cb4",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-017",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 18,
+      "recording": "ecommerce_15_66c4f3cb14cbfc4db836bd4e",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-018",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 19,
+      "recording": "ecommerce_16_695bd157114f0d2317f88617",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-019",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 20,
+      "recording": "ecommerce_17_5f4a4da1575d605c43bef871",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-020",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 21,
+      "recording": "ecommerce_18_62a885d5b6af18b3d4579e1b",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']; Unexpected tools: ['get_card_benefits']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 3,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products",
+        "get_card_benefits",
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-021",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 22,
+      "recording": "ecommerce_19_66f59c766e7e22e1f90d08f6",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-022",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 23,
+      "recording": "ecommerce_20_66c4f3cb14cbfc4db836bd4e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-023",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 24,
+      "recording": "ecommerce_21_65e8cf8f4c7424fa062e54a3",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order",
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-024",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 25,
+      "recording": "ecommerce_21_69a9cf80f4d7668d5c815038",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-025",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 26,
+      "recording": "ecommerce_23_5f4a4da1575d605c43bef871",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-026",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 27,
+      "recording": "ecommerce_25_65e8cf8f4c7424fa062e54a3",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['add_to_cart']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "track_order",
+        "search_products"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-027",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 28,
+      "recording": "ecommerce_25_69a9cf80f4d7668d5c815038",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-028",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 29,
+      "recording": "finance_01_65e8cf8f4c7424fa062e54a3",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-029",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 30,
+      "recording": "finance_01_69a9cf80f4d7668d5c815038",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-030",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 31,
+      "recording": "finance_02_6998abd731d2ec50d067d5bd",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_card_benefits"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-031",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 32,
+      "recording": "finance_03_5ff07b5ee7a1d23e719e421e",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-032",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 33,
+      "recording": "finance_03_61517db6a7589569521b2356",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-033",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 34,
+      "recording": "finance_04_62a885d5b6af18b3d4579e1b",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-034",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 35,
+      "recording": "finance_06_66f59c766e7e22e1f90d08f6",
+      "category": "arguments_or_response",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Wrong arguments for: ['get_card_benefits']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_card_benefits"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-035",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 36,
+      "recording": "finance_07_5ff07b5ee7a1d23e719e421e",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-036",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 37,
+      "recording": "finance_07_61517db6a7589569521b2356",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['modify_autopay']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-037",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 38,
+      "recording": "finance_08_65e8cf8f4c7424fa062e54a3",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-038",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 39,
+      "recording": "finance_08_69a9cf80f4d7668d5c815038",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-039",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 40,
+      "recording": "finance_10_66c4f3cb14cbfc4db836bd4e",
+      "category": "arguments_or_response",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Wrong arguments for: ['get_card_benefits']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_card_benefits",
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-040",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 41,
+      "recording": "finance_11_695bd157114f0d2317f88617",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['modify_autopay']; Unexpected tools: ['get_card_benefits']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_card_benefits"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-041",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 42,
+      "recording": "finance_12_65e8cf8f4c7424fa062e54a3",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-042",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 43,
+      "recording": "finance_12_69a9cf80f4d7668d5c815038",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-043",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 44,
+      "recording": "finance_14_5f4a4da1575d605c43bef871",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate",
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-044",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 45,
+      "recording": "finance_15_66c4f3cb14cbfc4db836bd4e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['modify_autopay']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-045",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 46,
+      "recording": "finance_16_62a885d5b6af18b3d4579e1b",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Unexpected tools: ['search_products']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_products",
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-046",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 47,
+      "recording": "finance_17_6998abd731d2ec50d067d5bd",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_card_benefits"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-047",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 48,
+      "recording": "finance_18_6998abd731d2ec50d067d5bd",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['modify_autopay', 'get_card_benefits']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-048",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 49,
+      "recording": "finance_19_66f59c766e7e22e1f90d08f6",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-049",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 50,
+      "recording": "finance_20_66c4f3cb14cbfc4db836bd4e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['modify_autopay']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-050",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 51,
+      "recording": "finance_21_5e3c1fbece3a7b000a6fd95a",
+      "category": "arguments_or_response",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Wrong arguments for: ['get_card_benefits']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "get_card_benefits",
+        "get_exchange_rate"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-051",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 52,
+      "recording": "finance_22_5f4a4da1575d605c43bef871",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['modify_autopay', 'modify_autopay']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-052",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 53,
+      "recording": "finance_23_66f59c766e7e22e1f90d08f6",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['modify_autopay']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-053",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 54,
+      "recording": "housing_01_62a885d5b6af18b3d4579e1b",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-054",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 55,
+      "recording": "housing_02_5f4a4da1575d605c43bef871",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-055",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 56,
+      "recording": "housing_03_5f4a4da1575d605c43bef871",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-056",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 57,
+      "recording": "housing_04_695bd157114f0d2317f88617",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-057",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 58,
+      "recording": "housing_05_5ff07b5ee7a1d23e719e421e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-058",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 59,
+      "recording": "housing_05_61517db6a7589569521b2356",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Unexpected tools: ['track_order']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments",
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-059",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 60,
+      "recording": "housing_06_5f4a4da1575d605c43bef871",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-060",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 61,
+      "recording": "housing_08_66f59c766e7e22e1f90d08f6",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter']; Unexpected tools: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-061",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 62,
+      "recording": "housing_09_695bd157114f0d2317f88617",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-062",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 63,
+      "recording": "housing_10_66f59c766e7e22e1f90d08f6",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-063",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 64,
+      "recording": "housing_11_62a885d5b6af18b3d4579e1b",
+      "category": "arguments_or_response",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-064",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 65,
+      "recording": "housing_13_5f4a4da1575d605c43bef871",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter', 'update_search_filter']; Unexpected tools: ['search_apartments', 'calculate_commute']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments",
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-065",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 66,
+      "recording": "housing_14_5ff07b5ee7a1d23e719e421e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Unexpected tools: ['track_order']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments",
+        "track_order"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-066",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 67,
+      "recording": "housing_14_61517db6a7589569521b2356",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-067",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 68,
+      "recording": "housing_15_5ff07b5ee7a1d23e719e421e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-068",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 69,
+      "recording": "housing_15_61517db6a7589569521b2356",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-069",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 70,
+      "recording": "housing_17_65e8cf8f4c7424fa062e54a3",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-070",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 71,
+      "recording": "housing_17_69a9cf80f4d7668d5c815038",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-071",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 72,
+      "recording": "housing_18_66c4f3cb14cbfc4db836bd4e",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-072",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 73,
+      "recording": "housing_19_62a885d5b6af18b3d4579e1b",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-073",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 74,
+      "recording": "housing_20_62a885d5b6af18b3d4579e1b",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments",
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-074",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 75,
+      "recording": "housing_21_66c4f3cb14cbfc4db836bd4e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_apartments', 'calculate_commute']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-075",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 76,
+      "recording": "housing_22_695bd157114f0d2317f88617",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter', 'search_apartments', 'calculate_commute']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-076",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 77,
+      "recording": "housing_24_65e8cf8f4c7424fa062e54a3",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments",
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-077",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 78,
+      "recording": "housing_24_69a9cf80f4d7668d5c815038",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments",
+        "calculate_commute"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-078",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 79,
+      "recording": "housing_25_66f59c766e7e22e1f90d08f6",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_search_filter', 'update_search_filter']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-079",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 80,
+      "recording": "travel_01_62a885d5b6af18b3d4579e1b",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_flights"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-080",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 81,
+      "recording": "travel_02_5e3c1fbece3a7b000a6fd95a",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-081",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 82,
+      "recording": "travel_03_5ff07b5ee7a1d23e719e421e",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_flights"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-082",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 83,
+      "recording": "travel_03_61517db6a7589569521b2356",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_flights"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-083",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 84,
+      "recording": "travel_05_6998abd731d2ec50d067d5bd",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_flights"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-084",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 85,
+      "recording": "travel_07_5ff07b5ee7a1d23e719e421e",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-085",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 86,
+      "recording": "travel_07_61517db6a7589569521b2356",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-086",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 87,
+      "recording": "travel_08_695bd157114f0d2317f88617",
+      "category": "valid_local_strict_pass",
+      "valid_local_strict_pass": true,
+      "raw_strict_pass": true,
+      "failure_reason": "",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_flights"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-087",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 88,
+      "recording": "travel_10_5f4a4da1575d605c43bef871",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "ValueError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-088",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 89,
+      "recording": "travel_11_66c4f3cb14cbfc4db836bd4e",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "ValueError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-089",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 90,
+      "recording": "travel_14_66c4f3cb14cbfc4db836bd4e",
+      "category": "arguments_or_response",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 1,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_flights"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-090",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 91,
+      "recording": "travel_16_66f59c766e7e22e1f90d08f6",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_flights']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-091",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 92,
+      "recording": "travel_18_66f59c766e7e22e1f90d08f6",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_flights', 'book_flight', 'update_identity_doc']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-092",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 93,
+      "recording": "travel_19_695bd157114f0d2317f88617",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_flights']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-093",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 94,
+      "recording": "travel_20_62a885d5b6af18b3d4579e1b",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-094",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 95,
+      "recording": "travel_21_65e8cf8f4c7424fa062e54a3",
+      "category": "infrastructure",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": null,
+      "failure_reason": null,
+      "inference_error": "RuntimeError",
+      "model_error_types": [
+        "JSONDecodeError"
+      ],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-095",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 96,
+      "recording": "travel_21_69a9cf80f4d7668d5c815038",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['search_flights', 'book_flight', 'update_identity_doc']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-096",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 97,
+      "recording": "travel_23_65e8cf8f4c7424fa062e54a3",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_identity_doc', 'update_identity_doc']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-097",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 98,
+      "recording": "travel_23_69a9cf80f4d7668d5c815038",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['update_identity_doc', 'update_identity_doc']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 0,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-098",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    },
+    {
+      "index": 99,
+      "recording": "travel_24_695bd157114f0d2317f88617",
+      "category": "tool_selection",
+      "valid_local_strict_pass": false,
+      "raw_strict_pass": false,
+      "failure_reason": "Missing tools: ['book_flight', 'update_identity_doc']; Unexpected tools: ['search_apartments']",
+      "inference_error": null,
+      "model_error_types": [],
+      "actual_tool_count": 2,
+      "tool_journal": null,
+      "tool_accounting": null,
+      "actual_tools": [
+        "search_flights",
+        "search_apartments"
+      ],
+      "evidence_directory": ".thread-run/raw/20260925T120349Z-74ba3f7c/case-099",
+      "disposition": "No repair validated on this frozen run; preserve evidence."
+    }
+  ],
+  "limitations": [
+    "Local judge is not the organizer judge.",
+    "Infrastructure failures are not valid passes.",
+    "Categories are mechanical triage, not established root causes."
+  ]
+}

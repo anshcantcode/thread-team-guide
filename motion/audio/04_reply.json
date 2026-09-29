@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "I found a few flights to Delhi. The first option leaves at",
+  "direction": "Calm helpful assistant, normal conversational delivery, medium brisk pace. Do not complete this unfinished sentence or add anything. This take will be interrupted in the edit.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 3.92
+}

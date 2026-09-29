@@ -1,0 +1,174 @@
+{
+  "started_at": 1790340449.0764842,
+  "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+  "serial": "emulator-5560",
+  "scope": "actual native device controls; no audio/model/controller qualification",
+  "paid_requests": 0,
+  "qualification": false,
+  "status": "native_controls_passed",
+  "persisted_checklist": {
+    "status": "success",
+    "detail": "Checked: wash turnip greens",
+    "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+    "request_id": "5707c41eddd85fd18b79a7eedc2bf2a1",
+    "items": [
+      {
+        "item_id": "12fd367058fb4735a4380932759e74e3",
+        "text": "wash turnip greens",
+        "checked": true
+      }
+    ]
+  },
+  "handoff_receipt": {
+    "status": "success",
+    "detail": "Sent the timer request to Clock. Timer creation is unverified. Check Clock to review, change or cancel it.",
+    "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+    "request_id": "ce1546c3ed2751e195e107d6efd4eda5",
+    "device_status": "handed_off",
+    "timer_creation_confirmed": false
+  },
+  "replacement_blocked": {
+    "status": "error",
+    "detail": "A prior timer may exist. Review Clock manually; no replacement or cancellation was submitted.",
+    "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+    "request_id": "41c633ddd0c25c1d98a31390b3c687e6",
+    "error": "outcome_unknown"
+  },
+  "screenshot_sha256": "2304360f876091dca225f89f0c26d2714ac2f096d6f477775ac2a98ec79d0fe0",
+  "finished_at": 1790340505.2787452,
+  "device_commands": [
+    {
+      "tool": "add_checklist_item",
+      "args": {
+        "text": "wash turnip greens"
+      },
+      "request_id": "52b786ad15b755ada6babab1a93ac151",
+      "input_token": "input-1",
+      "result": {
+        "status": "success",
+        "detail": "Added checklist step: wash turnip greens",
+        "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+        "request_id": "52b786ad15b755ada6babab1a93ac151",
+        "item_id": "12fd367058fb4735a4380932759e74e3",
+        "items": [
+          {
+            "item_id": "12fd367058fb4735a4380932759e74e3",
+            "text": "wash turnip greens",
+            "checked": false
+          }
+        ]
+      }
+    },
+    {
+      "tool": "add_checklist_item",
+      "args": {
+        "text": "wash turnip greens"
+      },
+      "request_id": "52b786ad15b755ada6babab1a93ac151",
+      "input_token": "input-1",
+      "result": {
+        "status": "success",
+        "detail": "Added checklist step: wash turnip greens",
+        "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+        "request_id": "52b786ad15b755ada6babab1a93ac151",
+        "item_id": "12fd367058fb4735a4380932759e74e3",
+        "items": [
+          {
+            "item_id": "12fd367058fb4735a4380932759e74e3",
+            "text": "wash turnip greens",
+            "checked": false
+          }
+        ]
+      }
+    },
+    {
+      "tool": "set_checklist_item",
+      "args": {
+        "item_id": "12fd367058fb4735a4380932759e74e3",
+        "checked": true
+      },
+      "request_id": "7c2a0534adab56a4bc54010e9c483c79",
+      "input_token": "input-1",
+      "result": {
+        "status": "success",
+        "detail": "Checked: wash turnip greens",
+        "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+        "request_id": "7c2a0534adab56a4bc54010e9c483c79",
+        "item_id": "12fd367058fb4735a4380932759e74e3",
+        "items": [
+          {
+            "item_id": "12fd367058fb4735a4380932759e74e3",
+            "text": "wash turnip greens",
+            "checked": true
+          }
+        ]
+      }
+    },
+    {
+      "tool": "read_checklist",
+      "args": {},
+      "request_id": "5707c41eddd85fd18b79a7eedc2bf2a1",
+      "input_token": "input-1",
+      "result": {
+        "status": "success",
+        "detail": "Checked: wash turnip greens",
+        "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+        "request_id": "5707c41eddd85fd18b79a7eedc2bf2a1",
+        "items": [
+          {
+            "item_id": "12fd367058fb4735a4380932759e74e3",
+            "text": "wash turnip greens",
+            "checked": true
+          }
+        ]
+      }
+    },
+    {
+      "tool": "request_timer_handoff",
+      "args": {
+        "seconds": 47,
+        "label": "THREAD local diagnostic"
+      },
+      "request_id": "ce1546c3ed2751e195e107d6efd4eda5",
+      "input_token": "input-1",
+      "result": {
+        "status": "success",
+        "detail": "Sent the timer request to Clock. Timer creation is unverified. Check Clock to review, change or cancel it.",
+        "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+        "request_id": "ce1546c3ed2751e195e107d6efd4eda5",
+        "device_status": "handed_off",
+        "timer_creation_confirmed": false
+      }
+    },
+    {
+      "tool": "inspect_timer_handoff",
+      "args": {},
+      "request_id": "48b2c24cc1f85462bc40b7c0acbffbbe",
+      "input_token": "input-1",
+      "result": {
+        "status": "success",
+        "detail": "A timer request was already submitted. Timer creation is unverified. I cannot cancel or change it; check Clock manually before another timer.",
+        "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+        "request_id": "48b2c24cc1f85462bc40b7c0acbffbbe",
+        "timer_creation_confirmed": false,
+        "receipt": "{\"status\":\"success\",\"detail\":\"Sent the timer request to Clock. Timer creation is unverified. Check Clock to review, change or cancel it.\",\"session_id\":\"673772ed879346bbbf95c96eb5d33c1c\",\"request_id\":\"ce1546c3ed2751e195e107d6efd4eda5\",\"device_status\":\"handed_off\",\"timer_creation_confirmed\":false}"
+      }
+    },
+    {
+      "tool": "request_timer_handoff",
+      "args": {
+        "seconds": 58,
+        "label": "replacement"
+      },
+      "request_id": "41c633ddd0c25c1d98a31390b3c687e6",
+      "input_token": "input-1",
+      "result": {
+        "status": "error",
+        "detail": "A prior timer may exist. Review Clock manually; no replacement or cancellation was submitted.",
+        "session_id": "673772ed879346bbbf95c96eb5d33c1c",
+        "request_id": "41c633ddd0c25c1d98a31390b3c687e6",
+        "error": "outcome_unknown"
+      }
+    }
+  ]
+}

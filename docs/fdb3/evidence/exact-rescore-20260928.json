@@ -1,0 +1,514 @@
+{
+  "run": "20260927T175531Z-6dcc34fa",
+  "source_commit": "088cf6fcfbb33958f631738c808d26cbb0088241",
+  "rescored_at": "2026-09-27T20:21:02.316221+00:00",
+  "mode": "archived_unmodified_upstream_exact_match",
+  "fresh_inference": false,
+  "paid_requests": 0,
+  "evaluated": 100,
+  "strict_pass": 42,
+  "metadata_hashes_verified": true,
+  "evaluator_sha256": "5b70266770d46d356cb458a9cd49a026a1928998cdb0b3eae853d5ed17b61a1b",
+  "cases": [
+    {
+      "case": 0,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 1,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 2,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 3,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 4,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 5,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 6,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 7,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_products']"
+    },
+    {
+      "case": 8,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_products']"
+    },
+    {
+      "case": 9,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 10,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 11,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 12,
+      "passed": false,
+      "failure_reason": "Missing tools: ['search_products']"
+    },
+    {
+      "case": 13,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['track_order']"
+    },
+    {
+      "case": 14,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['track_order']"
+    },
+    {
+      "case": 15,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 16,
+      "passed": false,
+      "failure_reason": "Missing tools: ['add_to_cart']"
+    },
+    {
+      "case": 17,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 18,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 19,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 20,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 21,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['track_order']"
+    },
+    {
+      "case": 22,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 23,
+      "passed": false,
+      "failure_reason": "Missing tools: ['add_to_cart']"
+    },
+    {
+      "case": 24,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_products']"
+    },
+    {
+      "case": 25,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_products']"
+    },
+    {
+      "case": 26,
+      "passed": false,
+      "failure_reason": "Missing tools: ['add_to_cart']"
+    },
+    {
+      "case": 27,
+      "passed": false,
+      "failure_reason": "Missing tools: ['add_to_cart']"
+    },
+    {
+      "case": 28,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 29,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['get_exchange_rate']"
+    },
+    {
+      "case": 30,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 31,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 32,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 33,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 34,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 35,
+      "passed": false,
+      "failure_reason": "Unexpected tools: ['search_flights']"
+    },
+    {
+      "case": 36,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 37,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 38,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 39,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 40,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 41,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 42,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 43,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 44,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 45,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 46,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['get_exchange_rate']"
+    },
+    {
+      "case": 47,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 48,
+      "passed": false,
+      "failure_reason": "Missing tools: ['modify_autopay', 'get_card_benefits']"
+    },
+    {
+      "case": 49,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 50,
+      "passed": false,
+      "failure_reason": "Missing tools: ['modify_autopay']"
+    },
+    {
+      "case": 51,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 52,
+      "passed": false,
+      "failure_reason": "Missing tools: ['modify_autopay']"
+    },
+    {
+      "case": 53,
+      "passed": false,
+      "failure_reason": "Missing tools: ['modify_autopay']"
+    },
+    {
+      "case": 54,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 55,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 56,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['update_search_filter']"
+    },
+    {
+      "case": 57,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 58,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']"
+    },
+    {
+      "case": 59,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']"
+    },
+    {
+      "case": 60,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['calculate_commute']"
+    },
+    {
+      "case": 61,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_search_filter']"
+    },
+    {
+      "case": 62,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 63,
+      "passed": false,
+      "failure_reason": "Missing tools: ['calculate_commute', 'update_search_filter']"
+    },
+    {
+      "case": 64,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']"
+    },
+    {
+      "case": 65,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_search_filter', 'update_search_filter']; Unexpected tools: ['search_apartments']"
+    },
+    {
+      "case": 66,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']"
+    },
+    {
+      "case": 67,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']"
+    },
+    {
+      "case": 68,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']"
+    },
+    {
+      "case": 69,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_apartments']"
+    },
+    {
+      "case": 70,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 71,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 72,
+      "passed": false,
+      "failure_reason": "Unexpected tools: ['search_products']"
+    },
+    {
+      "case": 73,
+      "passed": true,
+      "failure_reason": ""
+    },
+    {
+      "case": 74,
+      "passed": false,
+      "failure_reason": "Missing tools: ['search_apartments', 'calculate_commute', 'update_search_filter']"
+    },
+    {
+      "case": 75,
+      "passed": false,
+      "failure_reason": "Missing tools: ['search_apartments', 'calculate_commute']"
+    },
+    {
+      "case": 76,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_search_filter', 'search_apartments', 'calculate_commute']"
+    },
+    {
+      "case": 77,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['update_search_filter', 'calculate_commute']"
+    },
+    {
+      "case": 78,
+      "passed": false,
+      "failure_reason": "Missing tools: ['search_apartments', 'calculate_commute']"
+    },
+    {
+      "case": 79,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_search_filter', 'update_search_filter', 'search_apartments']"
+    },
+    {
+      "case": 80,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 81,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']"
+    },
+    {
+      "case": 82,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 83,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 84,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 85,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']"
+    },
+    {
+      "case": 86,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']"
+    },
+    {
+      "case": 87,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 88,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 89,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 90,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 91,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 92,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']"
+    },
+    {
+      "case": 93,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 94,
+      "passed": false,
+      "failure_reason": "Missing tools: ['book_flight', 'update_identity_doc']"
+    },
+    {
+      "case": 95,
+      "passed": false,
+      "failure_reason": "Missing tools: ['book_flight', 'update_identity_doc']"
+    },
+    {
+      "case": 96,
+      "passed": false,
+      "failure_reason": "Wrong arguments for: ['search_flights']"
+    },
+    {
+      "case": 97,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']"
+    },
+    {
+      "case": 98,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']"
+    },
+    {
+      "case": 99,
+      "passed": false,
+      "failure_reason": "Missing tools: ['update_identity_doc']; Unexpected tools: ['search_apartments']"
+    }
+  ]
+}

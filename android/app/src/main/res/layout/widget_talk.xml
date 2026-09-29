@@ -1,0 +1,7 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/talk_root" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_background" android:padding="18dp" android:gravity="center_vertical" android:contentDescription="Talk to THREAD. Opens a voice conversation.">
+ <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_voice_bars" android:importantForAccessibility="no"/>
+ <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="13dp" android:orientation="vertical">
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="THREAD" android:textSize="10sp" android:letterSpacing="0.18" android:textColor="#AFC0D8"/>
+  <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="Tap to talk" android:textSize="16sp" android:fontFamily="sans-serif-medium" android:textColor="#F5F7FC"/>
+ </LinearLayout>
+</LinearLayout>

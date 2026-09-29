@@ -1,0 +1,77 @@
+{
+  "format": "THREAD Android release artifact verification v1",
+  "artifact": "THREAD-0.7.0-checkpoint-android.apk",
+  "version_name": "0.7.0-checkpoint",
+  "version_code": 4,
+  "sha256": "3bae5af00d569aca1ec7b4b84037851285645fc807d582d64791a6dd533b2f0b",
+  "bytes": 87451131,
+  "min_sdk": 31,
+  "target_sdk": 36,
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "signing": {
+    "verified": true,
+    "scheme": "APK Signature Scheme v2",
+    "signers": 1,
+    "certificate_sha256": "197ae989e339077dfcfeee9ca3b29a5ffd3fc59e058b3ac55eef4dc40a52f68c",
+    "key_scope": "Existing local Android debug key; development review distribution, not Play production signing"
+  },
+  "installed_package_sha256_matches": true,
+  "installation": {
+    "device": "owned read-only Android 16 x86_64 emulator",
+    "upgrade_in_place": true,
+    "retained_existing_app_owned_file_sha256": "be0b0aae0a6aa4068489c7d81db83b4f407d504093edb0cc9ecebaee204d176b",
+    "physical_device_changed": false,
+    "different_certificate_upgrade": "Not supported; preserve existing app data and use another profile or device"
+  },
+  "release_surface": {
+    "kitchen_activity_exported": false,
+    "debug_adb_extension_absent": true,
+    "app_debuggable": false,
+    "companion_ui_smoke": "native-release-smoke.json",
+    "actual_host_and_pcm_playout_test_variant": "debug; see native-client-live.json"
+  },
+  "packaging": {
+    "embedded_source_count": 30,
+    "source_drift": [],
+    "private_notebook_absent": true,
+    "private_configuration_loaded_for_key_scan": false,
+    "personal_key_reference_absence": null,
+    "source_allowlist": "Executable thread_agent Python files only; no private configuration copied"
+  },
+  "embedded_sources_sha256": {
+    "thread_agent/__init__.py": "c147b060a12d0830ceccfe450a1c4f96920c85968ed6866ecc39c2281631d922",
+    "thread_agent/adapter.py": "df7ef9dc7a63f6321b185f1ded8e8f1d50ab7ab7bd909a51c266f72c2d13e503",
+    "thread_agent/android_backend.py": "2aea62c551a1e8e8ef23c2b0843240324c644bbe7383062e0a0843a0de92471c",
+    "thread_agent/asr.py": "15338476de5ef99846c1954dcb7012bec72cf7c4ae78c87f6163327cd52794eb",
+    "thread_agent/authorization.py": "3076bbb996557890ccf411d66a1417f14dc516d14f5bb1c81812a96ec4f5dd11",
+    "thread_agent/capabilities.py": "f98d6e29128cf26bd2bd37dcb9c91e4e71c92a61ef7f2711e46d757b28901d22",
+    "thread_agent/clock.py": "b84e7bb5e8e1b494cf94af07ca5e37e01b3e8be3c6073f758d21970481f2bf2f",
+    "thread_agent/cricket.py": "89fd64bbb8f76538ce4dc8941b9af51b9c94158e3cc983b34be09e69f0392f76",
+    "thread_agent/engine.py": "5c9e31539547887d177d8224b3db48575335259c56cb0c1b573306f1e3583adb",
+    "thread_agent/fdb3.py": "86ff17bc4e4264a83d2dc25dcd113deaa094659bdbf57834b10bfd0e304daac8",
+    "thread_agent/fdb3_client.py": "51cbc8de339dcd246ae6b4cfd0724f11f759064a7570cea34b93f4fc853d0485",
+    "thread_agent/fdb3_evidence.py": "a0c139eea61053f566f79a512c3bd0f3db7e0dfaddc0d6c46826a0f2976c0860",
+    "thread_agent/fdb3_extension.py": "3a81c6430c3158cf8e2eac3a463c6ac87db9208f32bddf41234e7eb3c0615c3e",
+    "thread_agent/fdb3_judge_transport.py": "68afe4d7095a22a17f170b84f31966ef5b918ae5139dde28a3474bc7887459fc",
+    "thread_agent/fdb3_room.py": "6be84cf53be7d064a4ec7557fa009bf5518b7ace63f46a1b7f8c82d08c5431da",
+    "thread_agent/fdb3_voice.py": "a3b1c38915f589d9f706e2db30b9e0043122f658e9f7514f510bd0077e263d7b",
+    "thread_agent/fixtures.py": "7dc4ec10cbfc08ba3eb16cdd508531c3a9730d17d8299e38e8d7e461c407ff66",
+    "thread_agent/live.py": "6f34801c9b8d5bc4aff39ba8dc6b659021394dc080beed5665855c1a69b6a0aa",
+    "thread_agent/media.py": "646b7af2b5f329d26439f212dd927ff4599f9c70169689175b78f32770d2f77c",
+    "thread_agent/models.py": "ffa5fbaee09e01b8a19d929068985e78764df89eac2135b28fe947dde4470bc7",
+    "thread_agent/online.py": "140fb19f25f549114027739642d814109eeb9458679787f07b89eb1e907153f9",
+    "thread_agent/phone.py": "124804ce068ecccaae61d6587f32eadc54c49ffe7a791bf5ab01e95b6bed49ec",
+    "thread_agent/planner.py": "4185c63423d90f99fd17138b20c991e46714d58c3333f53fffbd45de452285fa",
+    "thread_agent/protocol.py": "7d371e7112711cc7c1df8cab89240a00d6efcddbee73dc7c011a877d99c05108",
+    "thread_agent/sandbox.py": "afa3dfa945ce622b17c052cebb7c6eed7bef47c6e12f0e2b292ccb0133e3556e",
+    "thread_agent/server.py": "c1744409bfd5dca3af6c5e829102ec508b6a4efbdff48ed51c838c5e256b1f52",
+    "thread_agent/sports.py": "0b609883069a905b12c59d522d8d4839bd59a36793f3be2717131bfe7b2a2ee1",
+    "thread_agent/spotify.py": "26527dc23f8b765bfa638f631ebb64f6ccaa3cfff0c0fe5526c73cb0bd3e8ce9",
+    "thread_agent/stdio.py": "cd7588edc6fbec01d066e31445cde7269bbcb80e0a5bc531eb9c7244dabc02f2",
+    "thread_agent/warmup.py": "86a8b58259728523c1702f486d9beb82c7ea4dbae4a50b0e0619b9249f346517"
+  },
+  "host_mode": "Current controller runs on the separately configured local host. The APK does not bundle planner/recognizer models or claim to run the benchmark participant on-device."
+}

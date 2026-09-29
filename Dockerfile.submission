@@ -1,0 +1,24 @@
+# LEGACY QUEUE KIT ONLY. This preserves the historical package validator.
+# FDB-v3 submission agent: Dockerfile.fdb3 (default CUDA, --target cpu diagnostic).
+# See docs/fdb3/DOCKER.md; do not submit this legacy image as the FDB-v3 agent.
+# THREAD_FDB3_WHISPER_MODEL=base.en|small.en applies to Dockerfile.fdb3 only;
+# its default/repo/revision/hash pins live in config/fdb3-candidate.json.
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION}-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/submission
+WORKDIR /opt/submission
+COPY requirements-submission.txt ./
+RUN python -m pip install --no-cache-dir --index-url https://pypi.org/simple -r requirements-submission.txt \
+    && python -m pip check
+COPY submission.yaml ./
+COPY participant/ ./participant/
+COPY scripts/verify_samsung_submission.py ./scripts/verify_samsung_submission.py
+COPY scripts/check_gemini_config.py ./scripts/check_gemini_config.py
+COPY .env.example ./
+COPY docs/GEMINI_SETUP.md ./docs/GEMINI_SETUP.md
+COPY docs/submission/GEMINI_QUICKSTART.md ./docs/submission/GEMINI_QUICKSTART.md
+# Mount the unchanged organizer kit read-only at /kit. This default makes no model calls.
+CMD ["python", "scripts/verify_samsung_submission.py", "--kit", "/kit", "--submission", "/opt/submission"]

@@ -1,0 +1,189 @@
+{
+  "status": "completed",
+  "source": "Jolpica",
+  "provenance": "live",
+  "retrieved_at": "2026-09-13T13:51:08.554055+00:00",
+  "items": [
+    {
+      "id": "racing-5579",
+      "kind": "sports_profile",
+      "title": "Lando Norris",
+      "sport": "racing",
+      "sport_label": "Motor racing",
+      "entity_type": "player",
+      "team": "McLaren",
+      "league": "F1",
+      "portrait": "https://a.espncdn.com/i/headshots/f1/players/full/5579.png",
+      "logo": "",
+      "url": "https://www.espn.com/racing/driver/_/id/5579/lando-norris",
+      "requested_count": 5,
+      "position": "",
+      "flag": "https://a.espncdn.com/i/teamlogos/countries/500/gbr.png",
+      "country": "Britain",
+      "identity_source": "ESPN player profile",
+      "records": [
+        {
+          "id": "2026-13",
+          "date": "2026-09-06T13:00:00Z",
+          "title": "Italian Grand Prix",
+          "subtitle": "McLaren",
+          "score": "P4",
+          "status": "Finished",
+          "result": "",
+          "stats": [
+            {
+              "key": "grid",
+              "label": "Grid",
+              "value": "8"
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "value": "12"
+            },
+            {
+              "key": "laps",
+              "label": "Laps",
+              "value": "53"
+            }
+          ],
+          "url": "https://api.jolpi.ca/ergast/f1/2026/13/results/"
+        },
+        {
+          "id": "2026-12",
+          "date": "2026-08-23T13:00:00Z",
+          "title": "Dutch Grand Prix",
+          "subtitle": "McLaren",
+          "score": "P1",
+          "status": "Finished",
+          "result": "",
+          "stats": [
+            {
+              "key": "grid",
+              "label": "Grid",
+              "value": "1"
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "value": "25"
+            },
+            {
+              "key": "laps",
+              "label": "Laps",
+              "value": "72"
+            }
+          ],
+          "url": "https://api.jolpi.ca/ergast/f1/2026/12/results/"
+        },
+        {
+          "id": "2026-11",
+          "date": "2026-07-26T13:00:00Z",
+          "title": "Hungarian Grand Prix",
+          "subtitle": "McLaren",
+          "score": "P1",
+          "status": "Finished",
+          "result": "",
+          "stats": [
+            {
+              "key": "grid",
+              "label": "Grid",
+              "value": "1"
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "value": "25"
+            },
+            {
+              "key": "laps",
+              "label": "Laps",
+              "value": "70"
+            }
+          ],
+          "url": "https://api.jolpi.ca/ergast/f1/2026/11/results/"
+        },
+        {
+          "id": "2026-10",
+          "date": "2026-07-19T13:00:00Z",
+          "title": "Belgian Grand Prix",
+          "subtitle": "McLaren",
+          "score": "P7",
+          "status": "Finished",
+          "result": "",
+          "stats": [
+            {
+              "key": "grid",
+              "label": "Grid",
+              "value": "13"
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "value": "6"
+            },
+            {
+              "key": "laps",
+              "label": "Laps",
+              "value": "44"
+            }
+          ],
+          "url": "https://api.jolpi.ca/ergast/f1/2026/10/results/"
+        },
+        {
+          "id": "2026-9",
+          "date": "2026-07-05T14:00:00Z",
+          "title": "British Grand Prix",
+          "subtitle": "McLaren",
+          "score": "P4",
+          "status": "Finished",
+          "result": "",
+          "stats": [
+            {
+              "key": "grid",
+              "label": "Grid",
+              "value": "6"
+            },
+            {
+              "key": "points",
+              "label": "Points",
+              "value": "12"
+            },
+            {
+              "key": "laps",
+              "label": "Laps",
+              "value": "52"
+            }
+          ],
+          "url": "https://api.jolpi.ca/ergast/f1/2026/9/results/"
+        }
+      ],
+      "metrics": [
+        {
+          "label": "Wins",
+          "value": "2"
+        },
+        {
+          "label": "Podiums",
+          "value": "2"
+        },
+        {
+          "label": "Points",
+          "value": "80"
+        }
+      ],
+      "coverage": "Formula 1 Grands Prix · 2026 and previous season if needed · sprints excluded",
+      "coverage_status": "available",
+      "latest_record_at": "2026-09-06T13:00:00Z"
+    }
+  ],
+  "summary": "Lando Norris: 5 dated Motor racing records. Formula 1 Grands Prix · 2026 and previous season if needed · sprints excluded. Latest returned date: 2026-09-06T13:00:00Z. Use only the returned rows and sport-specific statistics. Distinguish these dates from today's retrieval date.",
+  "id": "qa-profile-lando-norris",
+  "domain": "sports",
+  "arguments": {
+    "query": "Lando Norris",
+    "sport": "racing",
+    "entity_type": "player",
+    "limit": 5
+  }
+}

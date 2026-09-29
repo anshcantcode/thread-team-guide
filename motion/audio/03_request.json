@@ -1,0 +1,9 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Aoede",
+  "transcript": "Find flights from Chennai to Delhi tomorrow, after nine.",
+  "direction": "Same continuous performance as the other user line. See character_session.json.",
+  "source_take": "character_session.wav",
+  "split_seconds": 5.295,
+  "seconds": 5.295
+}

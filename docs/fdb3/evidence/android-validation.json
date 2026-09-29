@@ -1,0 +1,55 @@
+{
+  "recorded_at": 1790340612.456118,
+  "build_status": "passed",
+  "jvm_tests": 7,
+  "jvm_failures": 0,
+  "jvm_skips": 0,
+  "instrumentation_tests": 3,
+  "instrumentation_failures": 0,
+  "native_controls": "passed",
+  "audio_to_device": "NOT_RUN",
+  "video": "NOT_RUN",
+  "raw_build": ".thread-run/raw/android-fdb3-build.log",
+  "raw_instrumentation": ".thread-run/raw/android-fdb3-instrumentation.log",
+  "apk_hashes": {
+    "android\\app\\build\\outputs\\apk\\debug\\app-debug.apk": "72d4d22c44f3044bd3b60391d4dda4eead5286d52fad8d96473041f5e964df1e",
+    "android\\app\\build\\outputs\\apk\\androidTest\\debug\\app-debug-androidTest.apk": "ba9c709d7b6327efe2f1ff38e371cb6ac3503cd3bae637cb14c6881f70a1ad2d"
+  },
+  "native_source_hashes": {
+    "android\\app\\src\\debug\\java\\com\\thread\\app\\Fdb3ExtensionActivity.kt": "7a93eb76713578086b14644c5cc29fe6cd445c16d49dafc811a40255f8b4d2a9",
+    "android\\app\\src\\androidTest\\java\\com\\thread\\app\\Fdb3ExtensionDeviceTest.kt": "02b68c43c2788847213857ad45ec6ce94bb5a9bedd6c8aa2df1aac0b6571d9a8"
+  },
+  "visual_observation": "Captured owned-emulator screenshot shows a 00:33 countdown labelled THREAD local diagnostic; observed by reviewer, not by runtime readback.",
+  "cleanup": "Session cleanup command returned nonzero; outcome unverified. Owned read-only emulator-5560 terminated with adb emu kill; original AVD changes are not saved.",
+  "lint": {
+    "status": "passed_with_warnings",
+    "severity_counts": {
+      "Warning": 51
+    },
+    "extension_issues": [
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "message": "Use the KTX extension function `SharedPreferences.edit` instead?"
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "message": "Use the KTX extension function `SharedPreferences.edit` instead?"
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "message": "Use the KTX extension function `SharedPreferences.edit` instead?"
+      },
+      {
+        "id": "UseKtx",
+        "severity": "Warning",
+        "message": "Use the KTX extension function `SharedPreferences.edit` instead?"
+      }
+    ],
+    "raw_xml_sha256": "5fbe7c514fd9f7f3edef77908b1568d3c15df46c5925ac2a639b47e4ccb370a1",
+    "log": ".thread-run/raw/android-fdb3-lint.log",
+    "timestamp": 1790343160.215912
+  }
+}

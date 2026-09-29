@@ -1,0 +1,8 @@
+{
+  "model": "gemini-2.5-flash-preview-tts",
+  "voice": "Charon",
+  "transcript": "Ask. Interrupt. Keep going. Thread.",
+  "direction": "A confident energetic product-film signature. Clear and rhythmically crisp, around 2.7 seconds total. No drawn-out words, no breathy trailer delivery. Thread is one syllable.",
+  "mimeType": "audio/L16;codec=pcm;rate=24000",
+  "seconds": 3.250958333333333
+}

@@ -1,0 +1,102 @@
+{
+  "status": "CHECKPOINT_NOT_FINAL_NOT_SUBMITTED",
+  "updated_on": "2026-09-29",
+  "theme_id": "05",
+  "theme_title": "Interruptible Real-Time Agents",
+  "project_title": "THREAD",
+  "team_name": "[TEAM NAME]",
+  "college_name": "[COLLEGE / INSTITUTION NAME]",
+  "members": [
+    {
+      "name": "[MEMBER 1 NAME]",
+      "email": "[MEMBER 1 EMAIL]"
+    },
+    {
+      "name": "[MEMBER 2 NAME]",
+      "email": "[MEMBER 2 EMAIL]"
+    },
+    {
+      "name": "[MEMBER 3 NAME OR N/A]",
+      "email": "[MEMBER 3 EMAIL OR N/A]"
+    },
+    {
+      "name": "[MEMBER 4 NAME OR N/A]",
+      "email": "[MEMBER 4 EMAIL OR N/A]"
+    }
+  ],
+  "representative": {
+    "name": "[REPRESENTATIVE NAME]",
+    "role": "[ROLE]",
+    "signature": "[UNSIGNED]",
+    "signature_date": "[DATE]"
+  },
+  "repository_url": "https://github.com/anshcantcode/thread-team-guide",
+  "final_submission_revision": "[FROZEN AND VERIFIED COMMIT]",
+  "required_final_tag": "PRISM_GENAI_HACKATHON_Y2026",
+  "tag_status": "NOT_CREATED_BY_THIS_SUBMISSION_LANE",
+  "tag_requirement": "Include the final presentation, video reference, disclosure, reproducible code, README and required evidence/references in the tagged commit. Verify organizer checklist before tagging.",
+  "submission_form_url": "[FINAL GOOGLE FORM URL]",
+  "demo_video_url": "[PUBLICLY ACCESSIBLE 3-5 MINUTE REAL DEMO URL]",
+  "deadline": {
+    "date": "2026-09-30",
+    "authority": "User reported organizer email extension; original email not inspected in this lane",
+    "cutoff_time": "[EXACT CUTOFF TIME]",
+    "timezone": "[ORGANIZER TIMEZONE]"
+  },
+  "deck_path": "docs/fdb3/submission/CollegeName_TeamName_Submission_DRAFT.pptx",
+  "deck_total_slides": 8,
+  "disclosure_path": "docs/fdb3/submission/CollegeName_TeamName_AI_Disclosure_DRAFT.docx",
+  "disclosure_status": "UNSIGNED; feature origins and exact AI prompt/model logs need team confirmation; DOCX visual QA pending",
+  "fdb3_entry_document": "docs/fdb3/SUBMISSION.md",
+  "fdb3_reproduction_script": "scripts/reproduce_fdb3_linux.sh",
+  "legacy_submission_manifest": "Root submission.yaml describes the legacy queue participant. It is not the FDB-v3 execution contract.",
+  "best_archived_local_run": {
+    "id": "20260929T014341Z-1032ff44",
+    "source": "4f95fdcb5fa134aa703c1eb24477db46ed8df0c8",
+    "evaluated": 100,
+    "strict_pass": 61,
+    "window_strict_pass": 61,
+    "infrastructure_errors": 0,
+    "judge": "Local Qwen diagnostic",
+    "official_score": null,
+    "new_code_measured": false,
+    "evidence": "docs/checkpoint/evidence/run8-archive-audit.json"
+  },
+  "pending_evidence": [
+    "Fresh complete run on the final frozen candidate",
+    "Complete independent Linux reproduction",
+    "Human full video listening and publicly accessible URL verification",
+    "Final tagged repository accessibility and asset/reference verification",
+    "Human disclosure factual review, rendered-page QA and signature"
+  ],
+  "next_checkpoint": "FROZEN_CANDIDATE_ACCEPTED_THEN_FRESH_COMPLETE_BENCHMARK",
+  "uploaded": false,
+  "submitted": false,
+  "video_path": "docs/fdb3/submission/VIDEO_DRAFT.mp4",
+  "video_status": "LOCAL_EDITED_250_SECOND_DRAFT; complete decode/frame checks passed; human full listening/public URL/final release review pending",
+  "video_provenance": "docs/fdb3/submission/VIDEO_PROVENANCE.json",
+  "fdb3_dockerfile": "Dockerfile.fdb3",
+  "container_status": "CPU image built; contract/VAD/real speech components passed; full dispatch/benchmark unverified",
+  "completed_evidence": [
+    "Run #3 f6329dd recorded at eb6bdb3: 53/100 strict/window local Qwen, 45/100 exact; manifest counted/hashed only in task D",
+    "Verified1400-file archive and42/100 exact rescore",
+    "Fresh015 corrected checklist, visible native receipt and restart persistence on named sources",
+    "Edited4:10 real-evidence video with original audio and labelled source revisions",
+    "Eight-slide official-template draft rendered and reviewed",
+    "FDB-specific CPU Docker build and speech smoke"
+  ],
+  "previous_best_archived_local_run": {
+    "id": "20260927T175531Z-6dcc34fa",
+    "source": "088cf6f",
+    "evaluated": 100,
+    "strict_pass": 50,
+    "window_strict_pass": 50,
+    "judge_free_exact_pass": 42,
+    "infrastructure_errors": 0,
+    "judge": "Local Qwen3.5-4B",
+    "official_score": null,
+    "new_code_measured": false
+  },
+  "run4_placeholder": "Review the current AI disclosure and checkpoint evidence; historical coordination details are retained privately.",
+  "task_c_status": "Review the current AI disclosure and checkpoint evidence; historical coordination details are retained privately."
+}

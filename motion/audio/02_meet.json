@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "Meet Thread.",
+  "direction": "Same warm, close-miked male narrator. Simple, quietly confident product introduction. A little space between the words. Thread is one syllable, the normal English word.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 2.32
+}

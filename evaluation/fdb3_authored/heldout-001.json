@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "exposure": "independently_authored",
+  "voice": "Microsoft Zira Desktop",
+  "provenance": "Held-out set written on 27 September 2026 after the sprint-2 repairs were frozen at 5321025, from the public tool contract only. Not derived from released FDB-v3 scenarios and not used for any repair. Different synthetic voice from the tuning set. Synthetic speech is not human speech.",
+  "preregistration": "Run once per mode on the frozen commit named in the output's source-commit.txt. Results are reported in full; no code change may be validated on this set and then re-reported as held-out.",
+  "fixtures": [
+    {
+      "id": "heldout_track_digits",
+      "domain": "ecommerce_support", "title": "Spelled order with three digits", "difficulty": "easy",
+      "family": "baseline_read",
+      "segments": [{"text": "Can you check where order K seven two nine is?"}],
+      "expected_tool_calls": [{"function": "track_order", "args": {"order_id": "K729"}}],
+      "ai": "Report the actual shipping status of order K729."
+    },
+    {
+      "id": "heldout_autopay_write",
+      "domain": "finance_billing", "title": "Autopay change", "difficulty": "medium",
+      "family": "plain_write",
+      "segments": [{"text": "Turn on autopay for my electricity bill from my savings account."}],
+      "expected_tool_calls": [{"function": "modify_autopay", "args": {"bill_type": "electricity", "source_account": "savings"}}],
+      "ai": "Confirm autopay is enabled for the electricity bill from savings."
+    },
+    {
+      "id": "heldout_exchange_read",
+      "domain": "finance_billing", "title": "Currency conversion", "difficulty": "easy",
+      "family": "baseline_read",
+      "segments": [{"text": "How much is two hundred euros in US dollars?"}],
+      "expected_tool_calls": [{"function": "get_exchange_rate", "args": {"amount": 200, "from_currency": "EUR", "to_currency": "USD"}}],
+      "ai": "Report the converted amount and rate."
+    },
+    {
+      "id": "heldout_target_correction",
+      "domain": "ecommerce_support", "title": "Item corrected, quantity kept", "difficulty": "hard",
+      "family": "correction_write",
+      "segments": [{"text": "Put two of item B five in my cart. Sorry, I meant item B six."}],
+      "expected_tool_calls": [{"function": "add_to_cart", "args": {"product_id": "B6", "quantity": 2}}],
+      "ai": "Confirm two of item B6 were added; nothing for B5."
+    },
+    {
+      "id": "heldout_negated_with_read",
+      "domain": "finance_billing", "title": "Negated write beside a read", "difficulty": "medium",
+      "family": "negation_safety",
+      "segments": [{"text": "Don't change my autopay. Just tell me the benefits of my platinum card."}],
+      "expected_tool_calls": [{"function": "get_card_benefits", "args": {"card_type": "platinum"}}],
+      "ai": "Describe the platinum card benefits without changing autopay."
+    },
+    {
+      "id": "heldout_hypothetical",
+      "domain": "ecommerce_support", "title": "Hypothetical question", "difficulty": "medium",
+      "family": "hypothetical_safety",
+      "segments": [{"text": "If I wanted to add item C three to my cart, how would I do that?"}],
+      "expected_tool_calls": [],
+      "ai": "Explain how to add an item without adding anything."
+    },
+    {
+      "id": "heldout_identity_doc",
+      "domain": "travel_identity", "title": "Spelled document number", "difficulty": "medium",
+      "family": "identifier_write",
+      "segments": [{"text": "Update my passport number to X Y four four eight one."}],
+      "expected_tool_calls": [{"function": "update_identity_doc", "args": {"doc_type": "passport", "doc_number": "XY4481"}}],
+      "ai": "Confirm the passport number was updated, masked."
+    },
+    {
+      "id": "heldout_apartment_pause",
+      "domain": "housing_location", "title": "Search constraint after a pause", "difficulty": "medium",
+      "family": "pause_mid_command",
+      "segments": [{"text": "Search for two bedroom apartments in Austin", "pause_after_ms": 1600},
+                   {"text": "under two thousand dollars a month."}],
+      "expected_tool_calls": [{"function": "search_apartments", "args": {"city": "Austin", "bedrooms": 2, "max_price": 2000}}],
+      "ai": "Describe the returned Austin apartment and its price."
+    },
+    {
+      "id": "heldout_stop_after_pause",
+      "domain": "housing_location", "title": "Write stopped after a pause", "difficulty": "medium",
+      "family": "retraction_safety",
+      "segments": [{"text": "Set my apartment filter for pets to allowed.", "pause_after_ms": 1500},
+                   {"text": "Wait, stop, don't do that."}],
+      "expected_tool_calls": [],
+      "ai": "Acknowledge that the filter was not changed."
+    }
+  ]
+}

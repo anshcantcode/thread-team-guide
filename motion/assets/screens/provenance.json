@@ -1,0 +1,32 @@
+[
+  {
+    "file": "motion\\assets\\screens\\home.png",
+    "original": "reports\\android-embedded-current-screen.png",
+    "sha256": "bb3117b40348c9ce79a792cfc545d3a297a214945e76ddcf15b45c22c09d7566",
+    "unchanged": true
+  },
+  {
+    "file": "motion\\assets\\screens\\search.png",
+    "original": "reports\\android-smart-google-videos.png",
+    "sha256": "321c2b30ab26c18c5c13f0ab3e47b97acf3e7764551fca26590831aa1e6cd0c5",
+    "unchanged": true
+  },
+  {
+    "file": "motion\\assets\\screens\\sports.png",
+    "original": "reports\\android-profile-virat-kohli.png",
+    "sha256": "92c6258c02766bb97f7dd7a26f7e605b3278e6f230cb628c155bdc11177b6cbb",
+    "unchanged": true
+  },
+  {
+    "file": "motion\\assets\\screens\\correction.png",
+    "original": "reports\\android-smart-correction.png",
+    "sha256": "1f413a102c4b0ec7523c7919932a05046b5cad672e37dd993967b3f8a28438ff",
+    "unchanged": true
+  },
+  {
+    "file": "motion\\assets\\screens\\widget.png",
+    "original": "reports\\android-widget-clocks-host.png",
+    "sha256": "1e62ad60925bdb736bf6e19c250897a27adb76a90cee2f3cca7366bc075c6b6b",
+    "unchanged": true
+  }
+]

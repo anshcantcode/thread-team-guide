@@ -1,0 +1,8 @@
+{
+  "model": "gemini-3.1-flash-tts-preview",
+  "voice": "Charon",
+  "transcript": "Mumbai. Tomorrow. After nine. Got it.",
+  "direction": "Calm helpful assistant, reassuring and concise. Distinct short phrases, no long pauses, approximately 2.8 seconds.",
+  "mimeType": "audio/l16; rate=24000; channels=1",
+  "seconds": 4.32
+}

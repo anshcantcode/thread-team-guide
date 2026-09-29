@@ -1,0 +1,8 @@
+{
+  "model": "gemini-2.5-flash-preview-tts",
+  "voice": "Charon",
+  "transcript": "Here are the best options, starting with",
+  "direction": "Bright responsive assistant. Speak briskly in one connected phrase, without a pause after options. This will be interrupted. Say only the transcript. Natural close studio delivery.",
+  "mimeType": "audio/L16;codec=pcm;rate=24000",
+  "seconds": 3.730958333333333
+}

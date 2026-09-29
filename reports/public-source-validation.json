@@ -1,0 +1,196 @@
+{
+  "format": "THREAD public-source validation v1",
+  "date": "2026-09-16",
+  "environment": "Windows; fresh Python 3.11 virtual environment; locked dependencies; Android Studio JDK/SDK",
+  "checks": {
+    "python_tests": {
+      "passed": true,
+      "count": 605
+    },
+    "javascript_suites": [
+      {
+        "script": "tests/audio-check.mjs",
+        "passed": true
+      },
+      {
+        "script": "tests/live-audio-check.mjs",
+        "passed": true
+      },
+      {
+        "script": "tests/workspace-check.mjs",
+        "passed": true
+      }
+    ],
+    "controller_replay": {
+      "passed": true,
+      "seeds": 50,
+      "scenario_count": 300,
+      "executions": 1200
+    },
+    "android_release": {
+      "passed": true,
+      "tasks": [
+        "assembleRelease",
+        "lintVitalRelease"
+      ],
+      "device_tests_rerun": false
+    },
+    "http_smoke": {
+      "passed": true,
+      "requests": [
+        {
+          "path": "/",
+          "status": 200,
+          "bytes": 12733
+        },
+        {
+          "path": "/api/config",
+          "status": 200,
+          "bytes": 40407
+        },
+        {
+          "path": "/static/images/thread-sphere.png",
+          "status": 200,
+          "bytes": 1181154
+        },
+        {
+          "path": "/static/fonts/Manrope.ttf",
+          "status": 200,
+          "bytes": 165420
+        },
+        {
+          "path": "/static/audio-worklet.js",
+          "status": 200,
+          "bytes": 528
+        },
+        {
+          "path": "/static/workspace.js",
+          "status": 200,
+          "bytes": 28711
+        }
+      ],
+      "cloud_requests": false
+    }
+  },
+  "limits": [
+    "Controller replays use scripted interpretations.",
+    "Provider and device reports from previous development are historical, not fresh checks of this source publication.",
+    "Official organizer kit compatibility and Docker execution remain unverified."
+  ],
+  "source_sha256": {
+    "android/app/build.gradle.kts": "6412146d63f8c1b88b6c9b004ff4e3afe148232d70cbf8b734589823ae2b535b",
+    "android/app/src/androidTest/java/com/thread/app/PhoneBackendTest.kt": "8567f59304ae73c7cac252336d856bbe2ca1ea84ca985084d64572b3a5b41f52",
+    "android/app/src/androidTest/java/com/thread/app/SmartActionDeviceTest.kt": "110398cf87c85117649d3f185fd1c87f4d4f44689f079b5dd11145196d397ccf",
+    "android/app/src/androidTest/java/com/thread/app/SmartActionsLiveDeviceTest.kt": "485b7a6b8d6ac9032d66a1c310cc082a69509ba8c4b2cb1adb893f4a63496360",
+    "android/app/src/androidTest/java/com/thread/app/SpeechDetectionTest.kt": "d99a6884a4e1f05372bebb6c34bbfe70bfabc426a434239d3cc9c253cc8763f6",
+    "android/app/src/androidTest/java/com/thread/app/SportsProfileTest.kt": "648f54c1800ff03980d1677b52f02893fc72bc0c7924745802c67f6e9ec2daa9",
+    "android/app/src/androidTest/java/com/thread/app/ThreadDeviceTest.kt": "ccc47fb7686772175f2fd1e265941c8c401e7c352bbfc52a4ae70303fca61aae",
+    "android/app/src/androidTest/java/com/thread/app/ThreadLiveDeviceTest.kt": "d20e9200ca3860cc6edf42dcd46a7bff4e475c7a01eeaa4224c822c82094b378",
+    "android/app/src/androidTest/java/com/thread/app/WidgetHostTest.kt": "fd7bbc599a767973d9f639b2db9ffdd48abaa260297a8f3fe399f76f56d53673",
+    "android/app/src/androidTest/java/com/thread/app/WidgetLiveDeviceTest.kt": "49e499f338ce13cdebdf78e2108807ac4e87a902776004f27ab4627f187f66bb",
+    "android/app/src/main/assets/silero_vad_16k.onnx": "7ed98ddbad84ccac4cd0aeb3099049280713df825c610a8ed34543318f1b2c49",
+    "android/app/src/main/java/com/thread/app/LiveAudio.kt": "a8617273834044af3243cf7d27d39afbe37a8f5847c8833c1ea19d6c02738ca5",
+    "android/app/src/main/java/com/thread/app/MainActivity.kt": "64fd7a7aec7c4ae9cf2577e4221dd00901b88d43c2cf9b7d81e527c297ec7fbd",
+    "android/app/src/main/java/com/thread/app/NeuralVad.kt": "9175444de7cc67cd76d46a2dd8bc84b5899b81df4063bcb074ad4d120adfd44e",
+    "android/app/src/main/java/com/thread/app/PhoneActions.kt": "74b9a130b57dbedbef3b4a5fc76d767a9f18ba2c26752a51e67af7400e069cd2",
+    "android/app/src/main/java/com/thread/app/TaskCard.kt": "89845c9f7455646e63235d9bae5146db03b829114071aed97e835e668e8c167c",
+    "android/app/src/main/java/com/thread/app/ThreadBackend.kt": "413a6d76b699c5481a5f974d1d14c5f3fb351ec7a71ee584c16e9afa449a961d",
+    "android/app/src/main/java/com/thread/app/ThreadModel.kt": "6a09896d8b4e336dc6f5b874156e650bb73dc49124e7ab6e081ee547e43c8a31",
+    "android/app/src/main/java/com/thread/app/ThreadUi.kt": "2daa128f813e817fff20b626af8568a7dc4bc86d85d5968bbc4685fe05320f0f",
+    "android/app/src/main/java/com/thread/app/ThreadWidget.kt": "96460cc8fcd1634babb8a174980359834c77b74b72b51be4ad70b7f079fb5cf9",
+    "android/app/src/main/java/com/thread/app/VoiceService.kt": "fa9a57291ed0b8a694c198f985fcfe45d680c7762057dc5ee6899dd774473ea0",
+    "android/app/src/main/java/com/thread/app/WidgetConfigurationActivity.kt": "b0bc55edac4c0f78ef9127921cac67ae2dcfb0cf238476d7d670d68adb0e915b",
+    "android/app/src/main/java/com/thread/app/WidgetContent.kt": "2333fb4312e130d84ae1fb3f81c2d3c498024f71f55d50fccb30ac3fc5351ea2",
+    "android/build.gradle.kts": "81d271cc3ac39c82656fa6a6d855569cf0c9627129d61d7a6236c558a8c0d84c",
+    "android/settings.gradle.kts": "b5b644b3e5162f1ceebfe6714b9ee89e783dee4ae81a87e15614ed8584787193",
+    "android/ui-probe/build.gradle.kts": "9680703b77a4e85d4d1013efb79f9fdbd382a818649aa822344112a2fe515712",
+    "android/ui-probe/src/main/java/com/thread/probe/ReleaseUiProbe.java": "1b788377ab1f08196301ca37281e02dc32c055e6560b9b4d9dc7bf350a2b9331",
+    "motion/finish.py": "e03962f85b6233449d46233f3104f00d637865e654fd73aa5bb5f7788e9f5ed9",
+    "motion/render.py": "56e4226a34cff0af99778b725bc8a981c823efee1e5cb35d2312f668af7f6f04",
+    "motion/review_audio.py": "05ed686208d9fd31ccdd585e8c979785b8c1d829a87c484c4e87c48bbc6dd5fa",
+    "motion/sound.py": "d90c79f41d8c2f914eb39cd8d41c273e74569565087206faa208de762f045aa5",
+    "motion/v2/capture_data.py": "c0cf55e1ff1b744ba2738b7bd87521a212e5f1fdff019011dd5051059eab3ae2",
+    "motion/v2/finish_v2.py": "6a5ca280ce1e57525dd0333812121ba087bff0c4269a64f239efc269bc2956eb",
+    "motion/v2/inspect_frames.py": "2bfe3a806cbae666c27bd7424541bb14b3d8d4c5edff64d980c4bb52433ff1d7",
+    "motion/v2/render_v2.py": "413d91e674e83715f1e4b73623ea9073985aa296d27d9c393da2e5a7cba9ec34",
+    "motion/v2/review.py": "93491b01d44fc3f563ec912a0342f92474a7c4763c481eef31f956a05582653a",
+    "motion/v2/soundtrack.py": "941195ac624d0fc92ef4a703f1b56b94049bcf027d876cb6f91d6cbdd5898918",
+    "motion/v2/voices.py": "e38c5da359b554cfb49cf35b46cc5d90872b814260f38f6d15d7b3d54a48046f",
+    "motion/voice.py": "ae156fd8530a8fe1d58b034cdc9e1041b65c569098c42c68e7a0d2d9d94fa50a",
+    "requirements-local.lock": "702e581a9cef7e01ea52b0a57e2df6f12bdca92adbc9c297773c1efc2017dfaf",
+    "requirements.lock": "45191244ca0c9e78bd1945125c372ab5fdb79b137e519342a345ae1c82a2b316",
+    "scripts/check_acceptance.py": "ef857db6db8ff885430f2f00977f6e49e76354d608567732dfe5a5bdbac131bb",
+    "scripts/check_android_release.py": "7d1eedaf57a41a3780d428f25ca2e1418614cec1b6bdce72135cd1786b4add88",
+    "scripts/check_android_voice.py": "2820dafa2dc454a69e7249d07e600b9af7b1c9531af7443ded0c7f1d82310a1b",
+    "scripts/check_live_authority_online.py": "bfec860a774cd9f65a437a97f37ff78003d7480d61ccfa8178364968844e8559",
+    "scripts/check_live_online.py": "46df11cd57a5222cbe7abb4ff6c0b3b37992e5df0393f22f86ab05285f115fb8",
+    "scripts/check_native_authority.py": "46f7185399a75dbe5e765bc66307a9405e8ef0a8ce58961632b78a416c4492c5",
+    "scripts/check_native_voice.py": "948d2b4272f76f7f62f840ba24ab30675011145b98ce0819702031a544010ad2",
+    "scripts/check_native_workspace.py": "eb103d1c141c32b4d91c51522f684d1e387d759c460a11f9a8f60d8958d53cd3",
+    "scripts/check_responsiveness.py": "800a052b996be8993ccd2daac8c157515a2899ad36a45247d1a9c75b2a0db88f",
+    "scripts/check_theme5.py": "31073e26f71120c79c06709d89ed515590ffa984142b517f4f41828b763b62ca",
+    "scripts/check_widget_requests.py": "7e0c01340e552c1c06fe9d7904428a4361ec1ee4d39157eda8894bfae81a9e23",
+    "scripts/live_check.py": "4135b6dd402e18c99840270a1a049614a28dc9ae1e3da94b18611c9dbd415d6a",
+    "scripts/make_backchannels.py": "f9b5a832f9831fd892bfc07f77173f794c93e9652a3f0a783a4ce7b8010a68aa",
+    "scripts/make_fixture.py": "80af6c7669bf0cbfeabc02ea161e95c3775544d80ad189e1738893316c2c379e",
+    "scripts/package_theme5.py": "fe4c3f45a25c16a61d8af06ee60733caf781edc18112b158c79f37b372de4a69",
+    "scripts/provision_phone.py": "8fff4c4ce64220390e8207964fbcc9f9fa673ca6409ecaabb0bd714ce4eb240c",
+    "scripts/render_evidence.py": "a9bfcca1b306470575d1e79ccfe8a961619e242e85462e456376b6b2dc160b9f",
+    "scripts/setup_local.py": "d6457f2668b8722dc9d194ae50d3983c55b74ac3142e36b1abd5ee4f7b153673",
+    "scripts/setup_speech.py": "07947c74f86f17442aab75c9f3b56eae55d9a534b5b2e40ead1c6940c36e28b0",
+    "scripts/verify_workspace.py": "de0005134f61243633d4d3d8dfc38813cd1f1e43bff726acea220856dea9228a",
+    "tests/audio-check.mjs": "b154cd9a15a97e167bde172ac8758ce7e52b5af0bb865bc4a7e67f742c277c03",
+    "tests/live-audio-check.mjs": "433b2c40334869718e76d28c384d56f1cf6a248d118d82c54ea24d3c951bdf13",
+    "tests/test_android_backend.py": "4766847e1ecb461edb80ce57da6a6731b84b6ca155bc8e199192d2f21975c408",
+    "tests/test_android_package.py": "b596cb99618f2c30dadd608b1d967953b90e3bd089ac9c949e478ab55407dd38",
+    "tests/test_authorization.py": "730a3dcf8c3eea08f5edaa501d585e5cdb60b85fcc7d1ecf79ff5510ba0a3f69",
+    "tests/test_capabilities.py": "60047b1bb495eb71ed737f8f69fa9dd4ef01d1472d1e9a0180741f55eb3c0010",
+    "tests/test_cricket.py": "f3d8e9fac8887cac847d72bf7c461c36baa86a9b099a4ed286bfc3aa08f50916",
+    "tests/test_engine.py": "6dbeb6e516e91ca08b570e7d25214cd99d971b26a6d4d8a815725f04cb2934bf",
+    "tests/test_live.py": "33590bb20a1ebad683bafe7e66a3e1c255249c41a9ca79d173dfdc2b38c8e4e3",
+    "tests/test_multisport.py": "2dd6fea968e1f6b2b5b6ce8be0ea72fbc056c1172fb83349f011d57404bff8b2",
+    "tests/test_native_authority.py": "0931c44ce32984d0032e14a45b0a6fd4a282c59a4a0f966fcc227c9f12513640",
+    "tests/test_noise_recovery.py": "d28c98fb9edb392fbef2fefcad88aab304d8820acb288150d1b4d5b50ba02b15",
+    "tests/test_online.py": "d5f00914a1ff67fe66e19776884982d7e18f2ffa8dbe02eee081aa4888f486d2",
+    "tests/test_phone.py": "8e0c15f548df6f07a0715e8f14e3ea9528d7dcd8223d5b4deb3198c8b85d0ac4",
+    "tests/test_provider_recovery.py": "1ad49dab876fb0ae5a931753caf4e9b404e418ac2a85bc35d8a4e6a9afb65f18",
+    "tests/test_server.py": "d753317e86f873682bb7ed331cbeabc1585a4a1d98d5aeb8166a27b4c722b90f",
+    "tests/test_smart_actions.py": "7f6ae78e0d74abbae5a53ce06d60d947464c6406b5bc170974baab96f29e6753",
+    "tests/test_theme5.py": "e0630c5b04bfd0a3b4fedf2ef14506e8b0961b6147e48f633443bacb9dfd6091",
+    "tests/test_typed_perception.py": "f895d61935e78a285187b7182977093e2ac3e80c762cf2393059fee5349cdbe5",
+    "tests/test_widgets.py": "da76fe5899ede7a07f89aa95a2f256bd98ae0a295ca453d0e0f84201a25c0124",
+    "tests/test_workspace_engine.py": "6953bb4f41a1884a75c5194a5cc8dc4dbb08f040882d78f0d125ba263de6a814",
+    "tests/test_world_clocks.py": "e87f13c486fd4a745ba653dc8dfb54df9d1a2b2eaa782acacda6b6df796bccef",
+    "tests/workspace-check.mjs": "c5042757b2f930993910d544fc754f3d73885f1d3ff1d3a0bd389d933d5eb4c8",
+    "thread_agent/__init__.py": "c147b060a12d0830ceccfe450a1c4f96920c85968ed6866ecc39c2281631d922",
+    "thread_agent/adapter.py": "df7ef9dc7a63f6321b185f1ded8e8f1d50ab7ab7bd909a51c266f72c2d13e503",
+    "thread_agent/android_backend.py": "2aea62c551a1e8e8ef23c2b0843240324c644bbe7383062e0a0843a0de92471c",
+    "thread_agent/asr.py": "15338476de5ef99846c1954dcb7012bec72cf7c4ae78c87f6163327cd52794eb",
+    "thread_agent/authorization.py": "3076bbb996557890ccf411d66a1417f14dc516d14f5bb1c81812a96ec4f5dd11",
+    "thread_agent/capabilities.py": "f98d6e29128cf26bd2bd37dcb9c91e4e71c92a61ef7f2711e46d757b28901d22",
+    "thread_agent/clock.py": "b84e7bb5e8e1b494cf94af07ca5e37e01b3e8be3c6073f758d21970481f2bf2f",
+    "thread_agent/cricket.py": "89fd64bbb8f76538ce4dc8941b9af51b9c94158e3cc983b34be09e69f0392f76",
+    "thread_agent/engine.py": "5c9e31539547887d177d8224b3db48575335259c56cb0c1b573306f1e3583adb",
+    "thread_agent/fixtures.py": "7dc4ec10cbfc08ba3eb16cdd508531c3a9730d17d8299e38e8d7e461c407ff66",
+    "thread_agent/live.py": "7a1f9de85ff54e501897d5be5ad42cf498faf9d8886f18e1a6d2eb4c5005b89a",
+    "thread_agent/media.py": "646b7af2b5f329d26439f212dd927ff4599f9c70169689175b78f32770d2f77c",
+    "thread_agent/models.py": "ffa5fbaee09e01b8a19d929068985e78764df89eac2135b28fe947dde4470bc7",
+    "thread_agent/online.py": "140fb19f25f549114027739642d814109eeb9458679787f07b89eb1e907153f9",
+    "thread_agent/phone.py": "124804ce068ecccaae61d6587f32eadc54c49ffe7a791bf5ab01e95b6bed49ec",
+    "thread_agent/planner.py": "4185c63423d90f99fd17138b20c991e46714d58c3333f53fffbd45de452285fa",
+    "thread_agent/protocol.py": "7d371e7112711cc7c1df8cab89240a00d6efcddbee73dc7c011a877d99c05108",
+    "thread_agent/sandbox.py": "afa3dfa945ce622b17c052cebb7c6eed7bef47c6e12f0e2b292ccb0133e3556e",
+    "thread_agent/server.py": "1230666cd89f0730068aa9ccaead61917086bb8d9347778400dd7b41c7242ef8",
+    "thread_agent/sports.py": "0b609883069a905b12c59d522d8d4839bd59a36793f3be2717131bfe7b2a2ee1",
+    "thread_agent/spotify.py": "26527dc23f8b765bfa638f631ebb64f6ccaa3cfff0c0fe5526c73cb0bd3e8ce9",
+    "thread_agent/stdio.py": "cd7588edc6fbec01d066e31445cde7269bbcb80e0a5bc531eb9c7244dabc02f2",
+    "thread_agent/warmup.py": "86a8b58259728523c1702f486d9beb82c7ea4dbae4a50b0e0619b9249f346517",
+    "web/app.js": "5bb57efc5e7e9727e25de8756106a0e477559e485e8a781fd9227062cec5df1b",
+    "web/audio-worklet.js": "fbe849a5cd26a3d6746b0c17b65c5347e4a92c54bed1e1febc00dd56be261cc5",
+    "web/audio.js": "9960af35572bceafd42aa62e68428cae80f552ee88bc5d96e872d6837fc0452c",
+    "web/live-audio.js": "0af1d7111fb00c4ba124599792fc0bb3964f37eb52b5076f0be621af9246bce1",
+    "web/live-worklet.js": "baf267e4fb7d2b771cd85f414b816791d27464e07d884deb28361968502dc785",
+    "web/workspace.js": "b92d36a486948869333005dcc3607c26f90791c411166c92944ea58e3df680e5"
+  },
+  "source_hash_basis": "Canonical staged Git blob content; line endings normalized by .gitattributes."
+}

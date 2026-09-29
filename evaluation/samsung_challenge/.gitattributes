@@ -1,0 +1,7 @@
+*.py text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+# Preserve these already recorded Windows traces byte for byte.
+evidence/late-success-review-candidate003.json -text -diff
+evidence/late-success-review-candidate003-instrumented.json -text -diff
