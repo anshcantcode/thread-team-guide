@@ -1,15 +1,11 @@
 """Bounded pure-generation retry, interruption and per-session diagnostics."""
 import asyncio
 import json
-import os
-import tempfile
 import unittest
 from unittest.mock import patch
 
 import httpx
 
-from participant.agent import ParticipantAgent
-from participant.planner import Planner as ParticipantPlanner
 from thread_agent.engine import Session
 from thread_agent.planner import ModelPlanner, ProviderError, provider_trace
 from thread_agent.protocol import InputEvent
@@ -213,46 +209,3 @@ class ProviderRecoveryTests(unittest.IsolatedAsyncioTestCase):
         with patch('thread_agent.planner.asyncio.timeout', return_value=ExpiredBudget()), patch('thread_agent.planner.PROVIDER_BUDGET_SECONDS', .04):
             with self.assertRaises(ProviderError): await self.planner.generate([{'text': 'test'}], SCHEMA)
         self.assertEqual(self.calls, 1)
-
-    async def test_participant_http_429_and_503_are_truthful_and_do_not_dispatch_writes(self):
-        with tempfile.TemporaryDirectory() as media_root, patch.dict(os.environ, {
-                'SECRET_GEMINI_API_KEY': 'test-only', 'PARTICIPANT_MEDIA_ROOT': media_root,
-                'PARTICIPANT_PREWARM': '0'}):
-            for status in (429, 503):
-                with self.subTest(status=status):
-                    calls = []
-
-                    async def handle(request):
-                        calls.append(request)
-                        return httpx.Response(status, headers={'retry-after': '60'})
-
-                    planner = ParticipantPlanner(transport=httpx.MockTransport(handle))
-                    await planner.setup()
-                    agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue(), planner=planner)
-                    try:
-                        with patch.object(agent, '_start_plan'):
-                            agent._handle({'event_type': 'tool_manifest', 'payload': {'tools': {
-                                'change_setting': {'kind': 'state_modifying', 'description': 'Change a setting.',
-                                                   'args': {'value': {'type': 'string', 'required': True}}}}}})
-                            started = asyncio.get_running_loop().time()
-                            agent._handle({'event_type': 'user_speech_chunk', 'payload': {
-                                'text': 'Change the setting to off.', 'end_of_turn': True}})
-                        while not agent.out_queue.empty():
-                            agent.out_queue.get_nowait()  # discard the normal progress acknowledgement
-                        revision, decision = await asyncio.wait_for(agent._plan(agent._context(), agent.revision), 4.5)
-                        self.assertEqual(revision, agent.revision)
-                        self.assertLess(asyncio.get_running_loop().time() - started, 4.5)
-                        self.assertEqual(len(calls), 1)
-                        self.assertEqual(planner.evidence[-1]['status'], status)
-                        self.assertIn(f'Gemini returned HTTP {status}', decision['clarification'])
-                        self.assertIn('No new action was authorized.', decision['clarification'])
-
-                        agent._apply(decision)
-                        events = []
-                        while not agent.out_queue.empty():
-                            events.append(agent.out_queue.get_nowait())
-                        self.assertEqual([event['action'] for event in events], ['clarification_request'])
-                        self.assertFalse(any(op['kind'] == 'state_modifying' and op['status'] == 'pending'
-                                             for op in agent.operations.values()))
-                    finally:
-                        await planner.close()

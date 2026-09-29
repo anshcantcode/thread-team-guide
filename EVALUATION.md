@@ -1,6 +1,6 @@
 # Theme 5 evaluation contract and evidence
 
-This document describes the **historical provisional thread.v1 adapter**, created before the actual kit arrived. Its field names and transport are not the official interface. The kit arrived on 21 September 2026; see the [official participant quickstart](docs/submission/GEMINI_QUICKSTART.md) and [engineering update](docs/ENGINEERING_UPDATE.md). Python **3.11** is the supported runtime for the older checks below. The consumer UI, wake word and voice synthesis are outside the Theme 5 scored core.
+This is the **provisional thread.v1 adapter**. Samsung's actual kit has not been supplied. The implementation follows the provided Theme 5 guide's architecture, but its field names and transport are not represented as the official interface. Python **3.11** is the supported release runtime. The consumer UI, wake word and voice synthesis are outside the Theme 5 scored core.
 
 ## Run from a clean environment
 

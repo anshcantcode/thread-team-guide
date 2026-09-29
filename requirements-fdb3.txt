@@ -1,9 +1,0 @@
-# Runtime versions inspected against upstream 3e799c45 v3 templates.
-livekit-agents==1.3.12
-livekit-plugins-silero==1.3.12
-faster-whisper==1.2.1
-openai==2.30.0
-python-dotenv==1.2.3
-httpx==0.28.1
-pillow==12.3.0
-jsonschema==4.26.0

@@ -1,4 +1,4 @@
-"""Local application workspace and streaming adapter. Credentials stay server-side."""
+"""Local workspace and provisional streaming adapter. Credentials stay server-side."""
 from __future__ import annotations
 
 import asyncio
@@ -65,7 +65,7 @@ async def lifespan(app):
     await planner.close()
 
 
-app = FastAPI(title='THREAD', version='0.7.0-checkpoint', lifespan=lifespan)
+app = FastAPI(title='THREAD', version='0.6.0', lifespan=lifespan)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=['127.0.0.1', 'localhost', 'testserver'])
 
 
@@ -106,8 +106,7 @@ async def configuration():
             'runtime': 'phone' if os.environ.get('THREAD_EMBEDDED') == 'android' else 'relay',
             'live': {'configured': bool(config['key']), 'provider': 'Gemini Live', 'model': config['live_model'],
                      'voice': config['live_voice'], 'voices': VOICES, 'google_search_enabled': config['live_search']},
-            'timezone': config['timezone'], 'protocol': 'thread.v1',
-            'controller_mode': 'consumer-gemini', 'fdb3_client': 'http://127.0.0.1:8768',
+            'timezone': config['timezone'], 'protocol': 'thread.v1 (provisional; official kit not yet supplied)',
             'manifests': [m.model_dump() for m in (PACKS | BUILTINS).values()],
             'privacy': 'During a voice connection, audio, typed messages, images and relevant task context go to Google Gemini. Weather, currency and research queries go to their named public data providers. Notes you explicitly save persist in the local THREAD notebook. Raw microphone audio is not saved. Demo services create no real bookings.'}
 

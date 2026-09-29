@@ -58,7 +58,7 @@ function showVoiceState(next) {
   if (!connected) $('call-note').textContent = next === 'connecting' ? 'Connecting to native audio…' : 'Your microphone turns on when you start.';
 }
 async function ensureVoice(microphone = true) {
-  if (!config?.live?.configured) { toast('Set THREAD_API_KEY in the .env file beside run.ps1, then reload this page. Settings has a link to create a Gemini key.'); $('settings-dialog').showModal(); return false; }
+  if (!config?.live?.configured) { toast('Add your Gemini API key in the local .env file, then reload.'); return false; }
   if (!sessionId || socket?.readyState !== WebSocket.OPEN) { toast('The local session is still connecting. Try again in a moment.'); return false; }
   if (state?.ended) await startSession(true);
   await voice.connect(sessionId,$('voice-choice').value,microphone);
@@ -175,8 +175,7 @@ function draw(time){
 requestAnimationFrame(draw);
 try{
  config=await(await fetch('/api/config')).json();$('privacy').textContent=config.privacy;$('live-model').textContent=`Gemini Live · ${config.live.model}`;
- $('gemini-setup').hidden=Boolean(config.live.configured);
  const chosen=localStorage.getItem('thread-voice') || config.live.voice;if([...$('voice-choice').options].some(o=>o.value===chosen))$('voice-choice').value=chosen;
  await startSession();
- if(!config.live.configured)toast('Voice needs a Gemini key. Open Settings for setup instructions.');
+ if(!config.live.configured)toast('Voice needs your Gemini API key in the local .env file.');
 }catch(error){toast(error.message || 'The local server is unavailable.');}

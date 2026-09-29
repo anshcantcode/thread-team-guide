@@ -51,10 +51,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     var phoneSetupMessage by mutableStateOf(""); private set
     var phoneKeyBusy by mutableStateOf(false); private set
     var deviceAction: ((JSONObject) -> JSONObject)? = null
-    var cameraSharing by mutableStateOf(false); private set
-    var closeCamera: (() -> Unit)? = null
-    private val cameraGate = CameraFrameGate()
-    private var rejectedCameraFrames = 0
     private val main = Handler(Looper.getMainLooper())
     val http = ThreadBackend.client(app, OkHttpClient.Builder().connectTimeout(12, TimeUnit.SECONDS).readTimeout(45, TimeUnit.SECONDS).pingInterval(20, TimeUnit.SECONDS))
     private var live: WebSocket? = null
@@ -62,7 +58,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     private var audio: LiveAudio? = null
     var sessionId: String? = null; private set
     private var generation = 0
-    val connectionGeneration: Int get() = generation
     private var started = 0L
     private var microphoneWanted = false
     private var pendingText: String? = null
@@ -155,22 +150,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
 
     private fun onLive(event: JSONObject) {
         when (event.optString("type")) {
-            "camera_context" -> synchronized(this) {
-                if (event.optString("client_input_id") == actionInputId) {
-                    cameraGate.context(event.optString("stream_id"), event.optString("context_token"), actionInputId)
-                }
-            }
-            "camera_ack" -> synchronized(this) {
-                val stream = event.optString("stream_id"); val seq = event.optLong("sequence")
-                if (cameraGate.awaiting(stream, seq)) {
-                    cameraGate.acknowledge(stream, seq)
-                    rejectedCameraFrames = if (event.optBoolean("accepted")) 0 else rejectedCameraFrames + 1
-                    if (rejectedCameraFrames >= 3) {
-                        stopCameraSharing(); showError("Camera sharing stopped because fresh images could not reach the voice service. Check your connection and automatic date/time, then try again.")
-                    }
-                }
-            }
-            "camera_error" -> { if (event.optString("stream_id") == cameraGate.stream) { stopCameraSharing(); showError(event.optString("text")) } }
             "live_ready" -> {
                 ui = ui.copy(connecting = false, connected = true, mode = "Ready", muted = !microphoneWanted)
                 audio = LiveAudio(getApplication(), ::send, { frame ->
@@ -227,9 +206,8 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
         try { val temp = file.resolveSibling("workspace.tmp"); temp.writeText(data.toString()); temp.renameTo(file) } catch (_: IOException) { ui = ui.copy(error = "Couldn’t save this conversation on the phone.") }
     }
     private fun tick() { if (ui.connected) { ui = ui.copy(elapsed = ((SystemClock.elapsedRealtime() - started) / 1000).toInt()); main.postDelayed(::tick, 1000) } }
-    @Synchronized fun send(data: JSONObject) {
+    fun send(data: JSONObject) {
         if (data.optString("type") in listOf("text", "speech_start")) {
-            cameraGate.invalidate()
             actionInputId = java.util.UUID.randomUUID().toString()
             data.put("client_input_id", actionInputId)
         }
@@ -237,7 +215,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     }
     fun controlTask(action: String) {
         if (!ui.connected || action !in listOf("pause", "resume", "stop_work")) return
-        stopCameraSharing()
         actionInputId = "" // Invalidate a device command already queued on the main thread.
         audio?.typed()
         val accepted = updates?.send(JSONObject().put("id", "android-" + java.util.UUID.randomUUID()).put("type", "control")
@@ -332,37 +309,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
         send(JSONObject().put("type", "image").put("data", JSONObject().put("base64", android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)).put("mime", "image/jpeg").put("label", "Image shared from Android")))
     }
     fun queueImage(bytes: ByteArray) { if (ui.connected) sendImage(bytes) else { pendingImage = bytes; connect(false) } }
-    @Synchronized fun startCameraSharing(): Boolean {
-        if (!ui.connected || !consent || cameraSharing) return false
-        rejectedCameraFrames = 0
-        cameraGate.start(java.util.UUID.randomUUID().toString())
-        cameraSharing = true
-        send(JSONObject().put("type", "camera_start").put("stream_id", cameraGate.stream))
-        return true
-    }
-    @Synchronized fun stopCameraSharing() {
-        if (cameraSharing) send(JSONObject().put("type", "camera_stop").put("stream_id", cameraGate.stream))
-        cameraGate.stop(); cameraSharing = false
-        closeCamera?.invoke()
-    }
-    @Synchronized fun cameraTicket(): CameraFrameGate.Ticket? = cameraGate.capture(SystemClock.elapsedRealtime())
-    @Synchronized fun sendCameraFrame(ticket: CameraFrameGate.Ticket, bytes: ByteArray) {
-        val socket = live ?: return
-        val sequence = cameraGate.deliver(ticket, SystemClock.elapsedRealtime(), bytes.size, socket.queueSize()) ?: return
-        val accepted = socket.send(JSONObject().put("type", "camera_frame").put("stream_id", ticket.stream)
-            .put("context_token", ticket.context).put("client_input_id", ticket.input).put("sequence", sequence)
-            .put("captured_at_ms", System.currentTimeMillis() - (SystemClock.elapsedRealtime() - ticket.captured))
-            .put("data", JSONObject().put("base64", android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)).put("mime", "image/jpeg")).toString())
-        if (!accepted) cameraGate.acknowledge(ticket.stream, sequence)
-        else {
-            main.postDelayed({ synchronized(this) {
-                if (cameraGate.awaiting(ticket.stream, sequence)) {
-                    stopCameraSharing()
-                    showError("Camera sharing stopped because the connection fell behind. You can keep talking or try Start camera again.")
-                }
-            } }, 5000)
-        }
-    }
     fun showError(message: String) { ui = ui.copy(error = message) }
     fun toggleMute() { audio?.let { it.muted = !it.muted; ui = ui.copy(muted = it.muted) } }
     fun enableMic() { microphoneWanted = true; startMicrophoneService(); audio?.enableMic(); ui = ui.copy(muted = false) }
@@ -373,7 +319,6 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     }
     fun clearError() { ui = ui.copy(error = null) }
     fun disconnect(ended: Boolean = true) {
-        stopCameraSharing()
         ++generation
         actionInputId = ""
         send(JSONObject().put("type", "end")); live?.close(1000, "End conversation"); live = null
@@ -383,7 +328,33 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
         ui = ui.copy(connecting = false, connected = false, ended = ended, mode = "Ready", level = 0f)
         if (started > 0) save()
     }
-    fun newConversation() { disconnect(false); sessionId = null; ui = ui.copy(caption = "", transcript = emptyList(), error = null, task = null, changedSlots = emptySet(), taskNotice = "", activeAction = null); route = "voice" }
+
+    // --- Session History (new) ---
+    fun saveSessionToHistory() {
+        if (ui.transcript.isEmpty()) return
+        val sessionsPrefs = getApplication<Application>().getSharedPreferences("thread_sessions", 0)
+        val existing = sessionsPrefs.getString("sessions", null)?.let { JSONArray(it) } ?: JSONArray()
+        val firstUserLine = ui.transcript.firstOrNull { it.optString("role") == "user" }?.optString("text") ?: "Conversation"
+        val entry = JSONObject()
+            .put("id", java.util.UUID.randomUUID().toString())
+            .put("endedAt", System.currentTimeMillis())
+            .put("summary", firstUserLine.take(80))
+            .put("transcript", JSONArray(ui.transcript))
+            .put("task", ui.task)
+        existing.put(entry)
+        val trimmed = JSONArray()
+        val start = maxOf(0, existing.length() - 50)
+        for (i in start until existing.length()) trimmed.put(existing.get(i))
+        sessionsPrefs.edit().putString("sessions", trimmed.toString()).apply()
+    }
+    fun loadSessionHistory(): List<JSONObject> {
+        val sessionsPrefs = getApplication<Application>().getSharedPreferences("thread_sessions", 0)
+        val existing = sessionsPrefs.getString("sessions", null)?.let { JSONArray(it) } ?: JSONArray()
+        return (0 until existing.length()).mapNotNull { existing.optJSONObject(it) }.reversed()
+    }
+    // --- end Session History ---
+
+    fun newConversation() { saveSessionToHistory(); disconnect(false); sessionId = null; ui = ui.copy(caption = "", transcript = emptyList(), error = null, task = null, changedSlots = emptySet(), taskNotice = "", activeAction = null); route = "voice" }
     private fun fail(current: Int, message: String) { main.post { if (current == generation) { disconnect(false); ui = ui.copy(error = message) } } }
     override fun onCleared() { sportsRequest++; disconnect(false); main.removeCallbacksAndMessages(null); http.dispatcher.executorService.shutdown(); super.onCleared() }
     companion object {

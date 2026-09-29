@@ -1,9 +1,0 @@
-{
-  "llama_source_url": "https://codeload.github.com/ggml-org/llama.cpp/tar.gz/56381e407c0ccfb3a6f71e668a27a901001d22ce",
-  "llama_source_sha256": "7fd19c03e7d7bb02c07e64c47e0539aeabe54f366a59be822f550b5f012a8751",
-  "llama_source_bytes": 37435970,
-  "hardware": "NVIDIA GeForce RTX 4050 Laptop GPU, 6 GiB",
-  "cuda_architecture": "89",
-  "source_download_verified_phase1": true,
-  "linux_build_executed": false
-}

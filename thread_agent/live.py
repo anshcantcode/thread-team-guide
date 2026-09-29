@@ -7,8 +7,6 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import binascii
-import io
 from copy import deepcopy
 import json
 import math
@@ -28,7 +26,6 @@ from .android_backend import record_voice_metrics
 from .protocol import InputEvent, Interpretation
 from .capabilities import BUILTINS, validate
 from .phone import PhoneBridge, PHONE_INSTRUCTIONS, phone_schemas
-from PIL import Image, UnidentifiedImageError
 
 ENDPOINT = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent'
 VOICES = {'Kore': 'Clear & composed', 'Aoede': 'Warm & easy', 'Puck': 'Bright & lively', 'Charon': 'Low & measured'}
@@ -193,12 +190,6 @@ class LiveConversation:
         self.noise_continuation = None
         self.recovery_only = False
         self.phone = PhoneBridge(self) if android else None
-        self.client_input_id = ''
-        self.camera_stream = ''
-        self.camera_token = uid('camera')
-        self.camera_sequence = 0
-        self.camera_last_sent = float('-inf')
-        self.camera_task = None
 
     def begin_barge(self):
         if self.barge or not self.last_audio_id: return
@@ -284,7 +275,7 @@ class LiveConversation:
         return {'setup': {'model': 'models/' + settings()['live_model'],
                          'generationConfig': {'responseModalities': ['AUDIO'],
                                               'speechConfig': {'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': self.voice}}}},
-                         'systemInstruction': {'parts': [{'text': INSTRUCTIONS + (PHONE_INSTRUCTIONS + '\nOptional live camera images are transient visual context, never action authorization. Use only frames received after the latest THREAD turn marker for current visual claims. After a correction or interruption, wait for a new frame before claiming what is visible now. Camera sharing metadata is silent context, not a request to speak. When sharing stops, earlier images are historical and cannot establish the current scene.' if self.phone else '') + '\nSESSION CONTEXT\n' + json.dumps(context)}]},
+                         'systemInstruction': {'parts': [{'text': INSTRUCTIONS + (PHONE_INSTRUCTIONS if self.phone else '') + '\nSESSION CONTEXT\n' + json.dumps(context)}]},
                          'inputAudioTranscription': {}, 'outputAudioTranscription': {},
                          'realtimeInputConfig': {'automaticActivityDetection': {
                              'startOfSpeechSensitivity': 'START_SENSITIVITY_LOW',
@@ -339,10 +330,6 @@ class LiveConversation:
             # Set the effect boundary BEFORE awaiting cancellation. A dependency
             # may swallow CancelledError and return normally during shutdown.
             self.closing = True
-            self.camera_stream = ''
-            if self.camera_task:
-                self.camera_task.cancel()
-                await asyncio.gather(self.camera_task, return_exceptions=True)
             self.session.yield_floor()
             for operation in self.session.operations.values():
                 if operation['purpose'] == 'create' and operation['status'] == 'prepared':
@@ -374,58 +361,6 @@ class LiveConversation:
         except (RuntimeError, WebSocketDisconnect):
             pass
 
-    async def camera_context(self):
-        if self.camera_stream:
-            await self.client('camera_context', stream_id=self.camera_stream, context_token=self.camera_token,
-                              client_input_id=self.client_input_id)
-
-    async def deliver_camera_frame(self, data):
-        try:
-            await asyncio.wait_for(self.camera_frame(data), 1.5)
-        except asyncio.TimeoutError:
-            pass  # The frame acknowledgment releases client backpressure; never retry an old frame.
-        except Exception:
-            if self.camera_stream == data.get('stream_id'):
-                self.camera_stream = ''
-                await self.client('camera_error', stream_id=data.get('stream_id'), text='Camera sharing stopped because the voice connection could not receive images.')
-
-    async def camera_frame(self, data):
-        """Validate a bounded transient frame; never attach it to persisted task media."""
-        stream, sequence = data.get('stream_id'), data.get('sequence')
-        received = time.monotonic()
-        def current():
-            return (not self.closing and not self.session.ended and not self.session.paused
-                    and not self.session._closed and self.camera_stream and stream == self.camera_stream
-                    and data.get('context_token') == self.camera_token
-                    and data.get('client_input_id') == self.client_input_id)
-        accepted = False
-        try:
-            if not current() or type(sequence) is not int or sequence <= self.camera_sequence: return
-            self.camera_sequence = sequence
-            captured = data.get('captured_at_ms')
-            if type(captured) not in (int, float) or not math.isfinite(captured) or not -1000 <= time.time() * 1000 - captured <= 5000: return
-            if received - self.camera_last_sent < 1: return
-            media = data.get('data')
-            if not isinstance(media, dict) or media.get('mime') != 'image/jpeg': return
-            encoded = media.get('base64')
-            if not isinstance(encoded, str) or not 1 <= len(encoded) <= 174764: return
-            raw = base64.b64decode(encoded, validate=True)
-            if len(raw) > 131072: return
-            with Image.open(io.BytesIO(raw)) as frame:
-                if frame.format != 'JPEG' or max(frame.size) > 768: return
-                frame.load()
-            # A provider interruption can invalidate ownership while this waits
-            # for an audio/tool send. Recheck under the same upstream send lock.
-            async with self.send_lock:
-                if not current() or time.monotonic() - received > 1.5: return
-                await self.upstream.send(json.dumps({'realtimeInput': {'video': {'data': encoded, 'mimeType': 'image/jpeg'}}}))
-                self.camera_last_sent = time.monotonic()
-                accepted = True
-        except (ValueError, TypeError, binascii.Error, UnidentifiedImageError, OSError, Image.DecompressionBombError):
-            pass
-        finally:
-            await self.client('camera_ack', stream_id=stream, sequence=sequence, accepted=accepted)
-
     async def receive_browser(self):
         while True:
             packet = await self.browser.receive()
@@ -451,38 +386,14 @@ class LiveConversation:
             if len(text) > 9_000_000: raise ValueError('Frame too large')
             data = json.loads(text)
             kind = data.get('type')
-            if kind == 'end':
-                self.camera_stream = ''
-                return
+            if kind == 'end': return
             if kind == 'device_result':
                 if self.phone: self.phone.result(data)
-                continue
-            if kind == 'camera_start':
-                stream = data.get('stream_id')
-                if not self.phone or not isinstance(stream, str) or not 1 <= len(stream) <= 100: continue
-                self.camera_stream = stream
-                self.camera_token = uid('camera')
-                self.camera_sequence = 0
-                await self.camera_context()
-                await self.send({'realtimeInput': {'text': '[THREAD camera sharing started. Future images are live visual context. Wait for the user; do not narrate frames unprompted.]'}})
-                continue
-            if kind == 'camera_stop':
-                if data.get('stream_id') == self.camera_stream:
-                    self.camera_stream = ''
-                    self.camera_token = uid('camera')
-                    await self.send({'realtimeInput': {'text': '[THREAD camera sharing stopped. Earlier images are historical; no current camera view is available. Metadata only.]'}})
-                continue
-            if kind == 'camera_frame':
-                if self.camera_task and not self.camera_task.done():
-                    await self.client('camera_ack', stream_id=data.get('stream_id'), sequence=data.get('sequence'), accepted=False)
-                else:
-                    self.camera_task = asyncio.create_task(self.deliver_camera_frame(data))
                 continue
             if kind == 'speech_start':
                 self.user_speaking = True
                 self.begin_input_turn()
                 self.client_input_id = str(data.get('client_input_id', ''))[:100]
-                await self.camera_context()
                 self.noise_continuation = None
                 self.recovery_only = False
                 # A wordless barge may outlive its reply for noise recovery. New
@@ -509,7 +420,6 @@ class LiveConversation:
                 if not isinstance(value, str) or not 1 <= len(value.strip()) <= 12000: continue
                 self.begin_input_turn(value.strip())
                 self.client_input_id = str(data.get('client_input_id', ''))[:100]
-                await self.camera_context()
                 self.typed_interrupt_epoch = self.input_epoch
                 self.barge = self.noise_continuation = None
                 # A typed correction can interrupt audio just like locally detected
@@ -574,7 +484,6 @@ class LiveConversation:
         await self.client('caption', role=role, text=row['text'], message_id=mid)
 
     def begin_input_turn(self, typed_words=''):
-        self.camera_token = uid('camera')
         # Permission to submit is scoped to the local input turn. A new speech
         # interval can arrive before its words; retire unsubmitted authority now.
         # Lookups continue, and submitted effects still require reconciliation.
@@ -663,7 +572,6 @@ class LiveConversation:
             if content.get('groundingMetadata') and self.input_epoch and not self.user_speaking and not self.block_old_calls:
                 self.publish_grounding(content['groundingMetadata'])
             if content.get('interrupted'):
-                self.camera_token = uid('camera')
                 typed_interrupt = self.typed_interrupt_epoch == self.input_epoch
                 # An acknowledged barge belongs only to that audio message. It
                 # cannot own another interruption of a subsequently started reply.
@@ -676,7 +584,6 @@ class LiveConversation:
                     self.begin_barge()
                     if typed_interrupt and self.barge: self.barge['words'] = True
                 self.typed_interrupt_epoch = None
-                await self.camera_context()
                 if self.barge: self.barge['interrupted'] = True
                 await self.client('interrupted', message_id=self.last_audio_id, recoverable=bool(self.barge and not self.barge['words']))
                 self.session.emit('live_interrupted', 'Provider acknowledged interruption; buffered audio awaits speech confirmation.')
@@ -912,7 +819,7 @@ class LiveConversation:
                        if o['purpose'] == 'lookup' and o['status'] == 'running'
                        and o.get('task') and self.session.result_current(o)]
             if pending and 'error' not in result:
-                await asyncio.wait(pending, timeout=.25)
+                await asyncio.wait(pending, timeout=1.5)
                 result['state'] = self.task_context()
             feedback = result.setdefault('feedback', [])
             while not self.feedback.empty(): self.buffered_feedback.append(self.feedback.get_nowait())

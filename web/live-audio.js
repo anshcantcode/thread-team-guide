@@ -7,7 +7,7 @@ export class NativeVoice {
     this.barge = null; this.recoveryTimer = null; this.recovery = null;
     this.lastAcknowledgment = -Infinity; this.backchannelBuffer = null;
   }
-  async connect(sessionId, voice, microphone = true, route = null) {
+  async connect(sessionId, voice, microphone = true) {
     if (this.ready) { if (microphone && !this.stream) await this.enableMic(); return; }
     if (this.connecting) return this.connecting;
     const generation = ++this.generation;
@@ -22,15 +22,13 @@ export class NativeVoice {
     }).catch(()=>{});
     this.nextTime = 0; this.speechEnd = null;
     this.callbacks.state('connecting');
-    const ws = this.ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}${route || `/live/${sessionId}?voice=${encodeURIComponent(voice)}`}`);
-    ws.onopen = () => { if (generation === this.generation) this.callbacks.open?.(); };
+    const ws = this.ws = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/live/${sessionId}?voice=${encodeURIComponent(voice)}`);
     this.connecting = new Promise((resolve, reject) => {
       this.rejectConnect = reject;
       const timeout = setTimeout(() => reject(new Error('The voice connection timed out. Try again.')), 25000);
       ws.onmessage = ({data}) => {
         if (generation !== this.generation) return;
         const event = JSON.parse(data);
-        this.callbacks.message?.(event);
         if (event.type === 'live_ready') {
           clearTimeout(timeout); this.ready = true; resolve();
           this.callbacks.state('connected');
@@ -56,8 +54,6 @@ export class NativeVoice {
           this.clearPlayback('interrupted'); this.blockAudio = true;
         } else if (event.type === 'turn_complete') {
           if(this.barge && !this.speaking)this.scheduleRecovery(100);
-          if (!this.sources.size && event.message_id && this.played.has(event.message_id))
-            this.send({type:'playback',message_id:event.message_id,status:'played',played_ms:this.played.get(event.message_id)});
           if (!this.sources.size) this.callbacks.state(this.speaking ? 'listening' : 'connected');
         } else if (event.type === 'caption') {
           if(event.role==='user' && hasWords(event.text)){
@@ -86,7 +82,6 @@ export class NativeVoice {
     } finally { if (generation === this.generation) { this.connecting = null; this.rejectConnect = null; } }
   }
   send(data) {
-    if (this.callbacks.prepareInput) { data = this.callbacks.prepareInput(data); if (data === null) return; }
     if (data.type === 'text') {this.confirmBarge(false);this.recovery=null;this.blockAudio = false;}
     if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(data));
   }

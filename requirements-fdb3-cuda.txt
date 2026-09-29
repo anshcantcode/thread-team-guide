@@ -1,5 +1,0 @@
-# Additive Linux CUDA runtime, not a replacement for requirements-fdb3.lock.
-# No torch/NeMo or GPU driver. Used by the CUDA agent image and WSL smoke.
-nvidia-cublas-cu12==12.4.5.8 --hash=sha256:2fc8da60df463fdefa81e323eef2e36489e1c94335b5358bcb38360adf75ac9b
-nvidia-cudnn-cu12==9.1.0.70 --hash=sha256:165764f44ef8c61fcdfdfdbe769d687e06374059fbb388b6c89ecb0e28793a6f
-nvidia-cuda-runtime-cu12==12.4.127 --hash=sha256:64403288fa2136ee8e467cdc9c9427e0434110899d07c779f25b5c068934faa5

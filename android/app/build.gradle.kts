@@ -1,6 +1,3 @@
-import java.security.MessageDigest
-import groovy.json.JsonOutput
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -14,8 +11,8 @@ android {
         applicationId = "com.thread.app"
         minSdk = 31
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.7.0-checkpoint"
+        versionCode = 3
+        versionName = "0.6.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk { abiFilters += setOf("arm64-v8a", "x86_64") }
     }
@@ -33,23 +30,11 @@ android {
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
 }
 val phonePython = layout.buildDirectory.dir("generated/phonePython")
-val checkpointAssets = layout.buildDirectory.dir("generated/checkpointAssets")
 val stagePhoneBackend by tasks.registering(Sync::class) {
     // Only executable backend sources. Never package .env, notebook data or reports.
     from("../../thread_agent") { include("**/*.py"); into("thread_agent") }
     into(phonePython)
-    outputs.dir(checkpointAssets)
-    doLast {
-        val directory = phonePython.get().asFile
-        val files = directory.walkTopDown().filter { it.isFile && it.extension == "py" }.sortedBy { it.relativeTo(directory).invariantSeparatorsPath }
-            .associate { it.relativeTo(directory).invariantSeparatorsPath to MessageDigest.getInstance("SHA-256").digest(it.readBytes()).joinToString("") { byte -> "%02x".format(byte) } }
-        val asset = checkpointAssets.get().asFile.resolve("thread-backend-sources.json")
-        asset.parentFile.mkdirs()
-        asset.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(mapOf("format" to "THREAD embedded source identity v1", "version" to "0.7.0-checkpoint", "files" to files))))
-    }
 }
-android.sourceSets.getByName("main").assets.srcDir(checkpointAssets)
-tasks.matching { it.name.contains("Assets") }.configureEach { dependsOn(stagePhoneBackend) }
 chaquopy {
     defaultConfig {
         version = "3.11"

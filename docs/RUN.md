@@ -2,8 +2,6 @@
 
 [Home](../README.md) · [Start here](START_HERE.md) · [What works](WHAT_WORKS.md) · [Code map](CODE_MAP.md) · [Team plan](TEAM_PLAN.md)
 
-For current key/model configuration, use [Gemini setup](GEMINI_SETUP.md). Official Samsung evaluator setup has a [separate participant quickstart](submission/GEMINI_QUICKSTART.md); this page covers the consumer application.
-
 ## Before you begin
 
 This repository contains the full application source. Clone it and run the commands below from its root:
@@ -45,17 +43,15 @@ notepad .env
 
 Set `THREAD_API_KEY` locally. Use the current project's `.env.example` for model names and other defaults; model availability and quota belong to that provider project. Keep the real `.env` out of Git and out of messages/screenshots.
 
-Check the configuration without contacting Google, then start the workspace:
+Start the workspace:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts/check_gemini_config.py --profile app
-if ($LASTEXITCODE -ne 0) { throw 'Fix the configuration failures above.' }
 .\run.ps1
 ```
 
 Open **http://127.0.0.1:8766/**, unless you changed the port. The launcher also creates the environment when missing, waits for server readiness, and leaves the server running in the background.
 
-Start with **Type instead**. Typed requests also open a Gemini Live connection and use provider quota. Choose **Start talking** and grant microphone access to test microphone input. Close the conversation when finished.
+Start with **Type instead**. Then choose **Start talking** and grant microphone access to test voice. Close the conversation when finished.
 
 Stop the local server:
 
@@ -123,8 +119,6 @@ For a change to a particular area, start with that area's tests in [Code map](CO
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -q
 ```
-
-To run the official Samsung public evaluation, use `scripts/run_public_eval.ps1` from the repository root; it runs three real-time repetitions against the unchanged kit. Pass `-EnvFile 'C:\private\participant.env'` to use a local participant configuration and `-OutputPath '.runtime\public-eval.json'` to save a report outside the kit. This evaluation can consume Gemini quota.
 
 Do not start every live-provider script just to explore. Actual-model acceptance, responsiveness, voice, and some device checks consume quota. Some widget checks deliberately add home-screen widgets.
 

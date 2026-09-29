@@ -9,13 +9,7 @@ android
 design
 motion
 .github
-# The submission Dockerfile needs these onboarding files; other docs stay out.
-docs/*
-!docs/GEMINI_SETUP.md
-!docs/submission/
-docs/submission/*
-!docs/submission/GEMINI_QUICKSTART.md
-!.env.example
+docs
 **/__pycache__
 **/*.pyc
 **/node_modules
