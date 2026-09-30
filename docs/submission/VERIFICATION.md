@@ -22,6 +22,8 @@ The full Python/SDK suite was followed by the documented seed, dependency-lock a
 
 The clean Linux clone's seven audited upstream files match commit `3e799c45a045256f47d5f1c9cda90157e2d2ec9e` byte for byte. An older Windows checkout has CRLF-only differences, recorded separately. No grading-code modification is hidden by normalizing that comparison.
 
+The first hosted Windows CI run exposed a fixture-path mismatch: its temporary directory used a DOS short name while the launcher returned the equivalent canonical long path. Both fixtures now use the same canonical root invariant as production. Exact location checks, outside-root rejection, existing-file rejection and marker preservation remain asserted. This changes no production behavior or grading expectation. The original CI failure is retained in the release evidence.
+
 ## Package and media identity
 
 The APK contains a per-file manifest for all 30 embedded Python source files. The release build was installed and pulled back from the emulator with an identical checksum. Its existing development certificate verifies; this is not production Play signing or a physical-device test.
