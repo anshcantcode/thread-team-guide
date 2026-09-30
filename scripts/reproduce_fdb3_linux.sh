@@ -174,7 +174,7 @@ if [ "$PREPARE_ONLY" -eq 1 ]; then
 fi
 
 "$PYTHON" -m venv "$WORK/venv-bench"
-"$WORK/venv-bench/bin/pip" install -q -r "$ROOT/requirements-fdb3-bench.txt"
+"$WORK/venv-bench/bin/pip" install -q --require-hashes -r "$ROOT/requirements-fdb3-bench.lock"
 "$WORK/venv-bench/bin/pip" check
 "$WORK/venv-bench/bin/pip" freeze >"$WORK/logs/benchmark-freeze.txt"
 

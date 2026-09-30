@@ -1,3 +1,5 @@
+> Current submission: [THREAD 1.0.0](SETUP.md). This document retains earlier development or contract context.
+
 # Run and explore the application
 
 [Home](../README.md) · [Start here](START_HERE.md) · [What works](WHAT_WORKS.md) · [Code map](CODE_MAP.md) · [Team plan](TEAM_PLAN.md)

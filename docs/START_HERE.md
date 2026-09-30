@@ -1,3 +1,5 @@
+> Current submission: [THREAD 1.0.0](submission/README.md). This document retains earlier development or contract context.
+
 # Your first 15 minutes with THREAD
 
 [Home](../README.md) · [What works](WHAT_WORKS.md) · [Setup](RUN.md) · [Code map](CODE_MAP.md) · [Team plan](TEAM_PLAN.md)

@@ -4,10 +4,7 @@
 espeak-ng output. Its **default `cuda` target** uses the shared candidate
 profile in `config/fdb3-candidate.json`; `--target cpu` is an explicit
 `cpu-component` diagnostic, not the measured candidate. Both run as UID 10001.
-The planner and LiveKit server are separate services. Task B changed these
-targets in preparation only: the updated images have not been built or run.
-See the [candidate audit](LINUX_CANDIDATE_AUDIT_20260928.md) for all defaults,
-server flags, model hashes, source boundaries and outstanding Linux risks.
+The planner and LiveKit server are separate services. The full CUDA container benchmark has not been qualified. See [reproduction](REPRODUCE.md) for defaults, server flags, model hashes and the executed preparation scope.
 
 The root `Dockerfile` and `Dockerfile.submission` belong to the historical queue
 participant/validator. Neither is the FDB-v3 agent. Select this file explicitly:
@@ -33,14 +30,14 @@ Prepare two host directories: one containing only the pinned public contract's
 `cascaded_agent.py`, `mock_apis.py` and `latency_injector.py`, and one containing
 the selected pinned faster-whisper model files. Set
 `THREAD_FDB3_WHISPER_MODEL=base.en|small.en` consistently for host preparation
-and the container; unset means the central default, currently **`base.en`**.
+and the container; unset means the central default, currently **`small.en`**.
 Both repositories, full revisions and four SHA-256 values are declared in
 [`config/fdb3-candidate.json`](../../config/fdb3-candidate.json) and tabulated in
-[the recognizer choice guide](REPRODUCE.md#pinned-recognizer-choice-task-m-preparation-no-adoption-decision).
+[the reproduction guide](REPRODUCE.md).
 No model is downloaded at container startup: the agent checks all four mounted
 files against the selected pins before loading them. A mismatched/missing model
 fails instead of falling back. The preparation command in
-[the Linux checkpoint](LINUX_REPRODUCTION_20260928.md) verifies and creates
+[the Linux reproduction procedure](REPRODUCE.md) verifies and creates
 these directories. Keep the
 contract separate from the upstream evaluator's dataset and metadata.
 

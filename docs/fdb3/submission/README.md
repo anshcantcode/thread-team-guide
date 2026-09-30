@@ -1,3 +1,5 @@
+> Current submission: [THREAD 1.0.0](../../submission/README.md). This document retains earlier development or contract context.
+
 # Submission assets and remaining review
 
 The current engineering entry point is [the checkpoint](../../../README.md) and its [Samsung checklist](../../checkpoint/SAMSUNG.md).

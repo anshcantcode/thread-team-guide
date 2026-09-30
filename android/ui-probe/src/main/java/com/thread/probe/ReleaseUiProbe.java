@@ -15,7 +15,7 @@ import java.util.Set;
 
 /** Read-only shell-invoked observer. Uses framework APIs in its own process. */
 public class ReleaseUiProbe extends Instrumentation {
-    private final Set<String> labels = new HashSet<>(Arrays.asList("Start talking", "Mute", "Unmute", "End conversation", "End"));
+    private final Set<String> labels = new HashSet<>(Arrays.asList("Start talking", "Mute", "Unmute", "End conversation", "End", "Start camera", "Stop camera"));
     @Override public void onCreate(Bundle arguments) { super.onCreate(arguments); start(); }
     @Override public void onStart() {
         Bundle result = new Bundle();

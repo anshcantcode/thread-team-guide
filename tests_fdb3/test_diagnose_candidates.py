@@ -24,8 +24,22 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual([row["layer"] for row in mode_candidates(clarification(
             "Please explicitly confirm the action and its target before I change anything."))],
             ["authorization_false_rejection"])
+        # Historical runs spoke the validator's problems.
         self.assertEqual([row["layer"] for row in mode_candidates(clarification(
             "I need valid details before acting: args.quantity: expected 'integer'"))], ["planner_schema"])
+        # Current runs speak a question and keep the validator's problems as evidence.
+        for text, problems in (
+                ("Could you tell me the maximum monthly rent budget?", ["args.max_price: missing required argument"]),
+                ("I could not use the value I had for the amount to add. Could you say it again?",
+                 ["args.quantity: expected 'integer'"]),
+                ("I could not prepare that request with details I can use. Could you say it another way?",
+                 ["args.note: undeclared argument"])):
+            with self.subTest(text=text):
+                rows = mode_candidates({"rejections_and_clarifications": [{
+                    "action": "clarification_request",
+                    "payload": {"text": text, "validation": {"api_name": "tool", "problems": problems}}}]})
+                self.assertEqual([row["layer"] for row in rows], ["planner_schema"])
+                self.assertIn(problems[0], rows[0]["evidence"])
         self.assertEqual([row["layer"] for row in mode_candidates({"voice_admission_events": [
             {"event": "speech_segment_recognition", "delivery": "stale_dropped"}]})], ["fragment_admission"])
         self.assertEqual(mode_candidates({"voice_admission_events": [

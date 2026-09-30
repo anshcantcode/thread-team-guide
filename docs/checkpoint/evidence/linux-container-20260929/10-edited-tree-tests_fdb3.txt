@@ -1,0 +1,30 @@
+.................................AgentSession is closing due to unrecoverable error
+Traceback (most recent call last):
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/stt/stt.py", line 161, in recognize
+    event = await self._recognize_impl(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_empty_asr_boundary.py", line 74, in _recognize_impl
+    raise reply
+RuntimeError: authored ASR failure
+Error in _stt_task
+Traceback (most recent call last):
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/utils/log.py", line 16, in async_fn_logs
+    return await fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/voice/audio_recognition.py", line 663, in _stt_task
+    async for ev in node:
+  File "/home/user/thread-team-guide/thread_agent/fdb3_voice.py", line 451, in stt_node
+    event = await activity.stt.recognize(frame, conn_options=activity.session.conn_options.stt_conn_options)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/stt/stt.py", line 161, in recognize
+    event = await self._recognize_impl(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_empty_asr_boundary.py", line 74, in _recognize_impl
+    raise reply
+RuntimeError: authored ASR failure
+...........Executing <Task pending name='_scheduling_task' coro=<AgentActivity._scheduling_task() running at <container-venv>/lib/python3.11/site-packages/livekit/agents/utils/log.py:16> wait_for=<Future pending cb=[Task.task_wakeup()] created at /usr/lib/python3.11/asyncio/base_events.py:428> created at /usr/lib/python3.11/asyncio/tasks.py:384> took 0.103 seconds
+..........................................................
+----------------------------------------------------------------------
+Ran 102 tests in 36.473s
+
+OK

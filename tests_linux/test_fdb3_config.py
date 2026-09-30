@@ -28,7 +28,9 @@ class CandidateConfigTests(unittest.TestCase):
                             ("--cache-ram", "0"), ("--gpu-layers", "99"), ("--threads", "4")):
             self.assertEqual(args[args.index(flag) + 1], value)
         self.assertTrue(llama["slot_save_path_required"])
-        self.assertIsNone(llama["seed"], "Do not invent a seed absent from measured launches")
+        self.assertEqual(llama["seed"], 42)
+        self.assertEqual(args[args.index("--seed") + 1], "42")
+        self.assertIsNone(llama["historical_windows_seed"], "Historical runs had no explicit seed")
 
     def test_both_launchers_consume_shared_configuration(self):
         self.assertIn('fdb3_config.py" --shell', (ROOT / 'scripts/reproduce_fdb3_linux.sh').read_text())

@@ -1,5 +1,7 @@
-# Local engineering draft. Replace only when registered team metadata is supplied.
-team: "LOCAL_DRAFT_TEAM_METADATA_REQUIRED"
+# Legacy queue-kit manifest, retained with its original valid schema.
+# Current Samsung Theme 05 FDB-v3 entry point: bash scripts/reproduce_fdb3_linux.sh
+# Current reproduction contract and prerequisites: docs/fdb3/REPRODUCE.md
+team: "ReflexAi"
 entry_point: "participant.agent:ParticipantAgent"
 python: "3.11"
 requirements:

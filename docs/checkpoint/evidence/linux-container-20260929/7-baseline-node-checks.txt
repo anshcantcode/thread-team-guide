@@ -1,0 +1,9 @@
+== node tests/fdb3-client-check.mjs (exit 0)
+{"suite":"FDB-v3 browser admission and persistence","passed":true,"assertions":21}
+== node tests/audio-check.mjs (exit 0)
+Browser WAV encoder: valid 16-bit mono PCM and clipping boundaries verified.
+Microphone lifecycle: a permission result arriving after Stop cannot begin capture.
+== node tests/live-audio-check.mjs (exit 0)
+Live audio checks passed: continuous PCM, pause/confirm/resume from exact offset, one continuation, multilingual words, late permission cleanup.
+== node tests/workspace-check.mjs (exit 0)
+{"suite":"workspace rendering and export","passed":true,"checks":72}

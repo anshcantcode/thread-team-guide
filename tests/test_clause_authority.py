@@ -10,6 +10,7 @@ import unittest
 
 from participant.agent import ParticipantAgent
 from participant.authorization import authorization_grant, count_mentions, natural_count, spelled_runs, turn_clauses
+from participant.schema import call_key
 
 
 CART = {"kind": "state_modifying", "description": "MANDATORY tool to add an item to the shopping cart.",
@@ -18,6 +19,10 @@ CART = {"kind": "state_modifying", "description": "MANDATORY tool to add an item
 FILTER = {"kind": "state_modifying", "description": "MANDATORY tool to modify search filters.",
           "args": {"filter_name": {"type": "string", "required": True, "description": "Filter key to modify"},
                    "value": {"type": "string", "required": True, "description": "Filter value to apply"}}}
+
+
+BOOK = {"kind": "state_modifying", "description": "Book a flight for a passenger.",
+        "args": {"passenger_name": {"type": "string", "required": True, "description": "Passenger full name"}}}
 
 
 def cart(product, quantity, clauses):
@@ -259,6 +264,35 @@ class ClauseAuthorityTests(unittest.TestCase):
         self.assertEqual(count_mentions("add j9. one for me and one as a gift."), [])
         self.assertEqual(natural_count("add two items, two of the items, k2 to my cart."), 2)
         self.assertIsNone(natural_count("add three of j9. make it one."))
+
+    # Negative controls adapted from competitor designs (ideas only, no code):
+    # Aura's topic gate and REACTOR's repeat-versus-duplicate distinction.
+    def test_same_verb_with_a_different_object_does_not_authorize(self):
+        tools = {"book_flight": BOOK}
+        step = {"api_name": "book_flight", "args": {"passenger_name": "Ana Diaz"}, "authorization": {"clauses": ["0.0"]}}
+        self.rejected(["Can you book a hotel for Ana Diaz too?"], step, tools=tools)
+        self.accepted(["Book the flight for Ana Diaz."], step, tools=tools)
+
+    def test_backchannel_or_question_is_not_a_command(self):
+        booking = {"api_name": "book_flight", "args": {"passenger_name": "Ana Diaz"}, "authorization": {"clauses": ["0.0"]}}
+        self.rejected(["Okay."], booking, tools={"book_flight": BOOK})
+        change = {"api_name": "update_search_filter", "args": {"filter_name": "neighborhood", "value": "gym"},
+                  "authorization": {"clauses": ["0.0"]}}
+        self.rejected(["Is the neighborhood near the gym safe?"], change)
+
+    def test_fresh_request_for_one_more_is_a_new_effect_not_a_duplicate(self):
+        done = {"call-1": {"operation_id": "operation-1", "call_id": "call-1", "api_name": "add_to_cart",
+                           "args": {"product_id": "B7", "quantity": 1}, "kind": "state_modifying",
+                           "request_start": 0, "revision": 0, "status": "success",
+                           "key": call_key("add_to_cart", {"product_id": "B7", "quantity": 1}, write=True),
+                           "step": {}, "retry": 0, "depth": 0, "selection": None, "authority_key": None}}
+        agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
+        agent.tools = deepcopy({"add_to_cart": CART})
+        agent.messages = [{"event_type": "user_speech_chunk", "payload": {"text": text, "end_of_turn": True}}
+                          for text in ("Add item B seven to my cart.", "Add one more of item B seven.")]
+        agent.operations, agent._request_start = done, 1
+        agent._dispatch(cart("B7", 1, ["1.0"]))
+        self.assertEqual(agent.out_queue.get_nowait()["action"], "tool_call")
 
 
 if __name__ == "__main__":

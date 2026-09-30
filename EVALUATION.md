@@ -1,3 +1,5 @@
+> Current submission: [THREAD 1.0.0](docs/submission/README.md). This document retains earlier development or contract context.
+
 # Theme 5 evaluation contract and evidence
 
 This is the **provisional thread.v1 adapter**. Samsung's actual kit has not been supplied. The implementation follows the provided Theme 5 guide's architecture, but its field names and transport are not represented as the official interface. Python **3.11** is the supported release runtime. The consumer UI, wake word and voice synthesis are outside the Theme 5 scored core.

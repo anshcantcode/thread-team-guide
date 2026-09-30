@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "project": "THREAD",
+  "version": "1.0.0",
+  "theme": "05",
+  "team": "ReflexAi",
+  "college": "SRM Institute of Science and Technology Kattankulathur",
+  "members": [
+    {
+      "name": "Nidhee Kunal Chandan",
+      "email": "nc0399@srmist.edu.in"
+    },
+    {
+      "name": "Ansh Golcha",
+      "email": "ag6536@srmist.edu.in"
+    },
+    {
+      "name": "Raiyan Kamal",
+      "email": "Rk0288@srmist.edu.in"
+    },
+    {
+      "name": "Nargis Sultana",
+      "email": "ns7824002@srmist.edu.in"
+    }
+  ],
+  "repository": "https://github.com/anshcantcode/thread-team-guide",
+  "tag": "PRISM_GENAI_HACKATHON_Y2026",
+  "release": "https://github.com/anshcantcode/thread-team-guide/releases/tag/PRISM_GENAI_HACKATHON_Y2026",
+  "presentation": "docs/submission/SRMISTKtr_ReflexAI.pptx",
+  "presentation_source": "https://docs.google.com/presentation/d/18xPcva5_ZhwgMaCuTGuzG6NWwtpp6_dG/edit",
+  "launch_film": "https://github.com/anshcantcode/thread-team-guide/releases/download/PRISM_GENAI_HACKATHON_Y2026/THREAD_Launch_Film.mp4",
+  "recorded_demo": "https://github.com/anshcantcode/thread-team-guide/releases/download/PRISM_GENAI_HACKATHON_Y2026/THREAD_Recorded_Demo.mp4",
+  "disclosure": "docs/submission/AI_DISCLOSURE.md",
+  "entrypoint": "bash scripts/reproduce_fdb3_linux.sh",
+  "selected_measured_source": "8dd530f68f9afc670e8af05ced90ec480d85d46e",
+  "selected_measured_run": "20260929T201004Z-010c0644",
+  "strict_pass": 61,
+  "evaluated": 100,
+  "official_score": null,
+  "submission_form": null,
+  "representative": null,
+  "human_signature": null,
+  "organizer_access_confirmed": false,
+  "submitted": false,
+  "spending_authorization_inr": 0,
+  "visibility_authorization": "public",
+  "human_signature_status": "pending, confirmed by owner",
+  "declared_seed": 42
+}

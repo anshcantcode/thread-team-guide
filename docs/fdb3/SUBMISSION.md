@@ -1,7 +1,9 @@
-# Current submission entry point
+# FDB-v3 submission entry point
 
-Start with the [checkpoint README](../../README.md), [runnable setup](../checkpoint/SETUP.md), [architecture](../checkpoint/ARCHITECTURE.md), [evidence](../checkpoint/VERIFICATION.md) and [Samsung requirement matrix](../checkpoint/SAMSUNG.md).
+Start with the [submission index](../submission/README.md), [setup](../SETUP.md), [architecture](../ARCHITECTURE.md), [results](../submission/RESULTS.md) and [organizer requirements](../submission/REQUIREMENTS.md).
 
-The FDB-v3 agent entry point is `scripts/fdb3_agent.py`; the complete Linux benchmark entry point is `scripts/reproduce_fdb3_linux.sh`. The default recognizer is pinned small.en. Root `submission.yaml` is explicitly a historical queue-kit manifest and must not be mistaken for the current benchmark launch contract.
+The custom LiveKit agent is `scripts/fdb3_agent.py`. The complete Linux entry point is `bash scripts/reproduce_fdb3_linux.sh`, after the declared external prerequisites. It verifies the released corpus and pinned model assets, prepares the runtime and evaluators, then runs fresh inference and evaluation. See [reproduction](REPRODUCE.md).
 
-This is a checkpoint, not the final tagged submission. Team fields, human signature, final media review, organizer access, the confirmed deadline/form and the final required tag remain separate actions. Do not present an older score as a result for changed code.
+Root `submission.yaml` retains the older queue-kit's valid module/class schema and now identifies team ReflexAi. The updated FDB-v3 guide does not use that queue manifest as its launch contract. No undocumented YAML field is substituted for the required executable LiveKit pipeline.
+
+Tag `PRISM_GENAI_HACKATHON_Y2026` names the packaged source. Human disclosure signature and organizer-form submission remain separate. Historical measurements retain their original source identities.

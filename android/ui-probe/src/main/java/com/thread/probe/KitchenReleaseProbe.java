@@ -27,9 +27,11 @@ public class KitchenReleaseProbe extends Instrumentation {
             automation = getUiAutomation(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
             getContext().startActivity(new Intent().setClassName("com.thread.app", "com.thread.app.MainActivity")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            click("History");
+            waitFor("Past conversations", true);
             click("Settings");
             click("Open Kitchen");
-            waitFor("Checkpoint mode", false);
+            waitFor("Host mode", false);
             waitFor("Disconnected.", false);
             waitFor("Connect without microphone", true);
             waitFor("Saved on this phone", true);
@@ -40,8 +42,8 @@ public class KitchenReleaseProbe extends Instrumentation {
             }
             screenshot.recycle();
             JSONObject evidence = new JSONObject().put("passed", true).put("variant", "minified release; not debuggable")
-                .put("entry", "MainActivity > Settings > Open Kitchen")
-                .put("checks", "real release launch, navigation, scoped Kitchen UI and disconnected controls")
+                .put("entry", "MainActivity > History > Settings > Open Kitchen")
+                .put("checks", "real release launch, retained History navigation, scoped Kitchen UI and disconnected controls")
                 .put("microphone_requested", false).put("model_calls", 0)
                 .put("scope", "UI smoke in a separate Java-only companion process; no app test keep rules or internal APIs");
             try (FileOutputStream out = new FileOutputStream(new File(getContext().getExternalFilesDir(null), "kitchen-release.json"))) {

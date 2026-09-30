@@ -19,6 +19,13 @@ CONFIG = ROOT / "config/fdb3-candidate.json"
 def load_config(environ=None):
     """Resolve the explicit recognizer choice; the JSON owns the only default."""
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
+    seed = config["llama"].get("seed")
+    args = config["llama"]["args"]
+    if (type(seed) is not int or not 0 <= seed < 4294967295
+            or args.count("--seed") != 1
+            or args.index("--seed") + 1 >= len(args)
+            or args[args.index("--seed") + 1] != str(seed)):
+        raise ValueError("Candidate drift: one explicit non-random llama seed must match the declared seed")
     inherited = os.environ if environ is None else environ
     catalog = config["whisper"]
     name = inherited.get("THREAD_FDB3_WHISPER_MODEL", catalog["default_model"])
@@ -68,6 +75,7 @@ def snapshot_source(destination):
              for path in (ROOT / folder).iterdir()
              if path.is_file() and path.suffix in {'.py', '.sh', '.json'}]
     files += [ROOT / name for name in ('requirements-fdb3.lock', 'requirements-fdb3-bench.txt',
+                                      'requirements-fdb3-bench.lock',
                                       'requirements-fdb3-cuda.txt')]
     hashes = {}
     for path in files:
@@ -79,9 +87,21 @@ def snapshot_source(destination):
         if hashlib.sha256(target.read_bytes()).hexdigest() != expected:
             raise ValueError('Source changed while snapshotting: ' + str(relative))
         hashes[relative.as_posix()] = expected
-    identity = {'source_commit': subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip(),
-                'dirty': bool(subprocess.check_output(['git', '-C', str(ROOT), 'status', '--porcelain'], text=True)),
-                'source_hashes': hashes}
+    # Release source archives have no Git metadata. A nested export must not
+    # borrow the commit of a containing checkout: the file hashes identify it.
+    identity = {'source_kind': 'source_archive', 'source_commit': None,
+                'dirty': None, 'source_hashes': hashes}
+    try:
+        git_root = subprocess.check_output(
+            ['git', '-C', str(ROOT), 'rev-parse', '--show-toplevel'],
+            text=True, stderr=subprocess.DEVNULL).strip()
+        if Path(git_root).resolve() == ROOT.resolve():
+            identity.update(source_kind='git_checkout', source_commit=subprocess.check_output(
+                ['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip(),
+                dirty=bool(subprocess.check_output(
+                    ['git', '-C', str(ROOT), 'status', '--porcelain'], text=True)))
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
     (destination / 'source-identity.json').write_text(json.dumps(identity, indent=2), encoding='utf-8')
     return identity
 

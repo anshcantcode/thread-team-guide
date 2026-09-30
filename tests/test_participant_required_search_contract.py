@@ -74,7 +74,11 @@ class RequiredSearchContractTests(unittest.IsolatedAsyncioTestCase):
                 self.assertFalse([event for event in events if event["action"] == "tool_call"])
                 clarification = [event for event in events if event["action"] == "clarification_request"]
                 self.assertEqual(len(clarification), 1)
-                self.assertIn(f"args.{missing}: missing required argument", clarification[0]["payload"]["text"])
+                # Spoken in the contract's words; the validator's message is evidence only.
+                self.assertEqual(clarification[0]["payload"]["text"], f"Could you tell me the {missing}?")
+                self.assertEqual(clarification[0]["payload"]["validation"],
+                                 {"api_name": "search_workrooms",
+                                  "problems": [f"args.{missing}: missing required argument"]})
 
     async def test_actual_optional_filter_can_be_omitted(self):
         events = self.dispatch("Find woven linen.", "search_materials", {"query": "woven linen"})
@@ -98,7 +102,10 @@ class RequiredSearchContractTests(unittest.IsolatedAsyncioTestCase):
         await bridge.start()
         try:
             answer = await bridge.response("Find workrooms in Clifton with three desks.", timeout=2)
-            self.assertIn("args.budget: missing required argument", answer)
+            self.assertEqual(answer, "Could you tell me the budget?")
+            self.assertEqual([event["payload"]["validation"]["problems"] for event in bridge.events
+                              if event["action"] == "clarification_request"],
+                             [["args.budget: missing required argument"]])
             self.assertEqual(registry.calls, [])
             self.assertEqual(bridge.calls, [])
         finally:

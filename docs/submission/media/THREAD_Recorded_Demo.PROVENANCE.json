@@ -1,0 +1,457 @@
+{
+  "schema_version": 1,
+  "prepared_utc": "2026-09-30T03:31:26.207692+00:00",
+  "title": "THREAD — historical evidence demonstration",
+  "team": "ReflexAi",
+  "college": "SRM Institute of Science and Technology Kattankulathur",
+  "kind": "Edited historical real-evidence companion; two separate sessions, no current-source or active-speech barge-in claim.",
+  "release_reference": "https://github.com/anshcantcode/thread-team-guide/releases/tag/PRISM_GENAI_HACKATHON_Y2026",
+  "upload_performed_by_this_build": false,
+  "video": {
+    "file": "THREAD_Recorded_Demo.mp4",
+    "sha256": "6a4bb7177434dc9fb27e4f4dd9564548a3381c444a2f4c0011f05490acdf92ce",
+    "bytes": 5090507,
+    "duration_seconds": 190,
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "frames": 4560,
+    "video_codec": "H.264 High/yuv420p",
+    "audio_codec": "AAC LC stereo48000Hz",
+    "chapters": 7,
+    "full_dialogue_subtitle_stream": false,
+    "displayed_text": "Original source excerpts/report text retained; context cards new. No claim that all spoken words have verbatim timed captions."
+  },
+  "parent_media": {
+    "file": "docs/fdb3/submission/VIDEO_DRAFT.mp4",
+    "sha256": "9c3494c8c7f34ac286d7af615f0313b3cfeded631ff1e3e88c499bf14b789c38",
+    "bytes": 4324371,
+    "provenance_file": "docs/fdb3/submission/VIDEO_PROVENANCE.json",
+    "provenance_sha256": "dfaa541a2fde1769b589a20fe89c8b18a180d89efdcd67e54ad1abd7d4291c2e",
+    "untouched": true
+  },
+  "chapters": [
+    {
+      "start": 0,
+      "end": 20,
+      "kind": "Synthetic context",
+      "title": "THREAD and evidence scope"
+    },
+    {
+      "start": 20,
+      "end": 40,
+      "kind": "Synthetic context",
+      "title": "Architecture"
+    },
+    {
+      "start": 40,
+      "end": 90,
+      "kind": "Complete original historical benchmark chapter",
+      "parent_seconds": [
+        49,
+        99
+      ],
+      "parent_video_frame_indices": [
+        1176,
+        2376
+      ],
+      "title": "Original input/received audio and saved-log reconstruction"
+    },
+    {
+      "start": 90,
+      "end": 105,
+      "kind": "Synthetic context",
+      "title": "Same historical one-call receipt"
+    },
+    {
+      "start": 105,
+      "end": 120,
+      "kind": "Synthetic context",
+      "title": "Separate later local diagnostics"
+    },
+    {
+      "start": 120,
+      "end": 170,
+      "kind": "Complete original historical native extension chapter",
+      "parent_seconds": [
+        129,
+        179
+      ],
+      "parent_video_frame_indices": [
+        3096,
+        4296
+      ],
+      "title": "Original input/received audio, actual emulator excerpt and separate restart screenshot"
+    },
+    {
+      "start": 170,
+      "end": 190,
+      "kind": "Synthetic context",
+      "title": "Source boundaries and release"
+    }
+  ],
+  "benchmark": {
+    "run_id": "20260927T175531Z-6dcc34fa",
+    "case": "case-011",
+    "recording": "ecommerce_11_62a885d5b6af18b3d4579e1b",
+    "source_commit": "088cf6fcfbb33958f631738c808d26cbb0088241",
+    "kind": "archived local diagnostic, original audio plus saved-log report panel",
+    "fresh_candidate_run": false,
+    "actual_tool_calls": [
+      {
+        "function": "add_to_cart",
+        "args": {
+          "product_id": "B7",
+          "quantity": 1
+        },
+        "call_id": "call-1",
+        "revision": 2,
+        "input_sequence": 2,
+        "timestamp_start": 1790532515.9993513,
+        "timestamp_end": 1790532515.9993513,
+        "outcome": "success",
+        "result": {
+          "status": "success",
+          "product_id": "B7",
+          "quantity": 1,
+          "cart_total": 99.99
+        }
+      }
+    ],
+    "assets": [
+      {
+        "source": "archive/20260927T175531Z-6dcc34fa/case-011/input.wav",
+        "sha256": "59e1587ed6bbe7991c48e49379b60ece4e70e3eec8508aa8357d86687e12d2c9",
+        "bytes": 7810604
+      },
+      {
+        "source": "archive/20260927T175531Z-6dcc34fa/case-011/inference/spoken.wav",
+        "sha256": "ef7ad85065ae56edb4e1d273efea58ff14d6d57f26ad22f39cbfad83dc40609d",
+        "bytes": 2333324
+      },
+      {
+        "source": "archive/20260927T175531Z-6dcc34fa/case-011/inference/result.json",
+        "sha256": "92728c27170e592880b79c375948e457587ed2ae2cfef23adbdaeadd440ba4ad",
+        "bytes": 15453
+      }
+    ],
+    "audio": {
+      "input_duration_seconds": 40.68,
+      "received_duration_seconds": 48.61,
+      "output_delay_seconds": 0.06107139587402344,
+      "clock": "saved arrival-clock difference; not speaker playout or official latency",
+      "both_original_tracks_complete": true,
+      "content_or_speed_edits": false
+    }
+  },
+  "extension": {
+    "run_id": "extension-audio015",
+    "desktop_source_commit": "fecb5c221e2609e39799b87627e1f7327a54da89",
+    "native_viewer_source_commit": "8e9324ab74d84c3a77c47e278702a6a066a1bf41",
+    "apk_sha256": "893ca1cf92fab41b9ad33fa0314f52da507d30b390d49054693e15be1bf5076f",
+    "device_serial": "emulator-5560",
+    "kind": "separate authored synthetic tuning control; not held-out evidence",
+    "input_provenance": "developer-authored Windows SAPI recording",
+    "output_provenance": "received WebRTC PCM from actual agent run",
+    "actual_tool_calls": [
+      {
+        "function": "add_checklist_item",
+        "args": {
+          "text": "wash the spinach"
+        },
+        "call_id": "call-1",
+        "revision": 6,
+        "input_sequence": 6,
+        "timestamp_start": 1790543422.3875072,
+        "timestamp_end": 1790543431.0634525,
+        "outcome": "success",
+        "result": {
+          "status": "success",
+          "detail": "Added checklist step: wash the spinach",
+          "session_id": "7401f2c75bb642eb986e4d56ea81675a",
+          "request_id": "15e4fd1ba8de5683a1ca20b38f2eb0c4",
+          "item_id": "e7f57f537b7043f783e95afd7b78c724",
+          "items": [
+            {
+              "item_id": "e7f57f537b7043f783e95afd7b78c724",
+              "text": "wash the spinach",
+              "checked": false
+            }
+          ]
+        }
+      }
+    ],
+    "native_readback_after_restart": {
+      "status": "success",
+      "detail": "Unchecked: wash the spinach",
+      "session_id": "7401f2c75bb642eb986e4d56ea81675a",
+      "request_id": "3b5f9428208a4cd9a95684a73be64133",
+      "items": [
+        {
+          "item_id": "e7f57f537b7043f783e95afd7b78c724",
+          "text": "wash the spinach",
+          "checked": false
+        }
+      ]
+    },
+    "cleanup_verified": true,
+    "display": "original silent screenrecord seconds20.4-65.4, cropped540x750 from top-left and resized332x461; then same-run restart screenshot cropped1080x1500 and resized332x461; approximate alignment of visible viewer opening to observer completion timestamp",
+    "limitation": "separate read-only native viewer; desktop speech/controller tethered to owned emulator, not a standalone speech APK or physical-device test",
+    "audio": {
+      "input_duration_seconds": 11.0695,
+      "received_duration_seconds": 43.29,
+      "input_delay_seconds": 1.1998286247253418,
+      "output_delay_seconds": 0,
+      "clock": "approximate input origin from finished timestamp minus file duration; not measured playout",
+      "both_original_tracks_complete": true,
+      "content_or_speed_edits": false
+    },
+    "assets": [
+      {
+        "source": "extension-raw/developer-audio/checklist-correction.wav",
+        "sha256": "97b5babb91f47021a6559954c73c936f485dc008b1991817fe63eee910f97443",
+        "bytes": 531382
+      },
+      {
+        "source": "extension-raw/extension-audio015/spoken.wav",
+        "sha256": "207fec7fe5a3fd24ef1450599f0999c9943b5e0addc518574c9c5aab393ef4e9",
+        "bytes": 2077964
+      },
+      {
+        "source": "extension-raw/extension-audio015/result.json",
+        "sha256": "db57022213a83ff816f2b7d7d6ca3da60438f48ed4f82e9baa57497bc4b1ee4a",
+        "bytes": 28706
+      },
+      {
+        "source": "extension-raw/extension-audio015/verification.json",
+        "sha256": "e03717ec49f83c0f899bca5d03462fe7e8ea35d6faff6006b3b73d409fa3aa5b",
+        "bytes": 8082
+      },
+      {
+        "source": "extension-raw/extension-audio015/viewer-after-restart.png",
+        "sha256": "f69a76d66a72769dc3d067e22089504ca0d2d53f4af14f52dc6329fa843f6b77",
+        "bytes": 100174
+      },
+      {
+        "source": "extension-raw/extension-audio015-viewer-live.png",
+        "sha256": "d72c5cc427868a282e1655009a42814742c81b7e9a1c3c63115822bafeb61174",
+        "bytes": 98599
+      },
+      {
+        "source": "extension-raw/extension-audio015-real.mp4",
+        "sha256": "3ba71d3bf1481dc23fffe0fc354525b5b4e1f6f23616279fd3a5f3a89a1885d8",
+        "bytes": 1179003
+      },
+      {
+        "source": "extension-raw/extension-audio015-observation.json",
+        "sha256": "40e49fa2f4e84f4c67e6b8871bb3330b7d8ab1fb5668aac6f55cf3befe2c1314",
+        "bytes": 1615
+      },
+      {
+        "source": "extension-raw/extension-audio015-execution.json",
+        "sha256": "f2ef4a3ca7d7667db327980eb5aa7eb6ff9e7d7e28633ed853878dc70863bf3a",
+        "bytes": 2640
+      },
+      {
+        "source": "extension-raw/extension-audio015-preregistration.json",
+        "sha256": "03977315ac6847ecec5f8babe9d6b74ffb41556a8db9ad7aea49fcf7a6b55176",
+        "bytes": 1464
+      },
+      {
+        "source": "extension-raw/extension-audio015-screenrecord.json",
+        "sha256": "ca8b7eac482bc99e7574c2cf27afe60bb4cd6b357b61921415619f199331d798",
+        "bytes": 545
+      },
+      {
+        "source": "extension-raw/extension-audio015-cleanup.json",
+        "sha256": "3ac4c69f3371543d70670980245dd9d18ff0fd3455ca4940480f2e921813d111",
+        "bytes": 229
+      },
+      {
+        "source": "extension-raw/extension-audio015-cleanup-session.json",
+        "sha256": "fcb44b7a30f8ed1d9943ca9d27a09a63736ffb9809984ac2af2c70452c4e1f8f",
+        "bytes": 265
+      },
+      {
+        "source": "extension-raw/extension-audio015/tool-calls.jsonl",
+        "sha256": "f3c69848ee70c309f838d4fb9fcfe1419085b76b43a5806468cbb6eef7c5e79d",
+        "bytes": 920
+      },
+      {
+        "source": "extension-raw/extension-audio015/tts-requests.jsonl",
+        "sha256": "692380e998f784d1c74b9a3adc20dccf06bcc9e683de9805e671a3a3e46cda39",
+        "bytes": 429
+      }
+    ]
+  },
+  "source_media_semantics": "Benchmark and extension fields above are inherited from the exact-hash source provenance. Each complete50-second chapter is retained. Parent input audio lengths/timing/gain refer to that original assembly, not new measurements of independent raw capture synchronization.",
+  "later_results": [
+    {
+      "role": "Selected measured source",
+      "source": "8dd530f",
+      "run_id": "20260929T201004Z-010c0644",
+      "report_sha256": "25928777585dae2cf687be6e280eb28d6ff462cb8fea010d936a2730aaa87f14",
+      "evaluated": 100,
+      "strict_pass": 61,
+      "window_strict_pass": 61,
+      "judge": "local Qwen diagnostic",
+      "qualification": false,
+      "report_hash_and_values_checked": true
+    },
+    {
+      "role": "Experimental source",
+      "source": "771981a",
+      "run_id": "20260929T144039Z-33e49402",
+      "report_sha256": "8f8b5b15b6b27bea9f4b5de188511cb5f04ab5619189c33d3708be5688c52cee",
+      "evaluated": 100,
+      "strict_pass": 64,
+      "window_strict_pass": 64,
+      "judge": "local Qwen diagnostic",
+      "qualification": false,
+      "report_hash_and_values_checked": true
+    }
+  ],
+  "result_boundary": "These later measured sources did not produce the historical recordings in this video. No official Samsung score or transfer of a result to another revision is claimed.",
+  "context_narration": [
+    {
+      "id": "01_intro",
+      "seconds": 20,
+      "narration": "This is THREAD, by Reflex A I. This edited demonstration presents two separate historical sessions. Their original input and received replies are preserved. Synthetic narration appears only in the context chapters.",
+      "voice": "Microsoft Zira Desktop",
+      "engine": "Windows System.Speech",
+      "rate": 0,
+      "volume": 90,
+      "context_wav_sha256": "70692a7fe32ec8632cfab55329baa7878c283f341ce1a806118f79b28656d51f",
+      "card_png_sha256": "66b20ebce1a697744aa8c39b3faa1d741b7774872ec5265f21c4b871b8f375df",
+      "placement": "Context only, start delayed by300ms and trailing silence padded to chapter duration; no speed change."
+    },
+    {
+      "id": "02_architecture",
+      "seconds": 20,
+      "narration": "LiveKit carries room audio to local speech recognition. A Qwen planner proposes an action. THREAD checks the current instruction before dispatch and records the tool outcome. The next recording shows a quantity correction before dispatch.",
+      "voice": "Microsoft Zira Desktop",
+      "engine": "Windows System.Speech",
+      "rate": 0,
+      "volume": 90,
+      "context_wav_sha256": "a0099b9ed6465aa3526d2bd0fc7cf0597db5201f5a5fe079b3894f5f153f4952",
+      "card_png_sha256": "25221c6e5e4f59ccc2dd82f3b0f786721970950a9430a21f66b7f5dda6f59926",
+      "placement": "Context only, start delayed by300ms and trailing silence padded to chapter duration; no speed change."
+    },
+    {
+      "id": "04_receipt",
+      "seconds": 15,
+      "narration": "The historical trace records exactly one add to cart call: product B seven, quantity one. Its successful receipt agrees. This is a mock purchase in the benchmark sandbox.",
+      "voice": "Microsoft Zira Desktop",
+      "engine": "Windows System.Speech",
+      "rate": 0,
+      "volume": 90,
+      "context_wav_sha256": "e271a4268322e00a7e4ffa272a4c2557bc676b82ddfeacc01793ba08c732d244",
+      "card_png_sha256": "50009c7597eda275db41182512cd08cf3207b357d16ff3f5cc0505f92e706147",
+      "placement": "Context only, start delayed by300ms and trailing silence padded to chapter duration; no speed change."
+    },
+    {
+      "id": "05_diagnostics",
+      "seconds": 15,
+      "narration": "Separate local diagnostic runs scored sixty one and sixty four strict tool passes out of one hundred. These are not Samsung scores. Neither run supplied this video's recordings.",
+      "voice": "Microsoft Zira Desktop",
+      "engine": "Windows System.Speech",
+      "rate": 0,
+      "volume": 90,
+      "context_wav_sha256": "f73266d832e9bedd59098ec22e2c09e60fded2404ca91f0b1975ca3b0c433ed5",
+      "card_png_sha256": "148986c91f0a2b14369630428266fff0adb2862c56796a8fbee79411b882ce6b",
+      "placement": "Context only, start delayed by300ms and trailing silence padded to chapter duration; no speed change."
+    },
+    {
+      "id": "07_close",
+      "seconds": 20,
+      "narration": "The checklist example preserves its received reply and real emulator capture. The restart screenshot is a separate verification. These historical recordings do not establish current source behavior. The release links the source records.",
+      "voice": "Microsoft Zira Desktop",
+      "engine": "Windows System.Speech",
+      "rate": 0,
+      "volume": 90,
+      "context_wav_sha256": "18f7fb54bdf4a4c41cc27894007f14c806ab9c61536deeb1f31651e113c56105",
+      "card_png_sha256": "208ad37ce81bb36e40a301baf55bc668644391b8ea6161e4f504ab978b1225b5",
+      "placement": "Context only, start delayed by300ms and trailing silence padded to chapter duration; no speed change."
+    }
+  ],
+  "assembly": {
+    "software": "Existing FFmpeg and Pillow; CPU only",
+    "new_device_actions": 0,
+    "new_planner_asr_or_generative_model_calls": 0,
+    "network_requests": 0,
+    "incremental_spend_inr": 0,
+    "new_speech": "Local existing Windows System.Speech voice only",
+    "picture": "Complete selected historical chapters plus five new static context cards. Re-encoded H.264 CRF18 fast at24fps. No new picture overlays/cuts inside evidence chapters. Existing historical DRAFT marker remains.",
+    "sound": "Complete selected historical audio, original pacing, no new speech/music or gain adjustment inside evidence chapters. One further AAC encode at192k. Synthetic context on separate slots only.",
+    "compressed_packets_identical": false,
+    "temporary_build_root": ".thread-run/submission-20260930/media-build/attempt001/",
+    "commands": "ffmpeg-command.json",
+    "renderer_script_sha256": "4d9fae6f27c3e28cb2b3f185a3354b38341eb699a2e68ea8d34a301f0a18886f",
+    "assembler_script_sha256": "261cf4acdce1feea35fd118923adcc390a85280c2e8d0b41eed0c156700e9e21",
+    "sapi_script_sha256": "15b476d0fd55e3a2a068d35b00d729542d8c8d3bc95c0c8cbff1a40985c35742",
+    "first_attempt_passed": true,
+    "failed_attempts": []
+  },
+  "qa": {
+    "created_utc": "2026-09-30T03:29:15.749932+00:00",
+    "video_sha256": "6a4bb7177434dc9fb27e4f4dd9564548a3381c444a2f4c0011f05490acdf92ce",
+    "bytes": 5090507,
+    "source_sha256": "9c3494c8c7f34ac286d7af615f0313b3cfeded631ff1e3e88c499bf14b789c38",
+    "decode_exit_code": 0,
+    "visual_sample_seconds": [
+      5,
+      26,
+      45,
+      60,
+      95,
+      110,
+      123,
+      140,
+      155,
+      167,
+      181,
+      188
+    ],
+    "frames_viewed": true,
+    "human_complete_listening": false,
+    "audio_preservation": [
+      {
+        "chapter": "benchmark",
+        "samples": 2400000,
+        "sample_rate": 48000,
+        "source_start": 49,
+        "output_start": 40,
+        "zero_lag_cosine": 0.9999196107821804,
+        "relative_rms_difference": 0.01275078830873162,
+        "meaning": "Decoded waveforms align at zero lag; AAC re-encoding causes small differences. This is a content/pacing check, not human listening."
+      },
+      {
+        "chapter": "extension",
+        "samples": 2400000,
+        "sample_rate": 48000,
+        "source_start": 129,
+        "output_start": 120,
+        "zero_lag_cosine": 0.9999613718274205,
+        "relative_rms_difference": 0.008929133992099322,
+        "meaning": "Decoded waveforms align at zero lag; AAC re-encoding causes small differences. This is a content/pacing check, not human listening."
+      }
+    ],
+    "visual_review": "All 12 extracted frames individually viewed; all five generated context cards also viewed. No clipping or missing source labels observed. Full human listening/continuous playback not claimed.",
+    "audio_metrics": {
+      "integrated_lufs": -22.3,
+      "true_peak_dbfs": -4.0,
+      "loudness_range_lu": 8.5,
+      "method": "FFmpeg ebur128 over full decoded final AAC"
+    }
+  },
+  "limits": [
+    "Historical recordings are not a current release runtime capture.",
+    "Quantity correction before dispatch is demonstrated; interruption of active assistant speech is not established here.",
+    "Benchmark domain is a mock tool; no real purchase.",
+    "Native extension is a tethered desktop controller and an owned Android emulator/read-only viewer, not a standalone phone speech implementation.",
+    "Extension input is authored synthetic speech, not held-out natural user audio.",
+    "Source audio/display alignment is approximate and supports no playout-latency claim.",
+    "Restart screenshot is a separate later verification, not continuous synchronized footage.",
+    "No complete human listening or continuous playback approval was performed by this build."
+  ]
+}

@@ -22,6 +22,20 @@ import urllib.request
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from thread_agent.fdb3_evidence import file_hash
+from scripts.fdb3_config import load_config
+
+
+def model_arguments(config):
+    """Keep the Windows diagnostic profile explicit, with the shared release seed."""
+    seed = load_config()['llama']['seed']
+    if 'seed' in config and (type(config['seed']) is not int or config['seed'] != seed):
+        raise ValueError('Candidate drift: local reproduction seed must match the release seed')
+    return ['-m', config['model_file'], '--host', '127.0.0.1', '--port', '8097',
+            '--ctx-size', str(config.get('ctx_size', 4096)), '--parallel', '1',
+            '--reasoning', 'off', '--skip-chat-parsing',
+            '--gpu-layers', str(config.get('gpu_layers', 0)), '--cache-ram', '0',
+            '--batch-size', '128', '--ubatch-size', '64', '--threads', '4',
+            '--seed', str(seed)]
 
 
 def validate(config):
@@ -31,6 +45,7 @@ def validate(config):
         path=Path(config.get(key,''))
         if not path.exists() or not str(config.get(key,'')):
             raise ValueError(f'Missing {key}: supply its existing local path in the configuration')
+    model_arguments(config)
     if not (Path(config['upstream'])/'v3/evaluate_pass_rate.py').is_file():
         raise ValueError('The upstream path must contain the pinned FDB v3 checkout')
     if shutil.which('ffmpeg') is None:
@@ -100,9 +115,7 @@ def run(config, limit, fresh_environment=None):
         owned.append(process)
         return process
     try:
-        model_args=['-m',config['model_file'],'--host','127.0.0.1','--port','8097','--ctx-size',str(config.get('ctx_size',4096)),
-            '--parallel','1','--reasoning','off','--skip-chat-parsing','--gpu-layers',str(config.get('gpu_layers',0)),
-            '--cache-ram','0','--batch-size','128','--ubatch-size','64','--threads','4']
+        model_args=model_arguments(config)
         if config.get('prompt_cache'):
             # Required for the per-scenario slot erase; nothing is ever saved to it.
             slots=logs/'slots'; slots.mkdir()

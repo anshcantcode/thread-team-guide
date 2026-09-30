@@ -1,0 +1,148 @@
+{
+  "status": "passed_after_documented_prerequisites",
+  "scope": "Controller, reproduction-guard, real-SDK and Node client test suites on a native Linux container. No inference, planner, recognizer, LiveKit room, judge, GPU, NeMo or benchmark recording was run.",
+  "date": "2026-09-29",
+  "host": {
+    "kind": "ephemeral cloud container, no GPU",
+    "os": "Ubuntu 24.04.4 LTS",
+    "arch": "x86_64",
+    "cpus": 4,
+    "python": "3.11.15",
+    "node": "v22.22.2"
+  },
+  "source": {
+    "commit": "3088694e2bf49dda0bf1b12ade046c9bbd97ed5d",
+    "source_manifest_match": "391/391 files in source-manifest.json match HEAD; the later documentation-only edits touch none of them"
+  },
+  "dependencies": [
+    "requirements.lock",
+    "requirements-fdb3.lock",
+    "requirements-fdb3-clients.lock"
+  ],
+  "prerequisites_added_during_run": {
+    "apt": [
+      "ffmpeg",
+      "espeak-ng"
+    ],
+    "upstream_checkout": {
+      ".runtime/Full-Duplex-Bench": "3e799c45a045256f47d5f1c9cda90157e2d2ec9e"
+    },
+    "env": {
+      "THREAD_FDB3_TTS_COMMAND": "[\"espeak-ng\",\"-w\",\"{output}\",\"-f\",\"{text_file}\"]"
+    }
+  },
+  "attempts": [
+    {
+      "log": "1-FAILED-tests_linux-without-ffmpeg.txt",
+      "suite": "tests_linux",
+      "result": "17 passed, 1 failed",
+      "cause": "FFmpeg absent: the script stopped at 'missing ffmpeg' before the failing-Python prerequisite the test targets"
+    },
+    {
+      "log": "2-FAILED-tests_fdb3-without-upstream-checkout.txt",
+      "suite": "tests_fdb3",
+      "result": "102 tests run; FAILED (failures=11, errors=10), subtests counted individually",
+      "cause": "pinned upstream checkout absent at .runtime/Full-Duplex-Bench (documented prerequisite)"
+    },
+    {
+      "log": "3-FAILED-tests_fdb3-without-tts-command.txt",
+      "suite": "tests_fdb3",
+      "result": "101 passed, 1 error",
+      "cause": "THREAD_FDB3_TTS_COMMAND unset; only Windows falls back to SAPI"
+    },
+    {
+      "log": "4-baseline-tests.txt",
+      "suite": "tests",
+      "tree": "3088694 clean",
+      "result": "1876 passed, 0 failed, 0 errors, 0 skips"
+    },
+    {
+      "log": "5-baseline-tests_linux.txt",
+      "suite": "tests_linux",
+      "tree": "3088694 clean",
+      "result": "18 passed"
+    },
+    {
+      "log": "6-baseline-tests_fdb3.txt",
+      "suite": "tests_fdb3",
+      "tree": "3088694 clean",
+      "result": "102 passed"
+    },
+    {
+      "log": "7-baseline-node-checks.txt",
+      "suite": "node tests/*.mjs (4 scripts)",
+      "tree": "3088694 clean",
+      "result": "4/4 exit 0"
+    },
+    {
+      "log": "8-edited-tree-tests.txt",
+      "suite": "tests",
+      "tree": "3088694 plus documentation-only edits",
+      "result": "1876 passed, 0 failed, 0 errors, 0 skips"
+    },
+    {
+      "log": "9-edited-tree-tests_linux.txt",
+      "suite": "tests_linux",
+      "tree": "3088694 plus documentation-only edits",
+      "result": "18 passed"
+    },
+    {
+      "log": "10-edited-tree-tests_fdb3.txt",
+      "suite": "tests_fdb3",
+      "tree": "3088694 plus documentation-only edits",
+      "result": "102 passed"
+    },
+    {
+      "log": "11-edited-tree-node-checks.txt",
+      "suite": "node tests/*.mjs (4 scripts)",
+      "tree": "3088694 plus documentation-only edits",
+      "result": "4/4 exit 0"
+    }
+  ],
+  "not_established": [
+    "full Linux/NeMo/GPU benchmark reproduction",
+    "any FDB-v3 recording, strict pass or judge result",
+    "organizer hardware",
+    "Android build or emulator checks"
+  ],
+  "log_sha256": {
+    "1-FAILED-tests_linux-without-ffmpeg.txt": "55554a82f4010df0657ed7b3b46a07902a9f8a56274b942b586d11ee28e117cb",
+    "2-FAILED-tests_fdb3-without-upstream-checkout.txt": "710377bbda0dbfd696642d04e0a2f78dd27466751ba4be5d5937aa1e948b43b6",
+    "3-FAILED-tests_fdb3-without-tts-command.txt": "7d695a819f6dd525f86dc707270d25bcf31c6e0973ad0bb5bdca853636fa52d6",
+    "4-baseline-tests.txt": "7400fe5ebf3484a2d23f5d1081719b8752261db037e0aed1a58d3581c4e3c3c2",
+    "5-baseline-tests_linux.txt": "2c4e8e7827f947d8049bcf57696fd6fea0316973769d66b02114dd6a55729ce7",
+    "6-baseline-tests_fdb3.txt": "6d1ca93ac5dff0661b00c4c4c511d16a00fe313e20fa2ac96ebb5a872c260863",
+    "7-baseline-node-checks.txt": "cfe835780e10436d0a00c0bfd9307560def90c24fabe048ab158d76685106251",
+    "8-edited-tree-tests.txt": "f85ec85f49f54ae08d48258aa4e06c38563dc54c87c8ab83471c2a63489c0890",
+    "9-edited-tree-tests_linux.txt": "405928bae21af3d54206440e2a503ab4bf4a859b6a0ba76afa0efe82bb720664",
+    "10-edited-tree-tests_fdb3.txt": "c147532a82440802219fe422c5b98f58390f805136e37fa62c0d6c9c15685f21",
+    "11-edited-tree-node-checks.txt": "cfe835780e10436d0a00c0bfd9307560def90c24fabe048ab158d76685106251"
+  },
+  "notes": "Container-specific virtual-environment paths are normalized as declared above. An aborted attempt that never started the Python suites (missing /usr/bin/time wrapper, exit 127) produced no test output and is not counted.",
+  "original_log_sha256": {
+    "1-FAILED-tests_linux-without-ffmpeg.txt": "55554a82f4010df0657ed7b3b46a07902a9f8a56274b942b586d11ee28e117cb",
+    "2-FAILED-tests_fdb3-without-upstream-checkout.txt": "ff6c794f7c07f977509bbfc0e54bd186c6f5dbf6e9115ff29a4c7d7951a669ed",
+    "3-FAILED-tests_fdb3-without-tts-command.txt": "07c65b6652d467c28cb9c73bde3e4dead0b1e82a9ff62896ec552e81be00377f",
+    "4-baseline-tests.txt": "fc720d89e5b1a4ff7b637b18b9920f52a0508d742ab6c8ffe06d562468e4e87e",
+    "5-baseline-tests_linux.txt": "2c4e8e7827f947d8049bcf57696fd6fea0316973769d66b02114dd6a55729ce7",
+    "6-baseline-tests_fdb3.txt": "2c899786d87c3ccdfc36f33150411edeed4e09bfe5b2c2839ef1c9ad96bc1928",
+    "7-baseline-node-checks.txt": "cfe835780e10436d0a00c0bfd9307560def90c24fabe048ab158d76685106251",
+    "8-edited-tree-tests.txt": "ef6dc00ca4f633b7834dbdd8075aaf23c0c62dfdc553a8081fbdc652792734ff",
+    "9-edited-tree-tests_linux.txt": "405928bae21af3d54206440e2a503ab4bf4a859b6a0ba76afa0efe82bb720664",
+    "10-edited-tree-tests_fdb3.txt": "e5ce16c67b4fc996e986209b2c48aa17efc425176552dc46fb415793037ccda6",
+    "11-edited-tree-node-checks.txt": "cfe835780e10436d0a00c0bfd9307560def90c24fabe048ab158d76685106251"
+  },
+  "path_normalization": {
+    "description": "Only the machine-specific ephemeral virtual-environment path prefix is replaced by <container-venv>/. Test output, failures, counts and timings are preserved.",
+    "derived_logs": [
+      "10-edited-tree-tests_fdb3.txt",
+      "2-FAILED-tests_fdb3-without-upstream-checkout.txt",
+      "3-FAILED-tests_fdb3-without-tts-command.txt",
+      "4-baseline-tests.txt",
+      "6-baseline-tests_fdb3.txt",
+      "8-edited-tree-tests.txt"
+    ],
+    "originals_preserved_locally": true,
+    "hashes": "original_log_sha256 identifies untouched originals; log_sha256 identifies these portable exports."
+  }
+}

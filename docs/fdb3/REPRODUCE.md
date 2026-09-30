@@ -1,6 +1,6 @@
 # FDB-v3 reproduction
 
-The current model and runtime settings are centralized in [config/fdb3-candidate.json](../../config/fdb3-candidate.json). The default recognizer is **small.en**, pinned to Systran revision `d1d751a5f8271d482d14ca55d9e2deeebbae577f`. Source identity comes from each runner's actual commit, dirty state and file hashes, never a stale candidate label.
+The current model and runtime settings are centralized in [config/fdb3-candidate.json](../../config/fdb3-candidate.json). The default recognizer is **small.en**, pinned to Systran revision `d1d751a5f8271d482d14ca55d9e2deeebbae577f`. The release declares **seed 42**. Source identity comes from the actual checkout commit and file hashes. A source ZIP has no Git identity: its snapshot explicitly records null commit/dirty values and exact file hashes instead of borrowing a parent checkout's commit.
 
 ## Full Linux entry point
 
@@ -28,13 +28,15 @@ export LLAMA_SERVER=/absolute/path/pinned-llama-server
 export THREAD_WORK=/absolute/path/new-run-directory
 ```
 
-The runner checks pinned identities and rejects conflicting inherited feature flags. It snapshots the exact runtime source. Default llama settings include context 8192, one slot, reasoning off, temperature 0 in planner requests, and scenario-scoped cache ownership. Historical Windows runs did not set an explicit sampling seed; their manifests say so.
+The runner checks pinned identities and rejects conflicting inherited feature flags. It snapshots the exact runtime source. Default llama settings include context 8192, one slot, reasoning off, temperature 0 in planner requests, explicit server seed 42, and scenario-scoped cache ownership. Historical Windows runs did not set an explicit sampling seed; their manifests retain that fact. Their scores are not new results for this changed configuration.
+
+The evaluator uses `requirements-fdb3-bench.lock` with `--require-hashes`: 225 resolved packages for Linux x86_64, glibc 2.28 or later, Python 3.11. Direct versions and official package metadata are recorded in `requirements-fdb3-bench.txt`. A fresh Linux installation and dependency-consistency check passed, followed by NeMo ASR import and four unmodified upstream CLI checks with networking disabled. The runtime and evaluator use separate environments. These checks loaded no model and are not proof of a successful full GPU benchmark.
 
 ## Preparation and containers
 
 `bash scripts/reproduce_fdb3_linux.sh --prepare-only` verifies CPU preparation only. Its success is **PREPARED_ONLY**, not a benchmark score. `Dockerfile.fdb3` has an explicit CPU component target and a CUDA candidate target. The earlier `Dockerfile.submission` and root `submission.yaml` describe the old queue-kit participant, not the current FDB entry point.
 
-The full clean-machine Linux/NeMo/GPU path has not been established by the current checkpoint. [Verification](../checkpoint/VERIFICATION.md) distinguishes executed tests and historical Windows WebRTC runs from that remaining qualification. No supplied setup command should be advertised as already verified on organizer hardware.
+Fresh Linux preparation from a source export without `.git` has passed: dependency consistency, hash-checked models and 100 recordings, all 12 public tools, speech-backend validation and the LiveKit agent CLI. The full Linux/NeMo/GPU benchmark remains unqualified. [Results](../submission/RESULTS.md) distinguishes preparation/component checks from complete historical Windows WebRTC runs. No supplied command is advertised as already verified on organizer hardware.
 
 ## Existing Windows diagnostic route
 
@@ -42,4 +44,4 @@ The full clean-machine Linux/NeMo/GPU path has not been established by the curre
 
 Windows uses SAPI for local diagnostic speech. Linux requires a configured local synthesizer; the Linux runner defaults to espeak-ng. Different speech engines and transports are declared in run identities and are not silently treated as comparable latency measurements.
 
-For the current browser/Android extension, use [Kitchen setup](../checkpoint/SETUP.md). Its WebSocket PCM transport is separate from benchmark WebRTC.
+For the current browser/Android extension, use [Kitchen setup](../SETUP.md). Its WebSocket PCM transport is separate from benchmark WebRTC.

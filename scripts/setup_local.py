@@ -49,4 +49,5 @@ if __name__=='__main__':
                     if not resolved.is_relative_to(target): raise ValueError('Archive member escapes runtime directory.')
                 archive.extractall(target)
     print('Local model and CUDA runtime ready. No model training was performed.',flush=True)
-    from setup_speech import model
+    from setup_speech import prepare_model
+    print(prepare_model())

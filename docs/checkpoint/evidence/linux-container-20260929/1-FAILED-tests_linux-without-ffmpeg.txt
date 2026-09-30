@@ -1,0 +1,31 @@
+test_both_launchers_consume_shared_configuration (test_fdb3_config.CandidateConfigTests.test_both_launchers_consume_shared_configuration) ... ok
+test_candidate_rejects_every_conflicting_feature_override (test_fdb3_config.CandidateConfigTests.test_candidate_rejects_every_conflicting_feature_override) ... ok
+test_cpu_is_explicitly_a_different_component_profile (test_fdb3_config.CandidateConfigTests.test_cpu_is_explicitly_a_different_component_profile) ... ok
+test_planner_pin_matches_candidate_cache_and_thread_requirements (test_fdb3_config.CandidateConfigTests.test_planner_pin_matches_candidate_cache_and_thread_requirements) ... ok
+test_comparison_checks_reference_hash_and_does_not_write_to_reference (test_fdb3_dispatch_smoke.DispatchSmokeGuards.test_comparison_checks_reference_hash_and_does_not_write_to_reference) ... ok
+test_comparison_retains_order_duplicates_and_exact_arguments (test_fdb3_dispatch_smoke.DispatchSmokeGuards.test_comparison_retains_order_duplicates_and_exact_arguments) ... ok
+test_live_or_wrong_source_reference_is_not_a_match (test_fdb3_dispatch_smoke.DispatchSmokeGuards.test_live_or_wrong_source_reference_is_not_a_match) ... ok
+test_selection_is_first_five_ids_not_manifest_order_or_outcomes (test_fdb3_dispatch_smoke.DispatchSmokeGuards.test_selection_is_first_five_ids_not_manifest_order_or_outcomes) ... ok
+test_zero_requests_or_token_limit_are_not_successful_judging (test_fdb3_dispatch_smoke.DispatchSmokeGuards.test_zero_requests_or_token_limit_are_not_successful_judging) ... ok
+test_build_parallelism_is_bounded (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_build_parallelism_is_bounded) ... ok
+test_cloud_key_does_not_authorize_hosted_judge (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_cloud_key_does_not_authorize_hosted_judge) ... ok
+test_existing_evidence_is_preserved (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_existing_evidence_is_preserved) ... ok
+test_failed_prerequisite_is_incomplete_not_an_imperfect_complete_run (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_failed_prerequisite_is_incomplete_not_an_imperfect_complete_run) ... FAIL
+test_help_never_creates_work_directory (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_help_never_creates_work_directory) ... ok
+test_invalid_provider_cannot_escape_result_directory (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_invalid_provider_cannot_escape_result_directory) ... ok
+test_missing_python_is_incomplete_not_perfect (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_missing_python_is_incomplete_not_perfect) ... ok
+test_shell_syntax (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_shell_syntax) ... ok
+test_unknown_option_is_failure_without_mutation (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_unknown_option_is_failure_without_mutation) ... ok
+
+======================================================================
+FAIL: test_failed_prerequisite_is_incomplete_not_an_imperfect_complete_run (test_reproduce_fdb3_linux.LinuxReproductionGuards.test_failed_prerequisite_is_incomplete_not_an_imperfect_complete_run)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_linux/test_reproduce_fdb3_linux.py", line 99, in test_failed_prerequisite_is_incomplete_not_an_imperfect_complete_run
+    self.assertIn("evidence is incomplete", result.stderr)
+AssertionError: 'evidence is incomplete' not found in '[reproduce] ERROR: missing ffmpeg\n'
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.103s
+
+FAILED (failures=1)

@@ -1,16 +1,7 @@
-# THREAD evidence
+# THREAD evaluation evidence
 
-The current official participant results are summarized in
-[the participant evidence record](docs/submission/EVIDENCE.md).
-[The engineering update](docs/ENGINEERING_UPDATE.md) explains what changed and
-what remains unfinished.
+The current FDB-v3 results, source/configuration identities and verification scope are in [the submission results](docs/submission/RESULTS.md). The release includes portable per-case records, source manifests, tool journals and hashes.
 
-The last complete official public batch scored **62.6 weighted points**, with
-**6/27 mandatory completions** and **4/27 full acceptance checks**. The integrated
-source passed **792 Python test methods**. A later package passed clean admission
-and one official text case, but has not passed a complete public batch.
+The selected `small.en` execution path has a complete historical measurement of **61/100 strict tool passes**, with all 100 recordings evaluated and zero infrastructure errors, at source `8dd530f`. A separate recognizer experiment scored **64/100** at source `771981a`. Both used a local Qwen judge. Neither is Samsung's official score or a fresh measurement of the final integrated release.
 
-These are different checks with different scopes. Regression tests, authored
-test counts, historical device checks and a single passing scenario do not
-establish that the entire submission passes. Original run archives remain local
-with their original source identities and failed attempts preserved.
+The earlier queue-kit scores in [the legacy evidence archive](docs/submission/EVIDENCE.md) use a different contract and cannot be compared with FDB-v3. The organizer's updated Theme 05 guide governs this submission.

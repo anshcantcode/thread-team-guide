@@ -1,4 +1,29 @@
-# THREAD Android 0.6.0
+# THREAD Android 1.0.0
+
+**Settings → Open Kitchen** opens a host-backed mode that uses the shared FDB-v3 controller through a LiveKit AgentSession. The native client streams 16 kHz microphone PCM, plays 24 kHz speech, and executes three real checklist tools in app-private storage. Input tokens are invalidated locally before a new request or disconnect; stored request receipts prevent duplicate effects. Reopening retains the checklist while starting a fresh host conversation. **History** retains the previous conversation when you choose **New conversation**, up to the latest 50 conversations.
+
+This mode requires the separate local host service; it does not run Whisper or the planner inside the APK. The original Gemini consumer experience remains available and is a separate runtime. The native release does not expose the debug ADB tool activity. No timer or third-party action is enabled in the network Kitchen mode.
+
+For a USB-connected test device or emulator, start the host using the repository's Kitchen setup instructions, then forward its loopback port:
+
+```powershell
+adb -s YOUR_DEVICE_SERIAL reverse tcp:8768 tcp:8768
+```
+
+Open Kitchen from Settings, retain `http://127.0.0.1:8768`, and choose **Connect without microphone** for a typed tour or **Connect and talk** for microphone input. Your existing Gemini key is not sent to this host. End the connection to stop speech; leaving the screen also stops the microphone. Review the saved checklist and latest local receipt beneath the conversation. HTTPS hosts are accepted only when explicitly configured; remote cleartext hosts and URLs containing credentials are rejected.
+
+Version 1.0.0 uses Android version code 5 and the existing development signing certificate. An in-place installation preserves app data when the installed app uses the same certificate; a differently signed installation cannot be upgraded in place. The APK includes a SHA-256 manifest of its embedded Python sources. It contains the local speech-activity detector, but no Whisper or planner weights and no user's configured key.
+
+The sections below retain historical consumer-app validation. Use the submission evidence for the exact scope of fresh checks; historical Samsung-device results are not new FDB-v3 device qualification. The earlier checkpoint exercised a real host request through the debug client's native storage and AudioTrack. The debug AndroidX runner cannot be reused against the minified APK because R8 changes its Kotlin runtime dependencies. The release smoke uses a separate Java companion, without application keep rules, microphone access or model calls, and visits both History and Kitchen:
+
+```powershell
+# From android/, with the release already installed on an owned emulator:
+.\gradlew.bat :ui-probe:assembleDebug
+adb -s YOUR_EMULATOR_SERIAL install -r ui-probe/build/outputs/apk/debug/ui-probe-debug.apk
+adb -s YOUR_EMULATOR_SERIAL shell am instrument -w com.thread.probe/com.thread.probe.KitchenReleaseProbe
+```
+
+For the opt-in real host test, install the matching debug and Android-test APKs, start the local Kitchen host, add the USB forwarding above, then run `com.thread.app.Fdb3ClientHostTest` with `-e thread_kitchen_host true`. It is excluded from the normal device suite. Both live/smoke checks require an emulator and restore or retain the test's local state as documented in the evidence.
 
 Native Kotlin / Jetpack Compose application for Android 12+ (API 31+), tested on Samsung Galaxy S24 SM-S921B, Android 16 / API 36, One UI 8.5. All six visual flow boards were approved before implementation. The generated sphere is a transparent image asset with audio-driven native motion; controls, results, transitions, sheets and widgets are actual UI.
 
@@ -15,6 +40,37 @@ Spotify top-track playback and pause/resume/repeat controls use a local OAuth PK
 The owner has Premium but has not registered the developer app. The integration's simulated-provider tests do not establish real account authorization or playback. See [smart action workflows](../SMART_ACTIONS.md), [ImageGen reference](../design/smart-tasks/reference.md), and [validation scope](../docs/VALIDATION.md). Historical Theme 05 results remain separate from later consumer-app verification.
 
 For the opt-in real-Gemini/Google phone check, run `com.thread.app.SmartActionsLiveDeviceTest` through the same instrumentation runner as the checks below. It opens Google search results, tests tab correction, and exercises a fictional travel correction and native pause/resume. It does not play Spotify music. It is excluded from the default device suite.
+
+## Opt-in live camera sharing
+
+During a connected conversation, **Start camera** explains what is shared and requests Android camera permission if needed. It opens the rear camera inside THREAD, with a continuous native preview and a persistent **Camera sharing · rear camera / Stop camera** strip. The strip remains visible when a result opens or while browsing other app screens. **Stop camera** keeps voice connected. Landscape/portrait rotation updates the preview and captures in place. Sharing also stops on leaving the foreground (including screen lock), activity recreation, ending/disconnecting voice, task controls, and opening a sheet/dialog that would cover the indicator. Restarting requires a fresh tap. A single still photo is still available under **Keyboard → Take a photo**; the photo picker remains available beside it.
+
+Camera2 renders a continuous hardware-backed TextureView preview targeting 30 fps. A separate low-resolution YUV stream supplies at most one JPEG per second on an encoding worker, with a longest edge of 768 pixels and an encoded size limit of 128 KiB. Speech/context changes invalidate upload ownership without clearing the preview, and result navigation retains the same preview surface. Only one frame can await the local relay's acknowledgment; there is no retry queue. Congested, oversized, and old captures are dropped; a missing acknowledgment stops sharing after five seconds. The relay separately validates JPEG contents, dimensions, size, cadence, sequence and timestamp, and bounds a pending provider delivery to 1.5 seconds. The phone should have automatic date/time enabled, particularly when using a development relay on another computer. This cadence follows [Gemini Live video input guidance](https://ai.google.dev/gemini-api/docs/live-api/capabilities); capture uses Android's [Camera2](https://developer.android.com/reference/android/hardware/camera2/package-summary) and [ImageReader](https://developer.android.com/reference/android/media/ImageReader) APIs without a new dependency.
+
+Captures belong to a random sharing session, local input ID and relay-issued context token. New speech, typed corrections and provider interruptions invalidate old capture ownership; the relay checks it again after waiting for its send lock. Stop invalidates ownership before late capture callbacks can enqueue another frame. The relay rejects frames from a stopped/replaced stream. A frame already transmitted before Stop cannot be recalled from the network or Gemini context; the model receives a stop marker and instructions to treat earlier images as historical. Frames are not stored in the notebook, task media, event trace or workspace, and do not authorize phone actions. Existing still-image and Samsung participant/evaluator contracts are unchanged.
+
+Focused checks: `python -m unittest tests.test_live_camera tests.test_live tests.test_native_authority tests.test_noise_recovery tests.test_android_backend tests.test_samsung_packaging`, plus Android `:app:testDebugUnitTest` (capture ownership, stop/restart, correction/interruption, acknowledgment, age, size and backlog guards). These use synthetic JPEGs and a fake upstream; they do not prove real-camera or Gemini visual quality.
+
+On 24 September 2026, the opt-in `CameraLiveDeviceTest` passed on the USB-connected SM-S921B using the actual embedded phone backend and Gemini. It checked initial camera-off state, runtime permission denial/grant, rear-camera JPEG acknowledgment alongside a recording AudioRecord, fresh delivery after a typed correction, real AudioTrack output, the indicator on a result screen, Stop/restart, sheet coverage, Home/return and End. The local enqueue counter remained unchanged for 2.5 seconds after each stop checkpoint, with the camera controller released. Eighteen frames were queued across the run; this is not a cumulative provider acceptance count. Given a user-supplied cat picture, an unhinted visual request produced a cat identification; the inspected portrait preview was upright. Local evidence: `reports/android-camera-live-device.json` and `reports/android-camera-live-device.png`.
+
+After replacing the sampled preview, the same S24 device test measured 88 actual TextureView updates in 3.001 seconds (29.32 fps) alongside microphone capture and acknowledged image delivery. It also verified that typed corrections and result navigation retain the same camera controller and that the result preview continues rendering. A first run measured 18.33 fps and failed the 20 fps threshold around a USB transport interruption; the unchanged rerun passed. This is a short device measurement, not a guarantee across thermal, lighting, or network conditions. The updated minified release was installed and passed the camera ownership/start/stop check plus two release microphone cycles (29.25 and 28.45 seconds of PCM processed). The installed package hash matched the release artifact. Its portrait layout was inspected in `reports/android-camera-smooth-preview.png`.
+
+The test intentionally captures from the physical rear camera and sends images to the configured Gemini account. It is excluded from the default device suite. For an explicitly authorized rerun with camera permission initially denied:
+
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" shell am instrument -w -e class com.thread.app.CameraLiveDeviceTest -e expected_object cat com.thread.app.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Omit `expected_object` to skip semantic recognition, or set it to the main object deliberately placed in view. The expected word is used only in the test assertion, never in the model's request. A debug app and matching test APK, saved Gemini configuration, internet and an unlocked phone are required. Test diagnostics retain counts/check results, not microphone audio or camera frames; the separate QA screenshot above was captured manually for visual inspection.
+
+The optimized release APK was then installed and checked independently through the companion UI probe. `scripts/check_android_camera_release.py` verified explicit Start camera, sustained camera ownership reported by Android, Stop releasing the camera while voice remained connected, and End. `scripts/check_android_release.py` passed two microphone/mute/unmute/end/cold-start cycles with 28.64 and 28.13 seconds of PCM processed, using the embedded phone backend without a laptop server or USB backend forwarding. The installed APK hash matched the built release artifact. An initial release connection attempt timed out before these successful cycles; its cause was not established, so these checks do not establish startup reliability across networks. Evidence is in `reports/android-camera-release-device.json`, `reports/android-release-microphone-check.json` and `reports/android-release-first-start.json`. The phone was left with the optimized release installed and camera/microphone inactive.
+
+Remaining device coverage beyond that run:
+
+- Revoke camera permission while sharing, and exercise Android's camera privacy toggle.
+- Check landscape orientation, screen lock, external phone-app handoff and connection loss.
+- Change between two physical scenes during a spoken interruption; transport ownership races have automated coverage, but this real visual/acoustic correction scenario remains unmeasured.
+- Exercise a slow connection for automatic stop and explicitly restart. Already-sent data cannot be retracted.
 
 ## Build and run
 

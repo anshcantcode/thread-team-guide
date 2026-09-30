@@ -1,0 +1,342 @@
+.....E.F..F.F....................AgentSession is closing due to unrecoverable error
+Traceback (most recent call last):
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/stt/stt.py", line 161, in recognize
+    event = await self._recognize_impl(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_empty_asr_boundary.py", line 74, in _recognize_impl
+    raise reply
+RuntimeError: authored ASR failure
+Error in _stt_task
+Traceback (most recent call last):
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/utils/log.py", line 16, in async_fn_logs
+    return await fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/voice/audio_recognition.py", line 663, in _stt_task
+    async for ev in node:
+  File "/home/user/thread-team-guide/thread_agent/fdb3_voice.py", line 451, in stt_node
+    event = await activity.stt.recognize(frame, conn_options=activity.session.conn_options.stt_conn_options)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<container-venv>/lib/python3.11/site-packages/livekit/agents/stt/stt.py", line 161, in recognize
+    event = await self._recognize_impl(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_empty_asr_boundary.py", line 74, in _recognize_impl
+    raise reply
+RuntimeError: authored ASR failure
+.............E.EEEEEEE............F.....FFFFFFFE.........................
+======================================================================
+ERROR: test_session_records_only_conversation_commit_event_for_playback (test_assistant_playback.PlaybackAdapterTests.test_session_records_only_conversation_commit_event_for_playback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/usr/lib/python3.11/unittest/async_case.py", line 90, in _callTestMethod
+    if self._callMaybeAsync(method) is not None:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/unittest/async_case.py", line 112, in _callMaybeAsync
+    return self._asyncioRunner.run(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_assistant_playback.py", line 56, in test_session_records_only_conversation_commit_event_for_playback
+    create_session(bridge, object())
+  File "/home/user/thread-team-guide/thread_agent/fdb3_voice.py", line 510, in create_session
+    session = AgentSession(stt=recognizer, tts=speech or speech_backend(), llm=ControllerLLM(bridge), vad=boundary,
+                                                         ^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/thread_agent/fdb3_voice.py", line 193, in speech_backend
+    raise RuntimeError("Set THREAD_FDB3_TTS_COMMAND to a local synthesizer argv, e.g. "
+RuntimeError: Set THREAD_FDB3_TTS_COMMAND to a local synthesizer argv, e.g. ["espeak-ng","-w","{output}","-f","{text_file}"]
+
+======================================================================
+ERROR: test_disk_checkpoint_precedes_native_io_and_preserves_response_hooks (test_evaluator_controls.EvaluatorControls.test_disk_checkpoint_precedes_native_io_and_preserves_response_hooks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 83, in test_disk_checkpoint_precedes_native_io_and_preserves_response_hooks
+    report = evaluate(UPSTREAM, SCENARIO, {'actual_tool_calls':SCENARIO['expected_tool_calls'],
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_malformed_judge_output_is_never_valid_evidence (test_evaluator_controls.EvaluatorControls.test_malformed_judge_output_is_never_valid_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 55, in test_malformed_judge_output_is_never_valid_evidence
+    self.assertIn('infrastructure_error',self.evaluate(SCENARIO['expected_tool_calls'],invalid_json=True))
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 39, in evaluate
+    return evaluate(UPSTREAM,SCENARIO,{'actual_tool_calls':calls,'transcript':'Locker M12 is available.'},
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_malformed_response_failure_and_raw_content_are_durable (test_evaluator_controls.EvaluatorControls.test_malformed_response_failure_and_raw_content_are_durable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 130, in test_malformed_response_failure_and_raw_content_are_durable
+    report=self.evaluate(SCENARIO['expected_tool_calls'], invalid_json=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 39, in evaluate
+    return evaluate(UPSTREAM,SCENARIO,{'actual_tool_calls':calls,'transcript':'Locker M12 is available.'},
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_no_tools_wrong_args_and_extra_tools_all_fail (test_evaluator_controls.EvaluatorControls.test_no_tools_wrong_args_and_extra_tools_all_fail) (calls=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 61, in test_no_tools_wrong_args_and_extra_tools_all_fail
+    self.assertFalse(self.evaluate(calls)['strict']['passed'])
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 39, in evaluate
+    return evaluate(UPSTREAM,SCENARIO,{'actual_tool_calls':calls,'transcript':'Locker M12 is available.'},
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_no_tools_wrong_args_and_extra_tools_all_fail (test_evaluator_controls.EvaluatorControls.test_no_tools_wrong_args_and_extra_tools_all_fail) (calls=[{'function': 'find_locker', 'args': {'tag': 'Z45'}}])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 61, in test_no_tools_wrong_args_and_extra_tools_all_fail
+    self.assertFalse(self.evaluate(calls)['strict']['passed'])
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 39, in evaluate
+    return evaluate(UPSTREAM,SCENARIO,{'actual_tool_calls':calls,'transcript':'Locker M12 is available.'},
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_no_tools_wrong_args_and_extra_tools_all_fail (test_evaluator_controls.EvaluatorControls.test_no_tools_wrong_args_and_extra_tools_all_fail) (calls=[{'function': 'find_locker', 'args': {'tag': 'M12'}}, {'function': 'find_locker', 'args': {'tag': 'M12'}}])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 61, in test_no_tools_wrong_args_and_extra_tools_all_fail
+    self.assertFalse(self.evaluate(calls)['strict']['passed'])
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 39, in evaluate
+    return evaluate(UPSTREAM,SCENARIO,{'actual_tool_calls':calls,'transcript':'Locker M12 is available.'},
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_partial_transport_failure_cannot_hide_behind_exact_match_fallback (test_evaluator_controls.EvaluatorControls.test_partial_transport_failure_cannot_hide_behind_exact_match_fallback)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 49, in test_partial_transport_failure_cannot_hide_behind_exact_match_fallback
+    result=self.evaluate(SCENARIO['expected_tool_calls'],first_template_fails=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 39, in evaluate
+    return evaluate(UPSTREAM,SCENARIO,{'actual_tool_calls':calls,'transcript':'Locker M12 is available.'},
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_positive_control_is_valid_but_explicitly_not_qualification (test_evaluator_controls.EvaluatorControls.test_positive_control_is_valid_but_explicitly_not_qualification)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 43, in test_positive_control_is_valid_but_explicitly_not_qualification
+    result=self.evaluate(SCENARIO['expected_tool_calls'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/tests_fdb3/test_evaluator_controls.py", line 39, in evaluate
+    return evaluate(UPSTREAM,SCENARIO,{'actual_tool_calls':calls,'transcript':'Locker M12 is available.'},
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 50, in evaluate
+    strict = load("evaluate_pass_rate", upstream)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/thread-team-guide/scripts/fdb3_evaluate.py", line 19, in load
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 936, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1130, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/home/user/thread-team-guide/.runtime/Full-Duplex-Bench/v3/evaluate_pass_rate.py'
+
+======================================================================
+ERROR: test_unobserved_judge_timestamp_cannot_become_completion_latency (test_latency_controls.UpstreamLatencyControls.test_unobserved_judge_timestamp_cannot_become_completion_latency)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 114, in test_unobserved_judge_timestamp_cannot_become_completion_latency
+    self.assertFalse(report['judge_requests'][0]['valid'])
+                     ~~~~~~~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+======================================================================
+FAIL: test_hundred_perfect_exact_matches_cannot_hide_all_failed_judgments (test_checked_upstream.CheckedUpstreamTests.test_hundred_perfect_exact_matches_cannot_hide_all_failed_judgments)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_checked_upstream.py", line 87, in test_hundred_perfect_exact_matches_cannot_hide_all_failed_judgments
+    self.assertEqual(summary['strict_passed'], 100)  # Pinned upstream fallback, unchanged.
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 100
+
+======================================================================
+FAIL: test_local_native_transport_has_successful_durable_receipts (test_checked_upstream.CheckedUpstreamTests.test_local_native_transport_has_successful_durable_receipts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_checked_upstream.py", line 109, in test_local_native_transport_has_successful_durable_receipts
+    self.assertEqual(codes, [0, 0])
+AssertionError: Lists differ: [2, 2] != [0, 0]
+
+First differing element 0:
+2
+0
+
+- [2, 2]
++ [0, 0]
+
+======================================================================
+FAIL: test_valid_judge_receipts_bind_both_outputs_and_inputs (test_checked_upstream.CheckedUpstreamTests.test_valid_judge_receipts_bind_both_outputs_and_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_checked_upstream.py", line 75, in test_valid_judge_receipts_bind_both_outputs_and_inputs
+    self.assertEqual(codes, [0, 0])
+AssertionError: Lists differ: [2, 2] != [0, 0]
+
+First differing element 0:
+2
+0
+
+- [2, 2]
++ [0, 0]
+
+======================================================================
+FAIL: test_native_attempt_is_durable_before_each_io_and_after_failure (test_latency_controls.InputASREvidenceTests.test_native_attempt_is_durable_before_each_io_and_after_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 185, in test_native_attempt_is_durable_before_each_io_and_after_failure
+    self.assertEqual(observed, [('/apply-template', 'pending', 0), ('/completion', 'pending', 1)])
+AssertionError: Lists differ: [] != [('/apply-template', 'pending', 0), ('/completion', 'pending', 1)]
+
+Second list contains 2 additional elements.
+First extra element 0:
+('/apply-template', 'pending', 0)
+
+- []
++ [('/apply-template', 'pending', 0), ('/completion', 'pending', 1)]
+
+======================================================================
+FAIL: test_actual_upstream_metrics_use_aligned_inputs_and_one_declared_local_judgment (test_latency_controls.UpstreamLatencyControls.test_actual_upstream_metrics_use_aligned_inputs_and_one_declared_local_judgment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 90, in test_actual_upstream_metrics_use_aligned_inputs_and_one_declared_local_judgment
+    self.assertEqual(report['status'], 'complete_diagnostic')
+AssertionError: 'infrastructure_error' != 'complete_diagnostic'
+- infrastructure_error
++ complete_diagnostic
+
+
+======================================================================
+FAIL: test_disabled_judge_is_explicitly_partial (test_latency_controls.UpstreamLatencyControls.test_disabled_judge_is_explicitly_partial)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 132, in test_disabled_judge_is_explicitly_partial
+    self.assertEqual(report['status'], 'partial_diagnostic')
+AssertionError: 'infrastructure_error' != 'partial_diagnostic'
+- infrastructure_error
++ partial_diagnostic
+
+
+======================================================================
+FAIL: test_failed_judge_preserves_attempts_and_available_metrics_without_green_status (test_latency_controls.UpstreamLatencyControls.test_failed_judge_preserves_attempts_and_available_metrics_without_green_status) (failure='transport')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 106, in test_failed_judge_preserves_attempts_and_available_metrics_without_green_status
+    self.assertEqual(len(report['native_judge_calls']), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_failed_judge_preserves_attempts_and_available_metrics_without_green_status (test_latency_controls.UpstreamLatencyControls.test_failed_judge_preserves_attempts_and_available_metrics_without_green_status) (failure='json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 106, in test_failed_judge_preserves_attempts_and_available_metrics_without_green_status
+    self.assertEqual(len(report['native_judge_calls']), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_failed_judge_preserves_attempts_and_available_metrics_without_green_status (test_latency_controls.UpstreamLatencyControls.test_failed_judge_preserves_attempts_and_available_metrics_without_green_status) (failure='context')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 106, in test_failed_judge_preserves_attempts_and_available_metrics_without_green_status
+    self.assertEqual(len(report['native_judge_calls']), 1)
+AssertionError: 0 != 1
+
+======================================================================
+FAIL: test_no_identified_completion_is_partial_not_failed_model_or_completed_evidence (test_latency_controls.UpstreamLatencyControls.test_no_identified_completion_is_partial_not_failed_model_or_completed_evidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 120, in test_no_identified_completion_is_partial_not_failed_model_or_completed_evidence
+    self.assertEqual(report['status'], 'partial_diagnostic')
+AssertionError: 'infrastructure_error' != 'partial_diagnostic'
+- infrastructure_error
++ partial_diagnostic
+
+
+======================================================================
+FAIL: test_no_tool_trace_cannot_report_all_latency_metrics_complete (test_latency_controls.UpstreamLatencyControls.test_no_tool_trace_cannot_report_all_latency_metrics_complete)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/user/thread-team-guide/tests_fdb3/test_latency_controls.py", line 139, in test_no_tool_trace_cannot_report_all_latency_metrics_complete
+    self.assertEqual(report['status'], 'partial_diagnostic')
+AssertionError: 'infrastructure_error' != 'partial_diagnostic'
+- infrastructure_error
++ partial_diagnostic
+
+
+----------------------------------------------------------------------
+Ran 102 tests in 35.219s
+
+FAILED (failures=11, errors=10)

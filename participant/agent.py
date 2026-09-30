@@ -17,7 +17,8 @@ import unicodedata
 from .authorization import (authorization_grant, command_head, contains_identifier, contains_value, count_mentions,
                             identifier_field, natural_count, spelled_runs, turn_clauses, _schema_words,
                             _verified_price_conditions)
-from .schema import at_path, call_key, scalar_fields, selected_printed_label, validate_args
+from .schema import (argument_question, at_path, call_key, scalar_fields, selected_printed_label, validate_args,
+                     with_declared_defaults)
 from .presentation import quantitative_template_is_bound
 from .spoken import PUBLIC_TOOLS, spoken_result
 
@@ -582,13 +583,13 @@ class ParticipantAgent:
                                                for op in self.operations.values()):
             self._say("clarification_request", "Understood, I will not look that up. Anything else?")
         if held:
-            text, gate = held[0]
-            self._say("clarification_request", text, gate=gate)
+            text, gate, validation = held[0]
+            self._say("clarification_request", text, gate=gate, validation=validation)
 
-    def _say(self, action, text, *, gate=None, call_id=None):
+    def _say(self, action, text, *, gate=None, call_id=None, validation=None):
         if (action == "clarification_request" and isinstance(text, str) and text.strip()
                 and getattr(self, "_held_clarifications", None) is not None):
-            self._held_clarifications.append((text, gate))
+            self._held_clarifications.append((text, gate, validation))
             return
         if isinstance(text, str) and text.strip():
             if action in {"final_response", "clarification_request"}:
@@ -601,6 +602,8 @@ class ParticipantAgent:
                 payload["call_id"] = call_id
             if gate:
                 payload["gate"] = gate  # Why the write gate refused: evidence, never spoken.
+            if validation:
+                payload["validation"] = validation  # The validator's own problems: evidence, never spoken.
             self._emit(action, payload)
 
     def _ensure_answer(self):
@@ -1395,10 +1398,12 @@ class ParticipantAgent:
         name, args = step["api_name"], step.get("args", {})
         tool = self.tools.get(name)
         # Omitted user details do not make a declared required parameter optional.
-        # Ask for the missing value instead of inventing it or passing null.
+        # Ask for the missing value instead of inventing it or passing null, in the
+        # contract's words; the validator's paths and messages are evidence only.
         problems = validate_args(tool, args)
         if problems:
-            self._say("clarification_request", "I need valid details before acting: " + "; ".join(problems[:3]))
+            self._say("clarification_request", argument_question(tool, args),
+                      validation={"api_name": name, "problems": problems})
             return
         if depth > 3:
             self._say("clarification_request", "This request needs more steps than I can safely complete at once.")
@@ -1503,7 +1508,9 @@ class ParticipantAgent:
                     return self._dispatch(repaired, retry=retry, depth=depth, selection=selection, recited=True)
             self._say("clarification_request", binding_error)
             return
-        key = call_key(name, args, write=tool["kind"] == "state_modifying")
+        # An omitted argument and its declared default are one effect for the ledger.
+        write = tool["kind"] == "state_modifying"
+        key = call_key(name, with_declared_defaults(args, tool) if write else args, write=write)
         retained, deferred_read = None, None
         if "retain_call_id" in step:
             source_id = step["retain_call_id"]

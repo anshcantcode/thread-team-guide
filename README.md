@@ -1,157 +1,90 @@
-<p align="center">
-  <img src="web/images/thread-sphere.png" width="150" alt="THREAD acoustic sphere">
-</p>
-
+<p align="center"><img src="web/images/thread-sphere.png" width="144" alt="THREAD acoustic sphere"></p>
 <h1 align="center">THREAD</h1>
+<p align="center"><strong>Go on.</strong><br>A voice assistant you can interrupt and correct without losing the task.</p>
 
-<p align="center"><strong>Ask. Interrupt. Keep going.</strong></p>
-<p align="center">A voice assistant that keeps the task consistent when the conversation changes.</p>
+<p align="center"><a href="docs/TOUR.md">Try THREAD</a> · <a href="docs/SETUP.md">Install</a> · <a href="docs/ARCHITECTURE.md">Architecture</a> · <a href="docs/submission/RESULTS.md">Results</a> · <a href="docs/submission/README.md">Submission</a></p>
 
-<p align="center">
-  <a href="docs/START_HERE.md">Product tour</a> ·
-  <a href="docs/RUN.md">Setup</a> ·
-  <a href="docs/CODE_MAP.md">Architecture</a> ·
-  <a href="docs/WHAT_WORKS.md">Capabilities</a> ·
-  <a href="docs/VALIDATION.md">Validation</a>
-</p>
+**Samsung PRISM 2026 · Theme 05: Interruptible Real-Time Agents**
+Team **ReflexAi**, SRM Institute of Science and Technology Kattankulathur.
+**Version 1.0.0 · Python 3.11 · Android 12+ · Browser**
 
-THREAD combines a native Android app, real-time voice, useful result cards, and a shared task engine. When a user interrupts a request, it updates the work behind the answer: retaining relevant details, rejecting obsolete results, and checking whether an action still has current permission.
+THREAD keeps a request's state as the user changes it. A correction invalidates obsolete work, retains relevant constraints and checks which actions still have permission to execute. If an action has already reached a tool, THREAD tracks its actual outcome instead of pretending an interruption undid it.
 
-**Android 0.6.0 · Android 12+ · Python 3.11 · Samsung PRISM Theme 05 prototype**
-
-This repository contains the application source, browser client, Android project, required runtime assets, tests, evaluation fixtures, and production sources for the product film. It also includes a guided starting point for the four-person team.
-
-## The interaction
-
-> **User:** Find flights from Chennai to Delhi, tomorrow after nine.
+> “Add two. Actually, one.”
 >
-> **User, while the search is running:** Actually Mumbai. Keep the date and time.
->
-> **THREAD:** Updates the destination, retains the other constraints, and prevents the obsolete Delhi result from taking over.
+> Before dispatch, only the surviving authorized quantity may run. After dispatch, a receipt records what actually happened. An unknown write is reconciled before any retry.
 
-The flight service uses fictional inventory. The controller behavior is implemented: a correction can supersede pending work and revoke permission for an unsubmitted action. Already-submitted effects remain tracked until their outcomes are known.
+## Start here
 
-## Android experience
+Download the [submission release](https://github.com/anshcantcode/thread-team-guide/releases/tag/PRISM_GENAI_HACKATHON_Y2026). It contains the Android APK, browser bundle, source archive, complete portable evidence, presentation, media and SHA-256 checksums. All assets refer to the same release; the evidence retains its original measured source identities.
 
-<p align="center">
-  <img src="motion/assets/screens/home.png" width="225" alt="THREAD voice screen on Android">
-  <img src="motion/assets/screens/sports.png" width="225" alt="Sports profile with source-backed innings and format controls">
-  <img src="motion/assets/screens/correction.png" width="225" alt="Task inspection showing retained constraints after a destination correction">
-</p>
+1. Follow [setup](docs/SETUP.md) to start the local planner and Kitchen host.
+2. Open the browser at **http://127.0.0.1:8768**, or install the APK and choose **Settings → Open Kitchen**.
+3. Follow the [five-minute product tour](docs/TOUR.md): make a real checklist change, inspect its receipt and read it again after reopening the client.
 
-Actual development-device captures. The sports screen displays a captured result; the travel screen shows a fictional scenario. See [capture provenance](motion/assets/screens/provenance.json).
+Kitchen uses local models and speech with no API key. The host runs on the computer; the Android client connects through explicit ADB reverse. Model downloads, CUDA/cuDNN prerequisites and the organizer dataset are separate from the release. The original Gemini app mode remains available with separately configured credentials.
 
-## Capabilities
+## How it works
 
-| Area | Implemented behavior |
+The FDB-v3 path carries real audio through LiveKit, local Whisper `small.en`, a Qwen3.5-4B planner, THREAD's controller, the actual tool boundary and local speech. The planner proposes an action; current state, clause authority and execution checks decide whether it can run.
+
+```mermaid
+flowchart LR
+  A[LiveKit audio] --> B[Speech onset and recognition]
+  B --> C[Qwen proposal]
+  C --> D[THREAD state and authorization]
+  D --> E[Tool admission]
+  E --> F[Actual outcome and receipt]
+  F --> G[Speech and playback accounting]
+  B -->|correction| D
+```
+
+The **Kitchen extension** connects the same controller to real browser and Android checklist storage. Its three tools read, add and update items. Session/request identities and durable idempotency receipts protect the client boundary. Its PCM WebSocket transport is distinct from benchmark LiveKit WebRTC. [Architecture and code map →](docs/ARCHITECTURE.md)
+
+## Evaluation
+
+The selected execution path has a complete historical **61/100 strict tool-pass** result at source `8dd530f`: **100 recordings evaluated, zero infrastructure errors**. A separately pinned larger-recognizer experiment scored **64/100** at source `771981a`. Both use a local Qwen diagnostic judge; Samsung's organizer rerun determines the official score.
+
+The final source integrates the measured general controller fixes and repaired client wiring. Matching runtime hashes are documented, but the integrated release does not inherit a fresh full-run result. Three fresh 100/100 runs have not been achieved. All failures remain in the published evidence. [Results, provenance and limits →](docs/submission/RESULTS.md)
+
+## Reproduce the benchmark
+
+After installing the declared Linux/Python 3.11, NVIDIA CUDA/cuDNN, FFmpeg, espeak-ng and LiveKit prerequisites:
+
+```bash
+export THREAD_FDB3_ARCHIVE=/absolute/path/fdb_v3_data_released.zip
+export LIVEKIT_SERVER=/absolute/path/livekit-server
+bash scripts/reproduce_fdb3_linux.sh
+```
+
+This entry point installs and configures isolated environments, verifies pinned data/model identities, runs fresh inference and invokes the evaluators. Local judging is the default. Read [the full reproduction procedure](docs/fdb3/REPRODUCE.md) for pins, optional existing assets, exit codes and the unqualified full Linux/GPU gate. No hosted spending is enabled by these instructions.
+
+## Submission materials
+
+| Material | Location |
 |---|---|
-| Conversation | Gemini Live audio, local Silero speech detection, interruption handling, typed requests, and an active voice dock alongside results. |
-| Task control | Constraint retention, revision-aware cancellation, current-result validation, explicit action authorization, duplicate protection, and outcome reconciliation. |
-| Useful results | Weather, sports, web/news discovery, research sources, arithmetic, unit and currency conversion, dates, clocks, documents, and notes. |
-| Personal workspace | Local Library, saved notes, persistent checklists, and home-screen widgets composed from supported results. |
-| Android actions | Google search-tab handoffs, app opening, Clock, Maps, dialer, message/email/calendar drafts, media volume, and permissioned flashlight. |
-| Phone runtime | Shared Python backend embedded in the Android app; private configuration encrypted with Android Keystore. |
-| Evaluation | Queue/JSONL adapter, deterministic timing replays, authored multimodal fixtures, provider checks, and native-device tests. |
+| Product tour and exact setup | [Tour](docs/TOUR.md), [setup](docs/SETUP.md) |
+| Architecture and implementation | [Architecture](docs/ARCHITECTURE.md) |
+| Eight-slide presentation | [SRMISTKtr_ReflexAI.pptx](docs/submission/SRMISTKtr_ReflexAI.pptx) |
+| Latest launch film | [THREAD_Launch_Film.mp4](https://github.com/anshcantcode/thread-team-guide/releases/download/PRISM_GENAI_HACKATHON_Y2026/THREAD_Launch_Film.mp4), animated companion with disclosed re-voiced replies |
+| Recorded demonstration | [THREAD_Recorded_Demo.mp4](docs/submission/media/THREAD_Recorded_Demo.mp4), edited historical benchmark and native extension evidence |
+| Measured results and test receipts | [Results](docs/submission/RESULTS.md), release evidence archive |
+| Team, required disclosure and submission status | [Submission index](docs/submission/README.md) |
 
-See [capability status](docs/WHAT_WORKS.md) for exact coverage. Spotify personal playback is implemented but awaits real account integration verification. Flights, room reservations, and device-support services are explicitly simulated. New Gemini requests and fresh public data require internet and available quota.
+The launch film illustrates recorded evidence and product concepts. The separate demo preserves original benchmark/agent audio and actual extension screen capture with source labels. Neither is presented as a continuous live capture of the final release. See [media provenance](docs/submission/media/README.md).
 
-## Quick start
+## Development
 
-### Browser workspace · Windows
+Run the provider-free Python and browser checks from [setup](docs/SETUP.md#build-and-test). Android's Gradle build embeds a per-file Python source manifest. Release verification compares those hashes with this checkout and verifies the APK signature. The native history screen retains the latest 50 conversations.
 
-Install Python **3.11**, then:
-
-```powershell
-git clone https://github.com/anshcantcode/thread-team-guide.git
-cd thread-team-guide
-py -3.11 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.lock
-Copy-Item .env.example .env
-notepad .env
-```
-
-Set `THREAD_API_KEY` locally, then run:
-
-```powershell
-.\run.ps1
-```
-
-Open **http://127.0.0.1:8766/**. Start with **Type instead**, or choose **Start talking** and allow microphone access. Use `stop-thread.ps1` to stop the desktop server. Copy `.env.example` only on first setup; preserve any existing `.env`.
-
-For a POSIX shell, use `python3.11 -m venv .venv`, activate it, install the same lockfile, and copy `.env.example` to `.env`. After configuration, run:
-
-```sh
-python -m uvicorn thread_agent.server:app --host 127.0.0.1 --port 8766
-```
-
-### Android
-
-Open `android/` in Android Studio. The project targets SDK 36, requires JDK 17+ and Python 3.11 for the embedded runtime, and supports Android 12+. Sync the Gradle wrapper before using the Windows helper:
-
-```powershell
-.\android\gradlew.bat --version
-.\scripts\build-android.ps1 -Release -Install
-```
-
-Installation requires an authorized USB-debugging device. On a fresh phone, enter a Gemini key in THREAD Settings. Normal use runs through the phone's embedded backend and its own internet connection. The review build uses a development signing key; see [Android setup](android/README.md) before upgrading an existing installation.
-
-Full prerequisites, provider configuration, troubleshooting, and device-check instructions are in [Setup](docs/RUN.md).
-
-## Architecture
-
-```text
-Android UI + local speech detection       Browser UI + audio
-                 |                                |
-       Embedded Python backend            Desktop backend
-                 +---------------+----------------+
-                                 |
-                    Live voice / interpretation
-                                 |
-                 Task state + action authorization
-                                 |
-              Tools, providers, and outcome tracking
-                                 |
-                  Voice, cards, Library, widgets
-```
-
-The model proposes interpretations. Deterministic state and authorization checks own the current task, valid result identifiers, and permission to execute effects. The provisional Theme 05 adapter uses the same engine through asynchronous event/action queues.
-
-| Directory | Responsibility |
+| Path | Responsibility |
 |---|---|
-| [`thread_agent/`](thread_agent/) | Controller, voice sessions, providers, schemas, and embedded backend. |
-| [`android/`](android/) | Kotlin/Compose app, audio, native actions, widgets, and device tests. |
-| [`web/`](web/) | Browser client, audio worklets, result renderers, fonts, and interface assets. |
-| [`tests/`](tests/) | Python and JavaScript regression checks. |
-| [`scripts/`](scripts/) | Build, verification, data-fixture, and packaging utilities. |
-| [`evaluation/`](evaluation/) | Authored task manifests, multimodal fixtures, and trace-viewer template. |
-| [`docs/`](docs/) | Team onboarding, code map, validation, and delivery plan. |
-| [`design/`](design/) | Selected interaction reference boards, labelled separately from actual UI. |
-| [`motion/`](motion/) | Editable film scripts, renderers, sound production, and attributed assets. |
+| `participant/` | Task state, planner proposals, clause authorization and write accounting |
+| `thread_agent/fdb3*.py` | LiveKit adapter, audio, tool admission and extension transport |
+| `web/` | Browser Kitchen, audio and durable local storage |
+| `android/` | Native app, history, checklist storage, playback and device checks |
+| `scripts/reproduce_fdb3_linux.sh` | Full FDB-v3 reproduction entry point |
+| `config/`, `requirements*.lock` | Frozen configuration, model identities and dependencies |
+| `tests/`, `tests_fdb3/`, `tests_linux/` | Independent regression and reproduction checks |
 
-Start with the [code map](docs/CODE_MAP.md) to follow a request through the system.
-
-## Verification
-
-These checks require installed dependencies but no API key:
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -q
-node tests/audio-check.mjs
-node tests/live-audio-check.mjs
-node tests/workspace-check.mjs
-.\.venv\Scripts\python.exe scripts/check_theme5.py --seeds 50
-```
-
-The replay checks six scenario families over 50 timing seeds, including stale results, corrected selections, unknown outcomes, replaced media, and preempted interpretation. Its scripted inputs measure controller behavior, not language-model accuracy or physical microphone latency.
-
-[Validation](docs/VALIDATION.md) distinguishes clean-checkout checks, recorded device evidence, and remaining work. The [CI workflow](.github/workflows/ci.yml) runs backend/browser checks and an Android build without production credentials. Live-provider and physical-device checks are opt-in.
-
-## Team workflow
-
-Read [Start here](docs/START_HERE.md), choose a path in [Code map](docs/CODE_MAP.md), then follow [Contributing](CONTRIBUTING.md). The [team plan](docs/TEAM_PLAN.md) keeps responsibilities and the technical demonstration aligned with the core interruption problem.
-
-The [Theme 05 contract](EVALUATION.md) is provisional until checked against the organizer's exact kit. The [product specification](THREAD_Product_Specification.md) and [roadmap](docs/ROADMAP.md) describe direction; neither should be read as a list of completed integrations.
-
-## Assets and licensing
-
-Bundled models, fonts, imagery, and generated media are documented in [Third-party notices](THIRD_PARTY_NOTICES.md). Their original notices remain included. A project-wide redistribution license has not been selected.
+Earlier queue-kit material is retained as a [legacy archive](docs/submission/LEGACY_QUEUE_KIT.md). Its scores and root `submission.yaml` are not the updated FDB-v3 contract. The [third-party notices](THIRD_PARTY_NOTICES.md) retain required asset and dependency attribution. Credentials and private runtime state are excluded from the repository and release.

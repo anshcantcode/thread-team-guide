@@ -65,8 +65,15 @@ def mode_candidates(layers):
         candidates.append(("planner_schema", "malformed or failed model proposal"))
     for row in layers.get("rejections_and_clarifications", []):
         text = str(row.get("payload", {}).get("text", ""))
+        # Spoken validation questions carry the validator's problems as evidence;
+        # older runs spoke them after "I need valid details before acting".
+        validation = row.get("payload", {}).get("validation")
         if "confirm the action" in text or "confirm the proposed values" in text:
             candidates.append(("authorization_false_rejection", "write gate refused: " + text[:120] + " (review whether refusal was correct)"))
+        elif isinstance(validation, dict):
+            problems = validation.get("problems")
+            problems = "; ".join(str(problem) for problem in problems) if isinstance(problems, list) else ""
+            candidates.append(("planner_schema", "declared argument/tool shape refused: " + (problems or text)[:120]))
         elif "valid details" in text or "valid tool" in text:
             candidates.append(("planner_schema", "declared argument/tool shape refused: " + text[:120]))
         elif "needs a successful result" in text or "does not match" in text or "cannot invent" in text:

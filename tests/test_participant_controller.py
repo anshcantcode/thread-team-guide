@@ -729,6 +729,51 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
                 self.assertNotIn("note_id", agent.state["slots"])
                 self.assertEqual(self.drain(agent), [])
 
+    async def test_unsettled_write_is_not_repeated_by_spelling_out_a_declared_default(self):
+        # add_to_cart(item) and add_to_cart(item, quantity=1) are the same effect when the
+        # contract declares quantity's default as 1. Idea credited to Keel's ledger key.
+        tool = {"kind": "state_modifying", "description": "Add an item to the cart.",
+                "args": {"product_id": {"type": "string", "required": True},
+                         "quantity": {"type": "integer", "required": False, "default": 1}}}
+        for first_args, second_args in (({"product_id": "B7"}, {"product_id": "B7", "quantity": 1}),
+                                        ({"product_id": "B7", "quantity": 1}, {"product_id": "B7"})):
+            with self.subTest(first=first_args, second=second_args):
+                proposals = iter((first_args, second_args))
+                def decide(_):
+                    return {"intent": "add_to_cart", "slots": {},
+                            "tool_calls": [{"api_name": "add_to_cart", "args": dict(next(proposals)),
+                                            "authorization": {"quote": "Add item B7 to my cart"}}]}
+                agent = await self.start(decide, tools={"add_to_cart": tool})
+                await self.speak(agent, "Add item B7 to my cart.")
+                first = await self.output(agent, "tool_call")
+                await self.result(agent, first, {"error": "timeout"}, status="error")
+                await self.output(agent, "final_response")
+                await self.speak(agent, "Add item B7 to my cart.")
+                blocked = await self.output(agent, "final_response")
+                self.assertIn("already submitted", blocked["payload"]["text"])
+                self.assertEqual(len(agent.operations), 1)
+                self.assertEqual(self.drain(agent), [])
+
+    async def test_declared_default_does_not_merge_different_explicit_values(self):
+        tool = {"kind": "state_modifying", "description": "Add an item to the cart.",
+                "args": {"product_id": {"type": "string", "required": True},
+                         "quantity": {"type": "integer", "required": False, "default": 1}}}
+        proposals = iter((({"product_id": "B7"}, "Add item B7 to my cart"),
+                          ({"product_id": "B7", "quantity": 2}, "Add two of item B7 to my cart")))
+        def decide(_):
+            args, quote = next(proposals)
+            return {"intent": "add_to_cart", "slots": {},
+                    "tool_calls": [{"api_name": "add_to_cart", "args": dict(args),
+                                    "authorization": {"quote": quote}}]}
+        agent = await self.start(decide, tools={"add_to_cart": tool})
+        await self.speak(agent, "Add item B7 to my cart.")
+        first = await self.output(agent, "tool_call")
+        await self.result(agent, first, {"error": "timeout"}, status="error")
+        await self.output(agent, "final_response")
+        await self.speak(agent, "Add two of item B7 to my cart.")
+        second = await self.output(agent, "tool_call")
+        self.assertEqual(second["payload"]["args"], {"product_id": "B7", "quantity": 2})
+
     async def test_reinterpreted_audio_cannot_repeat_a_write_on_frame_or_manifest_replan(self):
         tool = {"kind": "state_modifying", "description": "Create a note.", "args": {"text": {"type": "string", "required": True}}}
         for change in ("frame", "manifest"):

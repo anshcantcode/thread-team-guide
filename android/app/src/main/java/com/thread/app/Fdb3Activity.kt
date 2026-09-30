@@ -66,7 +66,7 @@ class Fdb3Activity : ComponentActivity() {
         }
         text("THREAD / KITCHEN", 14f)
         text("One request. Keep going.", 30f)
-        text("Checkpoint mode · current FDB-v3 controller", 14f)
+        text("Host mode · shared FDB-v3 controller", 14f)
         text("Connect to your trusted development host. Audio and typed requests go to its LiveKit agent. Only checklist tools are enabled; items and receipts stay in this app. Voice stops when you leave this screen.", 15f)
         host = field("Host address").apply {
             setText(getSharedPreferences("fdb3-client", MODE_PRIVATE).getString("host", "http://127.0.0.1:8768"))

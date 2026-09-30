@@ -65,7 +65,8 @@ class DispatchTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse([event for event in events if event["action"] == "tool_call"])
         clarification = [event for event in events if event["action"] == "clarification_request"]
         self.assertEqual(len(clarification), 1)
-        self.assertIn("args.rooms: missing required argument", clarification[0]["payload"]["text"])
+        self.assertEqual(clarification[0]["payload"]["text"], "Could you tell me the rooms?")
+        self.assertEqual(clarification[0]["payload"]["validation"]["problems"], ["args.rooms: missing required argument"])
 
     async def test_numbers_of_other_requests_cannot_supply_an_unstated_required_filter(self):
         self.agent._handle({"event_type": "user_speech_chunk", "payload": {"text":
@@ -76,7 +77,8 @@ class DispatchTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse([event for event in events if event["action"] == "tool_call"])
         clarification = [event for event in events if event["action"] == "clarification_request"]
         self.assertEqual(len(clarification), 1)
-        self.assertIn("args.rooms: missing required argument", clarification[0]["payload"]["text"])
+        self.assertEqual(clarification[0]["payload"]["text"], "Could you tell me the rooms?")
+        self.assertEqual(clarification[0]["payload"]["validation"]["problems"], ["args.rooms: missing required argument"])
 
     async def test_an_unused_number_in_the_search_sentence_still_needs_repair(self):
         self.agent._handle({"event_type": "user_speech_chunk", "payload": {"text":

@@ -3,6 +3,7 @@ package com.thread.app
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -24,6 +25,15 @@ class MainActivity : ComponentActivity() {
     val model: ThreadModel by viewModels()
     private var showConsent by mutableStateOf(false)
     private var consentAction: (() -> Unit)? = null
+    private var liveCamera: LiveCamera? = null
+    private var cameraPreview by mutableStateOf<android.view.TextureView?>(null)
+    private var cameraRequestGeneration: Int? = null
+    private val liveCameraPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { allowed ->
+        val current = cameraRequestGeneration; cameraRequestGeneration = null
+        if (current == model.connectionGeneration && model.ui.connected && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+            if (allowed) startCamera() else model.showError("Camera permission is off. You can keep talking or allow Camera in Android app permissions.")
+        }
+    }
     private val microphone = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (it[Manifest.permission.RECORD_AUDIO] == true || checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) model.connect(true)
         else { model.keyboard = true; model.showError("Microphone permission is off. You can type, or allow it in Android app permissions.") }
@@ -35,6 +45,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        model.closeCamera = { liveCamera?.close(); liveCamera = null; cameraPreview = null }
         model.deviceAction = { request ->
             if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) PhoneActions.outcome("failed", "Open THREAD to continue this phone action.")
             else PhoneActions(this) { model.widget = it }.execute(request).also {
@@ -43,11 +54,11 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             ThreadTheme {
-                ThreadApp(model, ::startVoice, { image.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, ::takePhoto,
-                    { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))) })
+                ThreadApp(model, ::startVoice, { image.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, ::toggleCamera,
+                    { startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))) }, ::takePhoto, cameraPreview)
                 if (showConsent) AlertDialog(onDismissRequest = { showConsent = false; consentAction = null },
                     title = { Text("Your voice, with your permission.") },
-                    text = { Text("Audio, messages, shared images and relevant task context go to Google Gemini over the internet. THREAD's task engine runs on this phone. Searches use their named providers. Text, notes and results are kept on this phone; raw microphone audio is not saved. The microphone is active only in a conversation you start.") },
+                    text = { Text("Audio, messages, shared images and relevant task context go to Google Gemini over the internet. Camera sharing is optional: Start camera sends rear-camera images until you stop or leave THREAD. Raw audio and camera frames are not saved. THREAD's task engine runs on this phone. Text, notes and results are kept on this phone.") },
                     confirmButton = { TextButton(onClick = { model.preference("consent", true); showConsent = false; consentAction?.invoke(); consentAction = null }) { Text("Continue") } },
                     dismissButton = { TextButton(onClick = { showConsent = false; consentAction = null }) { Text("Not now") } })
             }
@@ -57,6 +68,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); incoming(intent) }
     override fun onResume() { super.onResume(); model.refreshSpotifyConnection() }
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        liveCamera?.updateRotation((display?.rotation ?: 0) * 90)
+    }
+    override fun onPause() { model.stopCameraSharing(); super.onPause() }
+    override fun onStop() { cameraRequestGeneration = null; super.onStop() }
     private fun incoming(intent: Intent) {
         if (intent.getBooleanExtra("talk", false) || intent.action == Intent.ACTION_ASSIST) { model.route = "voice"; startVoice() }
         if (intent.hasExtra("widget_id")) {
@@ -81,6 +98,23 @@ class MainActivity : ComponentActivity() {
     private fun takePhoto() {
         if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) camera.launch(null) else cameraPermission.launch(Manifest.permission.CAMERA)
     }
+    private fun toggleCamera() {
+        if (model.cameraSharing) { model.stopCameraSharing(); return }
+        if (!model.ui.connected) return
+        if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) startCamera()
+        else { cameraRequestGeneration = model.connectionGeneration; liveCameraPermission.launch(Manifest.permission.CAMERA) }
+    }
+    private fun startCamera() {
+        if (!model.startCameraSharing()) return
+        val rotation = (display?.rotation ?: 0) * 90
+        lateinit var capture: LiveCamera
+        capture = LiveCamera(this, model, rotation) {
+            runOnUiThread { if (liveCamera === capture) {
+                model.stopCameraSharing(); model.showError("Camera sharing stopped. Check camera access and try Start camera again. Your voice conversation can continue.")
+            } }
+        }
+        liveCamera = capture; capture.start(); cameraPreview = capture.preview
+    }
     private fun readImage(uri: Uri) {
         try {
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -96,5 +130,5 @@ class MainActivity : ComponentActivity() {
         val buffer = ByteArrayOutputStream(); scaled.compress(Bitmap.CompressFormat.JPEG, 88, buffer)
         model.queueImage(buffer.toByteArray())
     }
-    override fun onDestroy() { model.deviceAction = null; super.onDestroy() }
+    override fun onDestroy() { model.stopCameraSharing(); model.closeCamera = null; model.deviceAction = null; super.onDestroy() }
 }

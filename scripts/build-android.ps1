@@ -27,7 +27,7 @@ try {
         } elseif ($Test) {
             & "$env:ANDROID_HOME\platform-tools\adb.exe" install -r 'app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk'
             if ($LASTEXITCODE -ne 0) { throw 'Test APK install failed.' }
-            $threadTestOutput = & "$env:ANDROID_HOME\platform-tools\adb.exe" shell am instrument -w -e notClass com.thread.app.ThreadLiveDeviceTest,com.thread.app.WidgetLiveDeviceTest,com.thread.app.SmartActionsLiveDeviceTest com.thread.app.test/androidx.test.runner.AndroidJUnitRunner
+            $threadTestOutput = & "$env:ANDROID_HOME\platform-tools\adb.exe" shell am instrument -w -e notClass com.thread.app.ThreadLiveDeviceTest,com.thread.app.WidgetLiveDeviceTest,com.thread.app.SmartActionsLiveDeviceTest,com.thread.app.CameraLiveDeviceTest,com.thread.app.Fdb3ClientHostTest com.thread.app.test/androidx.test.runner.AndroidJUnitRunner
             $threadTestOutput | Write-Output
             & "$env:ANDROID_HOME\platform-tools\adb.exe" shell am start -n com.thread.app/.MainActivity
             if (($threadTestOutput -join "`n") -notmatch 'OK \([0-9]+ tests?\)') { throw 'Android device checks failed; inspect the instrumentation output.' }

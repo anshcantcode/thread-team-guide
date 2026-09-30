@@ -34,6 +34,7 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
     @Volatile private var pausedId: String? = null
     @Volatile private var currentId: String? = null
     private var writtenFrames = 0L
+    private val playbackLedger = PlaybackLedger()
     private var lastQuiet = 0L
     private var lastSpeech = 0L
     private var nextRecovery = 0L
@@ -145,7 +146,12 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
                             }
                             val count = minOf(960, item.bytes.size - item.offset)
                             val wrote = track?.write(item.bytes, item.offset, count, AudioTrack.WRITE_NON_BLOCKING) ?: 0
-                            if (wrote > 0) { item.offset += wrote; writtenFrames += wrote / 2; state("Speaking", item.level) }
+                            if (wrote > 0) {
+                                val start = writtenFrames
+                                item.offset += wrote; writtenFrames += wrote / 2
+                                playbackLedger.written(item.id, start, writtenFrames)
+                                state("Speaking", item.level)
+                            }
                             if (item.offset >= item.bytes.size) queue.poll()
                         }
                     } else if (currentId != null && (track?.playbackHeadPosition?.toLong()?.and(0xffffffffL) ?: 0) >= writtenFrames) {
@@ -176,7 +182,7 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
                     else error("Audio playback fell behind. Reconnect to continue.")
                 }
             }
-            "interrupted" -> if (event.optBoolean("recoverable")) { pause(id); lastQuiet = SystemClock.elapsedRealtime(); nextRecovery = lastQuiet + 1800 } else discard(false)
+            "interrupted" -> if (event.optBoolean("recoverable")) { pause(id); lastQuiet = SystemClock.elapsedRealtime(); nextRecovery = lastQuiet + 1800 } else interruptPlayback()
             "caption" -> if (event.optString("role") == "user" && hasWords(event.optString("text"))) discard(true)
             "resume_after_noise" -> if (pausedId == id) {
                 pausedId = null; track?.play(); recoveryRetries = 0
@@ -188,7 +194,7 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
             "turn_complete" -> { completed.add(id); if (completed.size > 64) completed.remove(completed.first()) }
             "silenced" -> {
                 currentId?.let(blocked::add); pausedId?.let(blocked::add); queue.forEach { blocked.add(it.id) }
-                queue.clear(); track?.pause(); track?.flush(); writtenFrames = 0; track?.play()
+                queue.clear(); track?.pause(); retainHeard(); track?.flush(); writtenFrames = 0; track?.play()
                 currentId = null; pausedId = null; continuation = null; state("Ready", 0f)
             }
         }
@@ -200,12 +206,24 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
         playback(id, "paused")
     }
 
-    fun typed() = synchronized(lock) { pause(currentId); discard(false) }
+    fun typed() = synchronized(lock) { interruptPlayback() }
+
+    /** A host-confirmed interruption can arrive before local VAD has paused audio. */
+    private fun interruptPlayback() {
+        val affected = linkedSetOf<String>()
+        currentId?.let(affected::add); pausedId?.let(affected::add)
+        queue.forEach { affected.add(it.id) }
+        track?.pause(); retainHeard(); track?.flush(); writtenFrames = 0
+        queue.clear(); pausedId = null; currentId = null; continuation = null
+        for (id in affected) { blocked.add(id); playback(id, "interrupted") }
+        while (blocked.size > 64) blocked.remove(blocked.first())
+        track?.play()
+    }
 
     private fun discard(withAck: Boolean) {
         val id = pausedId ?: return
         blocked.add(id); if (blocked.size > 64) blocked.remove(blocked.first())
-        track?.pause(); track?.flush(); writtenFrames = 0
+        track?.pause(); retainHeard(); track?.flush(); writtenFrames = 0
         queue.removeIf { it.id == id }; pausedId = null; currentId = null; continuation = null
         playback(id, "interrupted"); track?.play()
         val now = SystemClock.elapsedRealtime()
@@ -224,7 +242,15 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
         }
     }
 
-    private fun playback(id: String, status: String) = send(JSONObject().put("type", "playback").put("message_id", id).put("status", status))
+    private fun heardFrames(id: String): Long {
+        val head = track?.playbackHeadPosition?.toLong()?.and(0xffffffffL) ?: 0L
+        return playbackLedger.heard(id, head)
+    }
+    private fun retainHeard() {
+        playbackLedger.flush(track?.playbackHeadPosition?.toLong()?.and(0xffffffffL) ?: 0L)
+    }
+    private fun playback(id: String, status: String) = send(JSONObject().put("type", "playback").put("message_id", id)
+        .put("status", status).put("played_ms", heardFrames(id) * 1000.0 / 24000.0))
 
     fun close() {
         running = false
