@@ -1,5 +1,7 @@
 # Verification record
 
+**Historical checkpoint record.** “Current” and test counts below belong to this September checkpoint. Later measurements remain source-labelled in [submission results](../submission/RESULTS.md); final-source evidence is in [the README results](../../README.md#results).
+
 This checkpoint repairs the current source and connects it to browser and Android Kitchen. Historical benchmark measurements and fresh engineering checks are separate evidence.
 
 ## Verified historical measurements

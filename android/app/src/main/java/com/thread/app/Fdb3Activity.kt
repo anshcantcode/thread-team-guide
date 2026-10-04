@@ -41,6 +41,8 @@ class Fdb3Activity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // A Kitchen widget can open this screen during a normal conversation.
+        (application as? ThreadApplication)?.currentModel?.disconnect(false)
         store = Fdb3ClientStore(this)
         fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
         val layout = LinearLayout(this).apply {

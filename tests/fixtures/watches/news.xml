@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Saved synthetic news fixture, not live reporting</title>
+  <item><title>Committee releases a timetable &amp; review notes</title><link>https://example.com/reports/one?ref=rss</link><guid>one</guid><pubDate>Fri, 02 Oct 2026 10:00:00 GMT</pubDate><source url="https://example.com">Example Gazette</source></item>
+  <item><title>Panel schedules a public briefing</title><link>https://example.org/reports/two</link><pubDate>Sat, 03 Oct 2026 12:30:00 GMT</pubDate><source>Example Journal</source></item>
+  <item><title>Panel schedules a public briefing</title><link>https://example.org/reports/duplicate</link><pubDate>Sat, 03 Oct 2026 12:30:00 GMT</pubDate><source>Example Journal</source></item>
+  <item><title>Unsafe link is ignored</title><link>javascript:alert(1)</link><pubDate>not a date</pubDate></item>
+</channel></rss>

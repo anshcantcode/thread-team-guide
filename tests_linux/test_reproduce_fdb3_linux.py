@@ -5,7 +5,9 @@ Git Bash results check shell guards only, not Linux runtime compatibility.
 """
 from pathlib import Path
 import os
+import shlex
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -23,7 +25,7 @@ def shell_path(path):
 
 
 class LinuxReproductionGuards(unittest.TestCase):
-    def invoke(self, *args, **values):
+    def invoke(self, *args, stdin_text=None, **values):
         env = {key: value for key, value in os.environ.items()
                if not key.startswith("THREAD_") and not key.startswith("OPENAI_")}
         env.update(values)
@@ -31,7 +33,7 @@ class LinuxReproductionGuards(unittest.TestCase):
             if key in values and Path(values[key]).is_absolute():
                 env[key] = shell_path(values[key])
         return subprocess.run([BASH, shell_path(SCRIPT), *args], env=env,
-                              text=True, capture_output=True, timeout=15)
+                              text=True, capture_output=True, input=stdin_text, timeout=15)
 
     def test_shell_syntax(self):
         subprocess.run([BASH, "-n", shell_path(SCRIPT)], check=True, timeout=5)
@@ -105,6 +107,42 @@ class LinuxReproductionGuards(unittest.TestCase):
                                  THREAD_PROVIDER_LABEL="../../old-results")
             self.assertEqual(result.returncode, 2)
             self.assertFalse(work.exists())
+
+    def test_batch_runner_never_passes_caller_stdin_to_children(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            python = root / "stdin-probe"
+            python.write_text("#!/bin/sh\nif IFS= read -r line; then\n"
+                              "  echo 'input was inherited'\nelse\n"
+                              "  echo 'stdin is closed'\nfi\nexit 37\n", newline="\n")
+            python.chmod(0o700)
+            result = self.invoke("--prepare-only", THREAD_WORK=str(root / "work"),
+                                 THREAD_PYTHON=str(python), stdin_text="caller keyboard input\n")
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("stdin is closed", result.stdout)
+            self.assertNotIn("input was inherited", result.stdout)
+
+    def test_subprocess_unicode_survives_native_library_locale_reset(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            probe = root / "encoding-probe.py"
+            probe.write_text(
+                "import locale, subprocess, sys\n"
+                "locale.setlocale(locale.LC_ALL, 'C')\n"
+                "assert sys.flags.utf8_mode == 1\n"
+                "value = subprocess.check_output([sys.executable, '-c', "
+                "\"import os; os.write(1, bytes.fromhex('e29c9320746578740a'))\"], text=True)\n"
+                "assert value == '\\u2713 text\\n', repr(value)\n"
+                "print('strict UTF-8 subprocess decode passed')\n"
+                "sys.exit(37)\n", encoding="utf-8", newline="\n")
+            python = root / "encoding-python"
+            python.write_text("#!/bin/sh\nexec " + shlex.quote(shell_path(sys.executable))
+                              + " " + shlex.quote(shell_path(probe)) + "\n", newline="\n")
+            python.chmod(0o700)
+            result = self.invoke("--prepare-only", THREAD_WORK=str(root / "work"),
+                                 THREAD_PYTHON=str(python), PYTHONUTF8="0", PYTHONIOENCODING="ascii")
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("strict UTF-8 subprocess decode passed", result.stdout, result.stderr)
 
 
 if __name__ == "__main__":

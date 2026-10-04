@@ -941,16 +941,25 @@ def _plain_authorization_grant(step: dict, tool: dict, texts: list[tuple[int, st
         # question or statement cannot borrow another clause's command.
         if not allow_attachment:
             return _deny(trace, "re-cited clause has no command of its own")
+        # A re-cited value may reattach only a command clause the proposal itself cited
+        # (a collection of clause ids); True allows any clause. Never an uncited command.
+        def attachable(row):
+            return allow_attachment is True or row.get("clause_id") in allow_attachment
         # Cited clauses only refine an action ("make it one"): attach the single
         # nearest preceding command clause of this action, then check everything
         # exactly as if it had been cited. Never for quotes, never across a cancel.
         before = [row for row in clauses if row["end"] <= cited[0]["start"]
-                  and commands_in(row["start"], row["end"])]
+                  and commands_in(row["start"], row["end"]) and attachable(row)]
         # The value first, then a command that only points back at it ("My new license
         # number is D468." / "Can you put that on my profile?"): attach that command.
-        after = [row for row in clauses if row["start"] >= cited[-1]["end"]
+        after = [row for row in clauses if row["start"] >= cited[-1]["end"] and attachable(row)
                  and any(_anaphoric(language[row["start"] + item.end(1):row["end"]])
                          or re.match(r"[\s,]*(?:it|that|this|them)\b", language[row["start"] + item.end(1):row["end"]])
+                         # "swap out the old one and put this new one in there": a demonstrative
+                         # "one" points back too, only within a clause the proposal cited.
+                         or allow_attachment is not True and re.search(
+                             r"\b(?:this|that|the)\s+(?:(?:new|old|same|updated|other)\s+)?ones?\b",
+                             language[row["start"] + item.end(1):row["end"]])
                          for item in commands_in(row["start"], row["end"]))]
         if before:
             cited = [before[-1], *cited]
@@ -960,6 +969,14 @@ def _plain_authorization_grant(step: dict, tool: dict, texts: list[tuple[int, st
             return _deny(trace, "no command verb in or before the cited clauses")
     region_start, span_end = cited[0]["start"], cited[-1]["end"]
     commands = commands_in(region_start, span_end)
+    if len(commands) > 1:
+        # One command said several times word for word ("add to cart, add to cart, add to
+        # cart": a stutter or a recognizer echo) is one command, not an ambiguous many.
+        def said(position):
+            end = (region_start + commands[position + 1].start()) if position + 1 < len(commands) else span_end
+            return " ".join(re.findall(r"[a-z0-9]+", language[region_start + commands[position].start(1):end]))
+        if len({said(position) for position in range(len(commands))}) == 1:
+            commands = commands[:1]
     primary = [item for item in commands if not _anaphoric(language[region_start + item.end(1):span_end])]
     if len(commands) > 1 and len(primary) == 1:
         commands = primary

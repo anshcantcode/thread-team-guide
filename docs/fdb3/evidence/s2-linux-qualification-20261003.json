@@ -1,0 +1,237 @@
+{
+  "attempt": "full-003",
+  "started_utc": "2026-10-03T13:26:42Z",
+  "finished_utc": "2026-10-03T15:24:08Z",
+  "wall_seconds": 7046.0,
+  "script_exit_code": 1,
+  "raw_upstream_metrics": {
+    "tool_selection_acc": 0.871,
+    "argument_acc": 0.668,
+    "response_qual": 0.695,
+    "tool_selection_acc_all": 0.867,
+    "argument_acc_all": 0.665,
+    "note": "*_all includes no-response samples (scored 0); default metrics are turn-taken only"
+  },
+  "raw_upstream_metric_denominator": {
+    "total": 100,
+    "turn_taken": 95,
+    "no_response": 5,
+    "turn_take_rate": 0.95
+  },
+  "raw_upstream_strict_passed": 61,
+  "result_statuses": {
+    "completed": 100
+  },
+  "session_files": 100,
+  "session_error_count": 0,
+  "session_statuses": {
+    "closed": 100
+  },
+  "source_snapshot_mismatches": [],
+  "gpu_host_wide_1second_samples": 6963,
+  "invalid_gpu_samples": 0,
+  "gpu_peak_used_mib": 5817,
+  "gpu_min_free_mib": 104,
+  "gpu_peak_utilization_pct": 100,
+  "output_hash_manifest_sha256": "ff5127f7695142dcb5c29801fba84b256cf24164941e45205268d6753ea67046",
+  "judge": "local Qwen3.5-4B diagnostic; not organizer judge",
+  "paid_spend_inr": 0,
+  "scope": "Completed local WSL source-archive execution; not organizer hardware or official judge",
+  "latency_audit": {
+    "source": "Unmodified upstream analyze_tool_latency.py, pinned upstream 3e799c45a045256f47d5f1c9cda90157e2d2ec9e",
+    "aggregate": {
+      "total_analyzed": 100,
+      "turn_taking": {
+        "total": 100,
+        "turn_taken": 95,
+        "no_response": 5,
+        "turn_take_rate": 0.95
+      },
+      "first_response_latency": {
+        "count": 95,
+        "mean": 12.944,
+        "std": 4.397,
+        "min": 6.32,
+        "max": 28.24,
+        "median": 11.84
+      },
+      "tool_call_latency": {
+        "count": 86,
+        "mean": 8.112,
+        "std": 3.342,
+        "min": 4.02,
+        "max": 26.35,
+        "median": 7.68
+      },
+      "task_completion_latency": {
+        "count": 95,
+        "mean": 12.467,
+        "std": 8.163,
+        "min": -19.76,
+        "max": 28.24,
+        "median": 12.24
+      },
+      "filler_stats": {
+        "with_filler": 22,
+        "without_filler": 73
+      },
+      "note": "All latency metrics computed on non-interrupted turn-taken samples only",
+      "provider": "thread"
+    },
+    "analysis_rows": 100,
+    "task_completion_values": 95,
+    "task_completion_negative_values": 4,
+    "task_completion_notes": {
+      "": 95,
+      "No ASR chunks": 5
+    },
+    "recorded_llm_errors": [],
+    "additional_latency_logical_judge_calls": 95,
+    "latency_judge_evidence_scope": "95 additional logical calls inferred from unchanged upstream control flow and 95 populated task-completion outputs. No checked-wrapper per-request receipts exist for latency; wire-level retries are not independently counted. Separate checked tool/pass receipts cover 329 successful requests.",
+    "local_model_server_post_lines": 0,
+    "local_model_server_chat_http_status_counts": {},
+    "report_sha256": "c91a410ce5b7ae9a72363959e4cab30ed00445d05f63d246a49498ac1807a9ea",
+    "limitation": "Negative local-judge task-completion latencies are preserved verbatim, not valid physical timing. No upstream grading or scores were changed."
+  },
+  "measured_source": "8ef5b590a949586a4661df7e250bc7f62769acc4",
+  "source_archive_sha256": "c2aac7e5f78027ac8342a24cbee83bfe6af180423bb7e174db64d5c0109549f7",
+  "verification": {
+    "provider": "thread",
+    "expected": 100,
+    "found": 100,
+    "completed_inference": 100,
+    "incomplete": [],
+    "pass_report": "/opt/thread-linux-qual-20261003/full-003/thread_pass_rate_report.json",
+    "evaluated": 100,
+    "strict_passed": 61,
+    "qualification_eligible": false,
+    "judge_verified": true,
+    "complete": true,
+    "exit_code": 1
+  },
+  "execution": {
+    "exit_code": 1,
+    "judge_mode": "local",
+    "judge_identity": "Qwen3.5-4B-Q4_K_M (local diagnostic)",
+    "stage_exits": {
+      "inference": "0",
+      "eval-tools": "0",
+      "eval-pass": "0",
+      "eval-latency": "0"
+    }
+  },
+  "judge_stages": {
+    "eval-tools": {
+      "status": "completed",
+      "successful_judge_requests": 218,
+      "failed_judge_requests": 0,
+      "native_inference_requests": 218
+    },
+    "eval-pass": {
+      "status": "completed",
+      "successful_judge_requests": 111,
+      "failed_judge_requests": 0,
+      "native_inference_requests": 111
+    }
+  },
+  "linux_evidence_root": "/opt/thread-linux-qual-20261003",
+  "private_windows_copy": ".thread-run/evidence/S2-20261003-final",
+  "primary_output_hashes": {
+    "full-003/verification.json": {
+      "sha256": "bdf5e5b60026e393006907a6da5336091449f95e5213f7df8548e27c72bba4ea",
+      "bytes": 343
+    },
+    "full-003/execution.json": {
+      "sha256": "979e913c482a135c2ed7d43bc572edd3e4a4ddc2d812a5c968f090bffd1c7985",
+      "bytes": 220
+    },
+    "full-003/thread_evaluation_report.json": {
+      "sha256": "d904f11f2fbcb8c268f8e3bd331212c101a70fb20e0f9808d78270982786950a",
+      "bytes": 185478
+    },
+    "full-003/thread_pass_rate_report.json": {
+      "sha256": "5760b7d78d891b0d7d525a94a15c8436472cf64ecc2ee0f0b9c98856b1f83c7e",
+      "bytes": 129156
+    },
+    "full-003/eval-tools-receipts.json": {
+      "sha256": "1c09315c1d502cbe4d75282952478eae7734655ae283d2e5f3f962b4828be849",
+      "bytes": 1124866
+    },
+    "full-003/eval-pass-receipts.json": {
+      "sha256": "a482858a704e7646675e45ba44eb8d5b6cea210f287e55975551011495eb5c22",
+      "bytes": 562648
+    },
+    "full-003/source-identity.json": {
+      "sha256": "d8e0ca915b8253e13eca91660616a9f2032dfd6a98330e197e2d9d6b48ed8f37",
+      "bytes": 10978
+    },
+    "full-003/stage-exits.tsv": {
+      "sha256": "f21bf2b8540e2065cafb79a7c3ebc25120321f0086e25b4fc743d6e98e4724cb",
+      "bytes": 52
+    },
+    "full-003/logs/eval-tools.log": {
+      "sha256": "c87d71b7dd262256ffa439edaa26dc5dff6d4dd54071b39ec94168da3061fdc7",
+      "bytes": 1407
+    },
+    "full-003/logs/eval-pass.log": {
+      "sha256": "24a2a38777c648ede0050280269eb2bbd64938923c1d7b4ce6cee2249b8c8e2b",
+      "bytes": 1018
+    },
+    "full-003/logs/eval-latency.log": {
+      "sha256": "4d661898cdd29b0d094e6d88847ac829e43aeddddc598d9695b833d0bcdee04e",
+      "bytes": 7120
+    },
+    "full-003/upstream/v3/thread_latency_report.json": {
+      "sha256": "c91a410ce5b7ae9a72363959e4cab30ed00445d05f63d246a49498ac1807a9ea",
+      "bytes": 65521
+    },
+    "evidence/full-003-output-hashes.json": {
+      "sha256": "ff5127f7695142dcb5c29801fba84b256cf24164941e45205268d6753ea67046",
+      "bytes": 163358
+    },
+    "evidence/full-003-summary.json": {
+      "sha256": "72f8dcb5b1486180c09db6f4d9207ecff1014553ab124209690d67b4d09576a5",
+      "bytes": 2004
+    },
+    "evidence/full-003-platform.json": {
+      "sha256": "3ade83182baf6df141e3826f7a47ad862a7bf483a58fd54a4ffd94f1cbb218b8",
+      "bytes": 2414
+    },
+    "evidence/full-003-upstream-before.json": {
+      "sha256": "24ea7e4e7aba5e69c75dee29ae22d912716172b70fb7cf566ea51e7f412873a6",
+      "bytes": 906
+    },
+    "evidence/full-003-upstream-after.json": {
+      "sha256": "24ea7e4e7aba5e69c75dee29ae22d912716172b70fb7cf566ea51e7f412873a6",
+      "bytes": 906
+    },
+    "evidence/full-003-gpu.csv": {
+      "sha256": "0992ebcb840bc9de937ecf104120444abe3b6e8e2a1196ecb757e6b4ceb0e9f2",
+      "bytes": 646104
+    },
+    "evidence/full-001-summary.json": {
+      "sha256": "4dcd73d7ab274f0e9934e632d0f3e443a29739069a1753b733ca8e899057ab25",
+      "bytes": 12586
+    },
+    "evidence/full-001-output-hashes.json": {
+      "sha256": "a0ae2acccbf66c44f19797afde23671759f6fae601e9af41c6c221d55314c019",
+      "bytes": 5732
+    },
+    "evidence/full-002-summary.json": {
+      "sha256": "6bbbd3a040be64425dd4128ab70153b3dda5f761884dced4c3359ef44116634f",
+      "bytes": 12590
+    },
+    "evidence/full-002-output-hashes.json": {
+      "sha256": "d1103569801dcab9657361455d5dccfef6e11ef38aff994d9b44a4760a489bc9",
+      "bytes": 11833
+    },
+    "evidence/upstream-nemo-model-identity.json": {
+      "sha256": "2c8b04d433d95ea6452188ce75cfe36e9491f90c67230f452633ae364dd714eb",
+      "bytes": 810
+    },
+    "evidence/full-003-latency-audit.json": {
+      "sha256": "e57c9d1f664fce1734206e385cf47df5e8202a48f62422df5c20c75e11d44d04",
+      "bytes": 1875
+    }
+  }
+}

@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
@@ -26,7 +27,24 @@ data class ThreadState(val connecting: Boolean = false, val connected: Boolean =
 
 class ThreadModel(app: Application) : AndroidViewModel(app) {
     var ui by mutableStateOf(ThreadState()); private set
+    /** Count of real playback interruptions (barge-in or typing over THREAD), for the living orb. */
+    var interruptions by mutableIntStateOf(0); private set
     var route by mutableStateOf("voice")
+    var watchId by mutableStateOf("")
+    var requestWatchNotifications: (() -> Unit)? = null
+    var requestFloatingBubble: ((Boolean) -> Unit)? = null
+    var floatingBubble by mutableStateOf(app.getSharedPreferences("thread", 0).getBoolean("floating-bubble", false)); private set
+    var bubbleMessage by mutableStateOf(""); private set
+    var microphoneServiceReady by mutableStateOf(false); private set
+    private var microphoneReadyAction: (() -> Unit)? = null
+    val microphoneRequested: Boolean get() = microphoneWanted
+    fun updateFloatingBubble(value: Boolean) {
+        floatingBubble = value
+        bubbleMessage = ""
+        prefs.edit().putBoolean("floating-bubble", value).apply()
+    }
+    fun bubbleUnavailable(message: String) { updateFloatingBubble(false); bubbleMessage = message }
+    private val watchActions = java.util.concurrent.Executors.newSingleThreadExecutor()
     var keyboard by mutableStateOf(false)
     var taskExpanded by mutableStateOf(false)
     var sharedText by mutableStateOf("")
@@ -40,6 +58,8 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     val prefs = app.getSharedPreferences("thread", 0)
     var voice by mutableStateOf(prefs.getString("voice", "Kore") ?: "Kore")
     var haptics by mutableStateOf(prefs.getBoolean("haptics", true))
+    /** Settings toggle: expressive moods on the orb (curious, focused, pleased, apologetic). */
+    var expressiveOrb by mutableStateOf(prefs.getBoolean("expressive", true))
     var acknowledgments by mutableStateOf(prefs.getBoolean("ack", true))
     var consent by mutableStateOf(prefs.getBoolean("consent", false))
     var spotifyClientId by mutableStateOf(prefs.getString("spotify-client-id", "") ?: "")
@@ -74,6 +94,10 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     val spotifyRedirect: String get() = ThreadBackend.spotifyRedirect(getApplication())
 
     init {
+        watchActions.execute {
+            try { WatchRuntime.restore(app) }
+            catch (_: Exception) { main.post { ui = ui.copy(error = "Watch scheduling could not be restored. Check Watches; saved data has been kept.") } }
+        }
         try {
             val saved = JSONObject(app.filesDir.resolve("workspace.json").takeIf { it.exists() }?.readText() ?: "{}")
             ui = ui.copy(results = rows(saved.optJSONArray("workspace")), transcript = rows(saved.optJSONArray("transcript")), task = saved.optJSONObject("task"), activeAction = saved.optJSONObject("active_action"))
@@ -82,7 +106,7 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
 
     fun preference(key: String, value: Boolean) {
         prefs.edit().putBoolean(key, value).apply()
-        when (key) { "haptics" -> haptics = value; "ack" -> { acknowledgments = value; audio?.acknowledgments = value }; "consent" -> consent = value }
+        when (key) { "haptics" -> haptics = value; "ack" -> { acknowledgments = value; audio?.acknowledgments = value }; "consent" -> consent = value; "expressive" -> expressiveOrb = value }
     }
     fun selectVoice(value: String) { if (value in listOf("Kore", "Aoede", "Puck", "Charon")) { voice = value; prefs.edit().putString("voice", value).apply() } }
 
@@ -92,11 +116,15 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
             return
         }
         if (ui.connected) { if (microphone) enableMic(); text?.let { sendText(it) }; return }
-        if (ui.connecting) { pendingText = text ?: pendingText; return }
+        if (ui.connecting) { pendingText = text ?: pendingText; if (microphone && !microphoneWanted) enableMic(); return }
         microphoneWanted = microphone; pendingText = text; started = SystemClock.elapsedRealtime()
         val current = ++generation
         ui = ui.copy(connecting = true, error = null, ended = false, mode = "Connecting", caption = "", elapsed = 0)
-        if (microphone) startMicrophoneService()
+        if (microphone) startMicrophoneService { beginSession(current) } else beginSession(current)
+    }
+
+    private fun beginSession(current: Int) {
+        if (current != generation) return
         if (sessionId != null) openSockets(current) else {
             val body = JSONObject().put("experience", "voice").put("external", false)
             http.newCall(Request.Builder().url("$endpoint/api/sessions").post(body.toString().toRequestBody(JSON)).build()).enqueue(object : Callback {
@@ -138,6 +166,7 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
                             else -> ""
                         }
                         if (notice.isNotBlank()) ui = ui.copy(taskNotice = notice)
+                        scheduleSave()
                     } }
                 } catch (_: Exception) { }
             }
@@ -172,13 +201,14 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
             }
             "camera_error" -> { if (event.optString("stream_id") == cameraGate.stream) { stopCameraSharing(); showError(event.optString("text")) } }
             "live_ready" -> {
+                if (ui.connected) return // Duplicate ready must never create a second audio pipeline.
                 ui = ui.copy(connecting = false, connected = true, mode = "Ready", muted = !microphoneWanted)
                 audio = LiveAudio(getApplication(), ::send, { frame ->
                     if ((live?.queueSize() ?: 0) > 128000) fail(generation, "The connection is falling behind. Reconnect for live audio.") else live?.send(frame.toByteString())
                 }, { mode, level ->
                     val now = SystemClock.elapsedRealtime()
                     if (now - lastLevel > 55) { lastLevel = now; main.post { if (ui.connected) ui = ui.copy(mode = mode, level = level) } }
-                }, { message -> main.post { ui = ui.copy(error = message) } }).also { it.voice = voice; it.acknowledgments = acknowledgments; it.start(microphoneWanted) }
+                }, { message -> main.post { ui = ui.copy(error = message) } }).also { it.voice = voice; it.acknowledgments = acknowledgments; it.onInterrupted = { main.post { interruptions++ } }; it.start(microphoneWanted) }
                 pendingImage?.let { pendingImage = null; sendImage(it) }
                 pendingText?.let { pendingText = null; sendText(it) }; tick()
             }
@@ -189,6 +219,18 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
                 }
             }
             "device_action" -> {
+                if (event.optString("action") in WatchRuntime.actions) {
+                    val socket = live
+                    watchActions.execute {
+                        val result = if (actionInputId.isBlank() || event.optString("client_input_id") != actionInputId)
+                            PhoneActions.outcome("cancelled", "A newer input or ended conversation replaced this Watch action.")
+                        else WatchRuntime.execute(getApplication(), event)
+                        socket?.send(JSONObject().put("type", "device_result").put("request_id", event.optString("request_id")).put("result", result).toString())
+                        if (event.optString("action") == "create_watch" && result.optString("status") == "completed" && !result.optBoolean("notifications_enabled"))
+                            main.post { requestWatchNotifications?.invoke() }
+                    }
+                    return
+                }
                 val result = if (!ui.connected || actionInputId.isBlank() || event.optString("client_input_id") != actionInputId)
                     PhoneActions.outcome("cancelled", "A newer input or ended conversation replaced this phone action.")
                 else deviceAction?.invoke(event) ?: PhoneActions.outcome("failed", "Open THREAD to perform this phone action.")
@@ -219,12 +261,19 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
             taskNotice = if (ui.taskNotice == "Waiting for task control confirmation…") "Task state updated." else ui.taskNotice)
         if(ui.connected && route!="settings" && arrived!=null) openResult=arrived
         if (!persist) return
+        scheduleSave()
+    }
+    private fun scheduleSave() {
         if (!savePending) { savePending = true; main.postDelayed({ savePending = false; save() }, 700) }
     }
     private fun save() {
         val data = JSONObject().put("workspace", JSONArray(ui.results)).put("transcript", JSONArray(ui.transcript.takeLast(100))).put("task", ui.task).put("active_action", ui.activeAction)
         val file = getApplication<Application>().filesDir.resolve("workspace.json")
-        try { val temp = file.resolveSibling("workspace.tmp"); temp.writeText(data.toString()); temp.renameTo(file) } catch (_: IOException) { ui = ui.copy(error = "Couldn’t save this conversation on the phone.") }
+        try {
+            val temp = file.resolveSibling("workspace.tmp"); temp.writeText(data.toString())
+            if (!temp.renameTo(file)) throw IOException("Could not replace saved workspace")
+            StoredStateWidgets.changed(getApplication())
+        } catch (_: IOException) { ui = ui.copy(error = "Couldn’t save this conversation on the phone.") }
     }
     private fun tick() { if (ui.connected) { ui = ui.copy(elapsed = ((SystemClock.elapsedRealtime() - started) / 1000).toInt()); main.postDelayed(::tick, 1000) } }
     @Synchronized fun send(data: JSONObject) {
@@ -365,11 +414,38 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     }
     fun showError(message: String) { ui = ui.copy(error = message) }
     fun toggleMute() { audio?.let { it.muted = !it.muted; ui = ui.copy(muted = it.muted) } }
-    fun enableMic() { microphoneWanted = true; startMicrophoneService(); audio?.enableMic(); ui = ui.copy(muted = false) }
-    private fun startMicrophoneService() {
-        VoiceService.onEnd = { main.post { disconnect(true) } }
-        try { getApplication<Application>().startForegroundService(Intent(getApplication(), VoiceService::class.java)) }
-        catch (_: Exception) { ui = ui.copy(error = "Open THREAD and allow the microphone before starting voice.") }
+    fun enableMic() {
+        microphoneWanted = true
+        startMicrophoneService { audio?.enableMic(); ui = ui.copy(muted = false) }
+    }
+    fun talk() {
+        if (!ui.connected) { connect(true); return }
+        enableMic()
+        if (ui.mode == "Speaking") { audio?.bargeIn(); ui = ui.copy(mode = "Ready", level = 0f) }
+    }
+    private fun startMicrophoneService(ready: () -> Unit) {
+        val app = getApplication<Application>()
+        if (!consent || app.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            microphoneServiceFailed(); return
+        }
+        if (microphoneServiceReady) { ready(); return }
+        val current = generation
+        microphoneReadyAction = { if (current == generation && microphoneWanted) ready() }
+        try { app.startForegroundService(Intent(app, VoiceService::class.java)) }
+        catch (_: Exception) { microphoneServiceFailed() }
+    }
+    fun microphoneServiceStarted() {
+        if (!microphoneWanted) return
+        microphoneServiceReady = true
+        val ready = microphoneReadyAction; microphoneReadyAction = null; ready?.invoke()
+    }
+    fun microphoneServiceFailed() {
+        disconnect(false)
+        showError("Open THREAD and allow the microphone before starting voice.")
+    }
+    fun microphoneServiceStopped() {
+        microphoneServiceReady = false
+        if (microphoneWanted) disconnect(false)
     }
     fun clearError() { ui = ui.copy(error = null) }
     fun disconnect(ended: Boolean = true) {
@@ -379,7 +455,8 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
         send(JSONObject().put("type", "end")); live?.close(1000, "End conversation"); live = null
         updates?.close(1000, "End conversation"); updates = null
         audio?.close(); audio = null
-        if (microphoneWanted) { getApplication<Application>().stopService(Intent(getApplication(), VoiceService::class.java)); VoiceService.onEnd = null; microphoneWanted = false }
+        microphoneReadyAction = null; microphoneWanted = false; microphoneServiceReady = false
+        getApplication<Application>().stopService(Intent(getApplication(), VoiceService::class.java))
         ui = ui.copy(connecting = false, connected = false, ended = ended, mode = "Ready", level = 0f)
         if (started > 0) save()
     }
@@ -408,9 +485,9 @@ class ThreadModel(app: Application) : AndroidViewModel(app) {
     }
     // --- end Session History ---
 
-    fun newConversation() { saveSessionToHistory(); disconnect(false); sessionId = null; ui = ui.copy(caption = "", transcript = emptyList(), error = null, task = null, changedSlots = emptySet(), taskNotice = "", activeAction = null); route = "voice" }
+    fun newConversation() { saveSessionToHistory(); disconnect(false); sessionId = null; ui = ui.copy(caption = "", transcript = emptyList(), error = null, task = null, changedSlots = emptySet(), taskNotice = "", activeAction = null); route = "voice"; save() }
     private fun fail(current: Int, message: String) { main.post { if (current == generation) { disconnect(false); ui = ui.copy(error = message) } } }
-    override fun onCleared() { sportsRequest++; disconnect(false); main.removeCallbacksAndMessages(null); http.dispatcher.executorService.shutdown(); super.onCleared() }
+    override fun onCleared() { sportsRequest++; disconnect(false); main.removeCallbacksAndMessages(null); watchActions.shutdown(); http.dispatcher.executorService.shutdown(); super.onCleared() }
     companion object {
         val JSON = "application/json; charset=utf-8".toMediaType()
         fun rows(array: JSONArray?): List<JSONObject> = if (array == null) emptyList() else (0 until array.length()).mapNotNull { array.optJSONObject(it) }

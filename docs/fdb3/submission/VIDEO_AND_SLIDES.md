@@ -1,5 +1,7 @@
 # Four-minute-ten-second draft evidence review and eight-slide deck
 
+**Historical edited-media description.** Do not submit this as the new continuous final-source take. Current instructions and the refreshed deck are linked from [the submission index](../../submission/README.md); [the runbook](../../submission/DEMO_RUNBOOK.md) records the required new behavior. Historical chapter numbers, sources and movie bytes below remain unchanged.
+
 `VIDEO_DRAFT.mp4` is a local edited draft, not an uploaded or submitted video.
 Its picture and sound streams last 250 seconds. It combines original recorded
 benchmark audio, complete executed-tool records, an actual emulator recording,

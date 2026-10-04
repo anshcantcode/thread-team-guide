@@ -30,7 +30,7 @@ async def run(args):
                   "vad_filter":True,"condition_on_previous_text":False},
               "output_asr_requests":0,
               "paid_requests": 0, "llm_judge_enabled": False, "qualification": False}
-    planner = bridge = recognizer = sink = session = room = None
+    planner = bridge = recognizer = sink = session = room = demo = None
     errors = []
     completed_input = asyncio.Event()
     input_ready = asyncio.Event()
@@ -44,6 +44,8 @@ async def run(args):
         await asyncio.Event().wait()
 
     try:
+        if getattr(args, "demo", False) and (not args.room or args.manual or args.unpaced):
+            raise ValueError("Demo playback requires --room, automatic VAD and real-time input")
         planner = LocalPlanner(args.endpoint, args.model)
         planner.model_journal = output/'model-requests.jsonl'
         bridge = ControllerBridge(load_contract(Path(args.contract)), load_registry(Path(args.contract)), planner)
@@ -51,6 +53,12 @@ async def run(args):
         recognizer = WhisperSTT(args.whisper, prompt=input_prompt(args.contract))
         recognizer.transcription_journal = output/'stt-requests.jsonl'
         sink = WaveOutput(output / "spoken.wav")
+        if getattr(args, "demo", False):
+            from thread_agent.fdb3_demo import DemoPlayback
+            demo = DemoPlayback(output, bridge)
+            sink = demo.tee(sink)
+            record["demo_playback"] = {"enabled": True, "device": "default output",
+                                       "scope": "local device tee; not benchmark qualification or human-hearing proof"}
         session = create_session(bridge, recognizer, manual=args.manual)
         session.tts.synthesis_journal = output/'tts-requests.jsonl'
         if args.room:
@@ -64,7 +72,10 @@ async def run(args):
             session.output.audio = sink
         if room:
             await room.start(session, bridge)
-            await asyncio.wait_for(room.play(args.audio),180)
+            if demo is None:
+                await asyncio.wait_for(room.play(args.audio),180)
+            else:
+                await asyncio.wait_for(room.play(args.audio, monitor=demo.input),180)
             completed_input.set()
         else:
             await session.start(agent=ThreadVoiceAgent(bridge))
@@ -109,6 +120,12 @@ async def run(args):
             except BaseException as exc:
                 errors.append('Cleanup sink: '+type(exc).__name__)
                 record['status']='infrastructure_error'
+        if demo:
+            try:
+                demo.close()
+            except BaseException as exc:
+                errors.append('Cleanup demo: '+type(exc).__name__)
+                record['status']='infrastructure_error'
         errors.extend(bridge.evidence_errors if bridge else [])
         if errors:
             record['status']='infrastructure_error'
@@ -148,6 +165,7 @@ if __name__ == "__main__":
     parser.add_argument("--manual", action="store_true", help="Whole-recording diagnostic, not qualification")
     parser.add_argument("--unpaced", action="store_true", help="Accelerated file diagnostic; invalid for official latency or qualification")
     parser.add_argument("--room", action="store_true", help="Real WebRTC through local loopback LiveKit development server")
+    parser.add_argument("--demo", action="store_true", help="Opt-in local input/reply playback and live controller journal; requires --room")
     args = parser.parse_args()
     if args.room and (args.manual or args.unpaced):
         parser.error("Room diagnostic requires automatic VAD and real-time input")

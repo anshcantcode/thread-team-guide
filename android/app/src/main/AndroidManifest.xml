@@ -8,12 +8,21 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <queries>
         <package android:name="com.spotify.music" />
         <package android:name="com.google.android.youtube" />
+        <package android:name="com.android.chrome" />
+        <package android:name="com.android.vending" />
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.whatsapp" />
+        <intent><action android:name="android.media.action.STILL_IMAGE_CAMERA" /></intent>
+        <intent><action android:name="android.intent.action.SEND" /><data android:mimeType="text/plain" /></intent>
+        <intent><action android:name="android.intent.action.VIEW" /><data android:scheme="geo" /></intent>
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent>
         <intent><action android:name="android.intent.action.SET_ALARM" /></intent>
         <intent><action android:name="android.intent.action.SET_TIMER" /></intent>
@@ -24,7 +33,7 @@
         <intent><action android:name="android.intent.action.SENDTO" /><data android:scheme="mailto" /></intent>
         <intent><action android:name="android.intent.action.INSERT" /><data android:mimeType="vnd.android.cursor.dir/event" /></intent>
     </queries>
-    <application android:label="THREAD" android:theme="@style/Theme.Thread" android:icon="@drawable/ic_thread"
+    <application android:name=".ThreadApplication" android:label="THREAD" android:theme="@style/Theme.Thread" android:icon="@drawable/ic_thread"
         android:allowBackup="false" android:supportsRtl="true" android:networkSecurityConfig="@xml/network_security_config">
         <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTask" android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|screenSize">
@@ -34,6 +43,10 @@
         </activity>
         <activity android:name=".Fdb3Activity" android:exported="false" android:label="THREAD Kitchen" />
         <service android:name=".VoiceService" android:exported="false" android:foregroundServiceType="microphone" />
+        <service android:name=".FloatingBubbleService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-enabled floating voice-session control and caption overlay; microphone capture uses the separate microphone VoiceService. User can stop at any time." />
+        </service>
         <activity android:name=".WidgetConfigurationActivity" android:exported="true">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" /></intent-filter>
         </activity>
@@ -49,6 +62,18 @@
         <receiver android:name=".TalkWidget" android:exported="false">
             <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/talk_widget_info" />
+        </receiver>
+        <receiver android:name=".NowDoingWidget" android:exported="false" android:label="@string/now_doing_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/now_doing_widget_info" />
+        </receiver>
+        <receiver android:name=".WatchesWidget" android:exported="false" android:label="@string/watches_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/watches_widget_info" />
+        </receiver>
+        <receiver android:name=".KitchenProgressWidget" android:exported="false" android:label="@string/kitchen_progress_label">
+            <intent-filter><action android:name="android.appwidget.action.APPWIDGET_UPDATE" /></intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/kitchen_progress_widget_info" />
         </receiver>
     </application>
 </manifest>

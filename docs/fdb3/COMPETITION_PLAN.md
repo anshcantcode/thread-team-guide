@@ -1,5 +1,7 @@
 # Competition-readiness plan (Round 1, Theme 05, FDB-v3)
 
+**Historical 27 September plan.** The owner now reports a 4 October 2026 deadline. Use [current results](../submission/RESULTS.md) and [current submission requirements](../submission/REQUIREMENTS.md); dated “current” results, profiles and deadline below are retained as history.
+
 Written 27 September 2026 from `context.md` (handoff 1.0), the updated organizer
 guide summary it records, the pinned upstream `3e799c45`, and sprint-2 evidence
 (`docs/fdb3/SPRINT2.md`). Local commits only; nothing is pushed. Budget INR 0.

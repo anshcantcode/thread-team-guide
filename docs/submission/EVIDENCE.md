@@ -1,5 +1,7 @@
 # Participant evidence summary
 
+**Historical legacy queue-kit evidence, not FDB-v3 or the 3 October candidate.** “Current” below is relative to the dated 23 September snapshot. Use [the current submission index](README.md) and [source-labelled FDB-v3 results](RESULTS.md).
+
 Updated 23 September 2026. **The participant is not yet qualified for submission.**
 The current source and the latest live-tested package are different:
 

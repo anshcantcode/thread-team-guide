@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THREAD · live benchmark demo</title>
+<style>
+  :root { color-scheme:dark; --bg:#060a12; --ink:#eef4fb; --muted:#93a6bf; --line:#1d2a3c; --panel:#0c1522;
+    --blue:#5ea8ff; --cyan:#74e3cf; --violet:#b9a4ff; --amber:#ffc98a; --rose:#ff9a8a; --green:#8fe3a8;
+    font:16px/1.5 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--ink) }
+  body { max-width:1440px; margin:0 auto; padding:28px 28px 48px; min-height:100vh;
+    background:radial-gradient(900px 520px at 85% -10%,#12305c55,transparent 70%),radial-gradient(700px 480px at -10% 20%,#2a1b5a33,transparent 70%),var(--bg) }
+  header.hero { display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:28px; align-items:center }
+  h1 { margin:6px 0 4px; font:600 40px/1.08 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif; letter-spacing:-1.2px }
+  h2 { margin:0 0 8px; font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--muted) }
+  p { margin:6px 0 12px } small,.muted { color:var(--muted) } #status { color:var(--amber); font-size:13px }
+  .tag { font:12px ui-monospace,"Cascadia Mono",monospace; letter-spacing:.16em; color:var(--cyan); text-transform:uppercase }
+  /* A CSS-only sphere: its colour and motion follow the newest journal entry (data-phase), nothing else. */
+  .stage { display:grid; justify-items:center; gap:12px }
+  .orb { --a:var(--blue); --b:#1b4fd8; --spin:14s; --breathe:5s; width:150px; aspect-ratio:1; border-radius:50%; position:relative; overflow:visible;
+    background:radial-gradient(circle at 31% 24%,#ffffff9a 0,#ffffff00 20%),
+      radial-gradient(circle closest-side,#060c1d 0 56%,color-mix(in srgb,var(--b) 55%,#060c1d) 78%,var(--a) 95%,color-mix(in srgb,var(--a) 40%,white) 100%);
+    box-shadow:0 0 60px color-mix(in srgb,var(--a) 42%,transparent),0 0 140px color-mix(in srgb,var(--a) 18%,transparent);
+    animation:breathe var(--breathe) ease-in-out infinite; transition:box-shadow .6s }
+  .orb::before { content:''; position:absolute; inset:-8px; border-radius:50%; background:conic-gradient(from 0deg,transparent,color-mix(in srgb,var(--a) 80%,white),transparent 30%,transparent 62%,var(--a),transparent 88%);
+    filter:blur(8px); opacity:.55; animation:spin var(--spin) linear infinite; mix-blend-mode:screen; z-index:-1 }
+  .orb i { position:absolute; left:14%; right:14%; top:39%; height:22%; border-radius:50%; border:2.2px solid transparent;
+    border-top-color:color-mix(in srgb,var(--a) 35%,white); border-bottom-color:color-mix(in srgb,var(--a) 80%,white);
+    filter:drop-shadow(0 0 4px var(--a)) drop-shadow(0 0 10px var(--a)); animation:wave calc(var(--breathe) * .8) ease-in-out infinite }
+  .orb i:nth-child(2) { left:20%; right:20%; top:42%; height:16%; opacity:.7; animation-delay:calc(var(--breathe) * -.4); animation-direction:reverse }
+  .stage[data-phase=listening] .orb { --a:var(--blue); --b:#1748c0; --breathe:2.4s }
+  .stage[data-phase=thinking] .orb { --a:var(--violet); --b:#4a2ca8; --spin:3.2s; --breathe:3s }
+  .stage[data-phase=deciding] .orb { --a:#8fb8ff; --b:#294a9c; --spin:6s }
+  .stage[data-phase=held] .orb { --a:var(--amber); --b:#8a4b12; --spin:20s; --breathe:6s }
+  .stage[data-phase=acting] .orb { --a:var(--cyan); --b:#0e6b62; --spin:2.4s; --breathe:1.6s }
+  .stage[data-phase=speaking] .orb { --a:#c8b8ff; --b:#5536c4; --breathe:1.1s }
+  .stage[data-phase=done] .orb { --a:var(--green); --b:#1f6b3d; --spin:24s; --breathe:7s }
+  .stage[data-phase=error] .orb { --a:var(--rose); --b:#7a1f1f; --spin:30s; --breathe:8s }
+  .stage[data-phase=waiting] .orb { --a:#6f86a8; --b:#1d2a44; --spin:30s; --breathe:7s }
+  #phase { font-size:13px; color:var(--ink); text-align:center; min-height:20px; letter-spacing:.02em }
+  @keyframes breathe { 50% { transform:scale(1.035) } } @keyframes spin { to { transform:rotate(1turn) } }
+  @keyframes wave { 0%,100% { transform:rotate(-7deg) scaleY(1) } 50% { transform:rotate(7deg) scaleY(.55) } }
+  /* Evidence steps light only when the matching journal has an entry. */
+  .steps { display:flex; margin:22px 0 4px; padding:0; list-style:none }
+  .steps li { flex:1; position:relative; padding:14px 0 0; font-size:12px; color:#5f7390; letter-spacing:.04em; transition:color .4s }
+  .steps li::before { content:''; position:absolute; top:0; left:0; right:6px; height:3px; border-radius:3px; background:#1a2638; transition:background .5s,box-shadow .5s }
+  .steps li[data-on=true] { color:var(--ink) }
+  .steps li[data-on=true]::before { background:linear-gradient(90deg,var(--blue),var(--cyan)); box-shadow:0 0 14px #5ea8ff66 }
+  .cards { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:14px; margin:22px 0 26px }
+  .card { padding:18px 20px; border:1px solid var(--line); background:linear-gradient(160deg,#0f1b2b,#0a121d); border-radius:16px; box-shadow:inset 0 1px 0 #ffffff08 }
+  #heard { font-size:19px; line-height:1.45; color:var(--ink) }
+  #cue { display:inline-block; margin-top:10px; font-size:12px; color:var(--amber); border:1px solid #ffc98a55; background:#ffc98a14; border-radius:99px; padding:3px 11px }
+  #cue[data-on=false] { display:none }
+  .number { font:600 44px/1 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif; letter-spacing:-1px; margin-bottom:8px }
+  #source { max-width:90ch; overflow-wrap:anywhere; font-size:13px }
+  .controls { display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); padding-bottom:10px }
+  .timeline { padding:0 0 0 14px; margin:0; list-style:none }
+  .event { display:grid; grid-template-columns:76px 190px 1fr; gap:18px; padding:14px 0 12px; align-items:start; border-bottom:1px solid #121c2a; position:relative }
+  .event::before { content:''; position:absolute; left:-14px; top:21px; width:6px; height:6px; border-radius:50%; background:var(--k,#5f7390); box-shadow:0 0 10px var(--k,#5f7390) }
+  .event:last-child { animation:arrive .5s ease-out }
+  time { font:13px ui-monospace,"Cascadia Mono",monospace; color:var(--muted); padding-top:2px }
+  .label { font-size:12px; font-weight:600; letter-spacing:.03em; color:var(--k,var(--blue)); padding:3px 10px; border-radius:99px; background:color-mix(in srgb,var(--k,var(--blue)) 12%,transparent); justify-self:start }
+  .heard { --k:var(--blue) } .planner { --k:var(--violet) } .gate { --k:var(--amber) } .tool { --k:var(--cyan) } .speech { --k:#c8b8ff }
+  .text { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px } details { margin:8px 0 }
+  summary { color:var(--muted); cursor:pointer; font-size:12px } pre { white-space:pre-wrap; overflow-wrap:anywhere;
+    font:12.5px/1.5 ui-monospace,"Cascadia Mono",monospace; background:#050a12; border:1px solid var(--line); border-radius:10px; padding:12px; max-height:360px; overflow:auto }
+  body > details { margin:14px 0; padding:10px 14px; border:1px solid var(--line); border-radius:12px; background:#0a121d }
+  button { background:#14243a; color:inherit; border:1px solid #2c4362; border-radius:99px; padding:8px 16px; font:13px "Segoe UI",system-ui,sans-serif; cursor:pointer }
+  button[aria-pressed=true] { border-color:var(--cyan); color:var(--cyan) }
+  audio { width:100%; max-width:420px }
+  @keyframes arrive { from { opacity:0; transform:translateY(6px) } }
+  @media(max-width:900px) { header.hero { grid-template-columns:1fr } .stage { justify-items:start; grid-template-columns:auto 1fr; align-items:center }
+    .orb { width:96px } .cards { grid-template-columns:1fr } .event { grid-template-columns:60px 1fr } .body { grid-column:2 } .steps li { font-size:11px } }
+  @media(prefers-reduced-motion:reduce) { .orb,.orb::before,.orb i,.event:last-child { animation:none } }
+</style>
+<header class="hero"><div><div class="tag">THREAD · released recording → live agent</div><h1>Hear the correction.<br>See the decision.</h1>
+<p class="muted">Read-only observer · benchmark tools are mocks · this take is not a benchmark score.</p>
+<p id="status" role="status">Waiting for evidence. No successful action is assumed.</p>
+<p id="source" class="muted"></p></div>
+<div class="stage" id="stage" data-phase="waiting" aria-hidden="true"><div class="orb"><i></i><i></i></div><div id="phase">Waiting for evidence</div></div></header>
+<ol class="steps" aria-label="Evidence observed so far">
+  <li id="step-heard" data-on="false">Heard</li><li id="step-planned" data-on="false">Planner proposed</li>
+  <li id="step-gated" data-on="false">Controller decided</li><li id="step-executed" data-on="false">Call finished</li><li id="step-replied" data-on="false">Reply spoken</li></ol>
+<div class="cards">
+  <section class="card"><h2>Recognized input</h2><div id="heard" class="text muted">Waiting for completed input ASR.</div><span id="cue" data-on="false"></span></section>
+  <section class="card"><h2>Calls with a finished journal entry</h2><div id="count" class="number">Unknown</div><small id="outcomes">Proposals and dispatch intents do not count as completed calls.</small></section>
+  <section class="card"><h2>Live local audio</h2><div id="audio-state" class="text">Waiting for device evidence.</div><small>Input and received reply play through the worker, not this page. Device submission and TTS text do not prove human hearing.</small></section>
+</div>
+<div class="controls"><div><h2>Timeline · all observed events</h2><small>Checks files every second. Raw evidence stays expandable.</small></div><button id="follow" aria-pressed="false">Follow newest: off</button></div>
+<ol id="timeline" class="timeline"><li>Waiting for journals; an empty view is not evidence of a hold or zero effects.</li></ol>
+<details><summary>Source / configuration / recording identity</summary><pre id="identity">Not available.</pre></details>
+<details><summary>Final worker result · all calls, failures and controller state</summary><pre id="result">No final result yet.</pre></details>
+<details><summary>After completion only: file-playback fallback (not the live monitor)</summary>
+  <p>Use only if reviewing a completed take. These players are independent of the room clock.</p>
+  <p>Original input <audio id="input-file" controls preload="none"></audio></p>
+  <p>Received reply <audio id="reply-file" controls preload="none"></audio></p>
+</details>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const format = value => JSON.stringify(value, null, 2);
+let following = false, previous = '';
+$('follow').onclick = () => { following = !following; $('follow').textContent = 'Follow newest: ' + (following ? 'on' : 'off'); $('follow').setAttribute('aria-pressed', String(following)); };
+// The sphere names the newest observed journal entry. It is decoration over the evidence, not a separate claim.
+const CUE = /\b(?:actually|no wait|wait|sorry|i mean|instead|scratch that|rather|make (?:it|that))\b/i;
+const PHASES = {waiting:'Waiting for evidence', listening:'Recognizing the request', thinking:'Planner proposing',
+  deciding:'Controller deciding', held:'Held · nothing sent', acting:'Call journaled', speaking:'Reply being spoken',
+  done:'Take finished', error:'Check the raw evidence'};
+function phaseOf(row) {
+  if (!row) return 'waiting';
+  if (row.kind === 'gate') return row.label === 'Held / deferred' ? 'held' : 'deciding';
+  return {heard:'listening', planner:'thinking', tool:'acting', speech:'speaking'}[row.kind] || 'waiting';
+}
+function showPhase(phase) { $('stage').setAttribute('data-phase', phase); $('phase').textContent = PHASES[phase]; }
+function parseJournal(text) {
+  const lines = text.split('\n'), tail = lines.pop();
+  return {rows:lines.filter(line => line.trim()).map(JSON.parse), partial:!!tail.trim()};
+}
+async function read(path, journal=false) {
+  const response = await fetch(path, {cache:'no-store', signal:AbortSignal.timeout(4000)});
+  if (response.status === 404) return journal ? {rows:[], missing:true} : null;
+  if (!response.ok) throw Error(path + ': HTTP ' + response.status);
+  const text = await response.text();
+  return journal ? parseJournal(text) : JSON.parse(text);
+}
+function gateLabel(row) {
+  const p = row.payload || {};
+  if (row.action === 'planning_held' || row.action === 'read_held' || row.action === 'write_deferred') return 'Held / deferred';
+  if (row.action === 'tool_call') return 'Admitted by controller';
+  if (p.gate || p.validation) return 'Refused / clarification';
+  if (row.action === 'cancel_tool') return 'Cancellation requested';
+  return row.action || row.event || 'Controller event';
+}
+function events(stt, model, controller, tools, tts, voice, playback) {
+  const out = [];
+  const add = (kind, label, at, text, raw) => out.push({kind,label,at,text,raw});
+  for (const row of stt.rows.filter(r => r.filter_silence === false))
+    add('heard', 'Heard · ' + row.outcome, row.finished_at || row.started_at, row.text || 'Input ASR ' + row.outcome, row);
+  for (const row of model.rows) {
+    const r = row.request || {};
+    add('planner', r.content ? 'Planner · raw proposal' : 'Planner · ' + row.phase, row.recorded_at,
+      r.content || (r.request_id + ' · ' + r.outcome), row);
+  }
+  for (const row of controller.rows) {
+    const p = row.payload || {};
+    add('gate', gateLabel(row), row.bridge_received_at,
+      row.action === 'tool_call' ? format(p) + '\nDispatch pending; this is not proof of invocation.' : format(p), row);
+  }
+  for (const row of tools.rows) {
+    const c = row.call || {};
+    const label = row.phase === 'finished' ? 'Executed · ' + c.outcome : row.phase === 'not_submitted' ? 'Not submitted' : 'Dispatch intent';
+    add('tool', label, row.recorded_at, c.function + '\n' + format(c.args) +
+      (row.phase === 'finished' ? '\nOutcome: ' + format(c.result || c.error_type || c.outcome) : '\nNot proof of an effect.'), row);
+  }
+  for (const row of tts.rows)
+    add('speech', 'Reply TTS · ' + row.outcome, row.finished_at || row.started_at, row.text, row);
+  for (const row of voice.rows)
+    add('speech', row.event, row.at, format(row), row);
+  for (const row of playback.rows)
+    add('speech', 'Device · ' + row.stream, row.at, row.event + (row.underflows ? ' · underflows: ' + row.underflows : ''), row);
+  return out.sort((a,b) => (a.at || 0) - (b.at || 0));
+}
+function render(rows, origin) {
+  const fingerprint = format(rows);
+  if (fingerprint === previous) return;
+  const opened = new Set([...$('timeline').querySelectorAll('details[open]')].map(el => el.dataset.key));
+  const fragment = document.createDocumentFragment();
+  for (const row of rows) {
+    const li = document.createElement('li'); li.className = 'event ' + row.kind;
+    const when = document.createElement('time');
+    when.textContent = row.at && origin ? '+' + Math.max(0, row.at - origin).toFixed(1) + 's' : 'unknown';
+    const label = document.createElement('div'); label.className = 'label'; label.textContent = row.label;
+    const body = document.createElement('div'); body.className = 'body';
+    const text = document.createElement('div'); text.className = 'text'; text.textContent = row.text;
+    const details = document.createElement('details'), summary = document.createElement('summary'), raw = document.createElement('pre');
+    details.dataset.key = row.kind + ':' + row.at + ':' + row.label;
+    details.open = opened.has(details.dataset.key);
+    summary.textContent = 'Raw journal entry'; raw.textContent = format(row.raw); details.append(summary, raw);
+    body.append(text, details); li.append(when, label, body); fragment.append(li);
+  }
+  if (rows.length) $('timeline').replaceChildren(fragment);
+  previous = fingerprint;
+  if (following && rows.length) $('timeline').lastElementChild.scrollIntoView({block:'end'});
+}
+async function tick() {
+  try {
+    const names = ['stt-requests','model-requests','controller-events','tool-calls','tts-requests','voice-events','playback'];
+    const [identity,status,result,...journals] = await Promise.all([
+      read('identity.json'),read('demo-status.json'),read('benchmark/result.json'),
+      ...names.map(name => read('benchmark/' + name + '.jsonl',true))]);
+    const [stt,model,controller,tools,tts,voice,playback] = journals;
+    $('identity').textContent = identity ? format(identity) : 'Missing identity; do not claim a source match.';
+    $('source').textContent = identity ? 'Source ' + (identity.source.source_commit || 'archive hashes') +
+      (identity.source.dirty ? ' · DIRTY checkout snapshot' : '') + ' · index ' + identity.manifest_index + ' · ' + identity.recording : '';
+    const heard = stt.rows.filter(r => r.filter_silence === false && r.outcome === 'success');
+    $('heard').textContent = heard.length ? heard[heard.length - 1].text : 'Waiting for completed input ASR.';
+    const finished = new Map();
+    for (const r of tools.rows.filter(r => r.phase === 'finished')) {
+      if (!r.call?.call_id) throw Error('Finished call has no identity; count unknown.');
+      finished.set(r.call.call_id, r.call);
+    }
+    $('count').textContent = tools.missing && !result ? 'Unknown' : String(finished.size);
+    $('outcomes').textContent = [...finished.values()].map(c => c.function + ': ' + c.outcome).join(' · ') || 'No finished journal entries observed; not proof of zero invocations.';
+    if (result) $('outcomes').textContent += ' · Final worker actual calls: ' + (Array.isArray(result.actual_tool_calls) ? result.actual_tool_calls.length : 'unknown');
+    $('audio-state').textContent = ['input','reply'].map(stream => {
+      const rows = playback.rows.filter(r => r.stream === stream), last = rows[rows.length-1];
+      return stream + ': ' + (last ? last.event : 'waiting');
+    }).join('\n');
+    if (playback.rows.some(r => r.event === 'device_underflow' || r.event === 'playback_error'))
+      $('audio-state').textContent += '\nAudio issue recorded — review the take.';
+    $('result').textContent = result ? format(result) : 'No final result. Totals/completion remain unverified.';
+    if (result && status?.status !== 'running') {
+      if (!$('input-file').getAttribute('src')) $('input-file').src = 'input.wav';
+      if (!$('reply-file').getAttribute('src')) $('reply-file').src = 'benchmark/spoken.wav';
+    }
+    const timeline = events(...journals);
+    render(timeline, status?.started_at || identity?.created_at);
+    const lit = {heard:heard.length > 0, planned:model.rows.length > 0, gated:controller.rows.length > 0,
+                 executed:finished.size > 0, replied:tts.rows.some(r => r.outcome === 'success')};
+    for (const [step, on] of Object.entries(lit)) $('step-' + step).setAttribute('data-on', String(on));
+    const cue = heard.length ? (heard[heard.length - 1].text.match(CUE) || [])[0] : null;
+    $('cue').textContent = cue ? 'Correction wording in the recognized input: “' + cue + '”' : '';
+    $('cue').setAttribute('data-on', String(!!cue));
+    showPhase(result && status?.status !== 'running' ? (result.status === 'completed' ? 'done' : 'error') : phaseOf(timeline[timeline.length - 1]));
+    $('status').textContent = 'Files checked ' + new Date().toLocaleTimeString() + ' · ' + (status?.status || 'waiting') +
+      (result ? ' · worker: ' + result.status : ' · no final worker result') +
+      (status?.error ? ' · ' + status.error : '') +
+      (journals.some(j => j.partial) ? ' · incomplete trailing line withheld' : '');
+  } catch (error) {
+    $('status').textContent = 'OBSERVER ERROR: ' + error.message + ' · shown data may be stale; inspect raw evidence.';
+    showPhase('error');
+  } finally { setTimeout(tick,1000); }
+}
+void tick();
+</script>
+</html>

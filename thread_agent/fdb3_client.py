@@ -156,6 +156,45 @@ class ClientRegistry:
                                    'detail': 'The connection closed before an outcome was confirmed.'})
 
 
+# Display-only view of the controller's decisions for the Kitchen page: what was proposed, held, withdrawn,
+# asked or answered. Read from the bridge's append-only event log; gate reasons and evidence stay on the host.
+CONTROLLER_STAGES = {"tool_call": "sending", "cancel_tool": "withdrawn", "write_deferred": "held", "read_held": "held",
+                     "planning_held": "listening", "clarification_request": "asked", "final_response": "answered",
+                     "filler_speech": "update"}
+
+
+def controller_update(event):
+    """A display-safe summary of one controller event, or None for events the page does not show."""
+    stage = CONTROLLER_STAGES.get(event.get("action")) if isinstance(event, dict) else None
+    if stage is None:
+        return None
+    payload = event.get("payload") if isinstance(event.get("payload"), dict) else {}
+    update = {"type": "controller", "stage": stage}
+    for key in ("api_name", "call_id"):
+        if isinstance(payload.get(key), str):
+            update[key] = payload[key]
+    if isinstance(payload.get("args"), dict):
+        update["args"] = deepcopy(payload["args"])
+    if isinstance(payload.get("text"), str):
+        update["text"] = payload["text"][:300]
+    if stage == "asked" and payload.get("gate"):
+        update["stage"] = "held"  # A refused write waits for the user's explicit go-ahead; nothing was sent.
+    return update
+
+
+async def forward_controller(bridge, send, is_open, interval=0.1):
+    """Mirror new controller events to the page until the session closes. Never changes controller state."""
+    seen = 0
+    while is_open():
+        events = bridge.events
+        while seen < len(events):
+            update = controller_update(events[seen])
+            seen += 1
+            if update:
+                await send(update)
+        await asyncio.sleep(interval)
+
+
 async def typed_response(bridge, registry, session, send, text, token):
     # Bridge.submit does not yield while admitting the input. Check before that
     # admission as well as before speech; a scheduled stale task gets no turn.
@@ -359,6 +398,7 @@ def create_app(*, whisper_path=None, endpoint='http://127.0.0.1:8098/v1', model=
                 def error(event):
                     schedule(send({'type': 'live_error', 'text': 'The local speech pipeline failed; no outcome is assumed.'}))
                 await bridge.start()
+                schedule(forward_controller(bridge, send, lambda: not registry.closed))
                 await session.start(agent=ThreadVoiceAgent(bridge))
                 await send({'type': 'live_ready', 'session_id': registry.session_id})
                 while True:

@@ -102,6 +102,19 @@ export function asMarkdown(result){
   }
   return lines.join('\n');
 }
+// Live correction: when the same task gets a new revision, a replaced value stays on screen, struck through,
+// until the next revision. Only values the server state actually held are shown; nothing is inferred.
+let corrections={domain:null,revision:null,slots:{},changed:{}};
+export function trackCorrections(memory,{domain,revision,slots={}}){
+  if(domain!==memory.domain) return {domain,revision,slots:{...slots},changed:{}};
+  if(revision===memory.revision) return memory;
+  const changed={};
+  for(const key of new Set([...Object.keys(slots),...Object.keys(memory.slots)])){
+    const before=memory.slots[key];
+    if(before!==undefined&&before!==null&&before!==''&&JSON.stringify(before)!==JSON.stringify(slots[key])) changed[key]=before;
+  }
+  return {domain,revision,slots:{...slots},changed};
+}
 export function renderWorkspace(state){
   current=state;
   if(lastSession!==state.session_id){viewed=null;lastWeb=null;lastResult=null;lastComparison=null;checkedItems.clear();lastSession=state.session_id;}
@@ -127,7 +140,10 @@ export function renderWorkspace(state){
   $('task-title').hidden=!!result&&['document','weather','notes','sports'].includes(domain);
   const showSlots=['travel','rooms','device','weather'].includes(domain);
   $('slots').hidden=!showSlots;
-  html('slots',showSlots?Object.entries(s).filter(([k])=>labels[k]).map(([k,v])=>`<dl class="slot"><dt>${esc(labels[k])}</dt><dd>${esc(k==='date'?date(v,true):typeof v==='boolean'?v?'Yes':'No':v)}</dd></dl>`).join(''):'');
+  if(!historical) corrections=trackCorrections(corrections,state);
+  const shown=(k,v)=>esc(k==='date'?date(v,true):typeof v==='boolean'?v?'Yes':'No':v);
+  html('slots',showSlots?Object.entries(s).filter(([k])=>labels[k]).map(([k,v])=>{const was=!historical&&k in corrections.changed;
+    return `<dl class="slot${was?' changed':''}"><dt>${esc(labels[k])}</dt><dd>${was?`<del aria-label="was ${shown(k,corrections.changed[k])}">${shown(k,corrections.changed[k])}</del> `:''}${shown(k,v)}</dd></dl>`;}).join(''):'');
   const running=state.operations.some(op=>op.purpose==='lookup'&&op.status==='running'&&!op.obsolete);
   const failed=!result&&!running?[...state.operations].reverse().find(op=>op.domain===state.domain&&op.status==='failed'&&op.purpose==='lookup'&&!op.obsolete):null;
   $('task-state').textContent=historical?'Kept from earlier. Your current task continues.':state.unresolved.length?'An action is awaiting a confirmed outcome.':state.paused?'Paused. Your work is kept.':state.missing.length?`Still needed: ${state.missing.map(k=>k.replaceAll('_',' ')).join(', ')}.`:running?'Working on the details…':result?.provenance==='demo'?'Illustrative inventory. No real bookings or prices.':result?.provenance==='draft'?'Ready to shape together. Change any detail by speaking.':result?'The details are here. Keep the conversation going.':'Following your thought.';

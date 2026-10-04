@@ -1,1 +1,30 @@
 @font-face{font-family:Manrope;src:url('/static/fonts/Manrope.ttf')}*{box-sizing:border-box}body{margin:0;background:#080f1a;color:#e9f0fa;font:16px/1.6 Manrope,system-ui,sans-serif}main{max-width:1180px;margin:auto;padding:32px}header{display:flex;justify-content:space-between;align-items:center;color:#8fabc8;font-size:13px}.wordmark{font-size:22px;letter-spacing:.3em;color:#edf5ff;text-decoration:none}.intro{padding:65px 0 38px;max-width:720px}.eyebrow{font-size:11px;letter-spacing:.16em;color:#83b9ed}h1{font-size:clamp(42px,6vw,70px);font-weight:500;letter-spacing:-.045em;line-height:1.06;margin:20px 0}h2{font-weight:500;font-size:24px;margin:0 0 14px}h3{font-size:14px;margin-top:30px}.lead{font-size:19px;color:#aebed0;max-width:650px}.columns{display:grid;grid-template-columns:1.15fr 1fr;gap:24px}.panel{border:1px solid #26384c;border-radius:24px;padding:28px;background:linear-gradient(150deg,#111e30,#0b1421)}.scope,.small{color:#93a7bf}.scope{font-size:14px}.small,footer{font-size:12px}#status{font-size:14px;min-height:24px;color:#91d8c5}.buttons{display:flex;flex-wrap:wrap;gap:8px}button{border:0;border-radius:11px;padding:12px 16px;background:#d6eaff;color:#10233a;font:600 13px Manrope,system-ui;cursor:pointer}button.secondary{background:#25384d;color:#d5e4f5}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible{outline:2px solid #9bc9ff;outline-offset:3px}form{margin-top:26px}label{display:block;font-size:12px;color:#abbdd0;margin-bottom:8px}.input-row{display:flex;gap:8px}input{min-width:0;flex:1;background:#081220;border:1px solid #354d66;border-radius:10px;padding:13px;color:#ecf5ff;font:14px Manrope,system-ui}.captions{font-size:19px;min-height:100px;padding:28px 0 14px;white-space:pre-wrap}.meter{height:3px;background:#21344a;overflow:hidden;border-radius:3px}.meter i{display:block;background:#87bfff;height:100%;transform:scaleX(0);transform-origin:left;transition:transform .07s linear}ul{list-style:none;padding:0;margin:22px 0;min-height:90px}li{padding:13px 0;border-bottom:1px solid #26384c;font-size:18px}li.done{color:#8bbba6}#receipt{font-size:14px;white-space:pre-wrap;color:#bcd0e3}footer{color:#71889f;padding:36px 0}a{color:#b5d9ff}@media(max-width:760px){main{padding:22px}.intro{padding-top:40px}.columns{grid-template-columns:1fr}.panel{padding:22px}}
+
+.orb-stage{height:230px;margin:-8px -8px 6px;position:relative}
+.orb-stage canvas{width:100%;height:100%;display:block}
+.intent{margin:6px 0 18px;padding:16px 18px;border:1px solid #2a4058;border-radius:16px;background:#0a1626aa}
+.intent .eyebrow{margin:0 0 10px}
+.intent ol{list-style:none;margin:0 0 8px;padding:0;min-height:0}
+.intent ol li{border:0;padding:2px 0;font-size:14px;color:#7f93aa}
+.intent ol li del{text-decoration-color:#e8a25a;text-decoration-thickness:2px}
+.intent ol li span{font-size:11px;letter-spacing:.08em;margin-left:8px;color:#e8a25a}
+.intent-now{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.intent-now p{margin:0;font-size:18px;color:#eef5ff}
+.badge{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.badge.sending{color:#8cc4ff}.badge.held{color:#f2b552}.badge.done{color:#5fe3a1}.badge.failed{color:#ff8a86}
+.badge.withdrawn{color:#9aa8b8}.badge.asked{color:#c9b8ff}.badge.listening{color:#8fd6ff}
+.intent-note{margin:8px 0 0;font-size:13px;color:#93a7bf;min-height:0}
+@keyframes intent-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.intent-now,.intent ol li{animation:intent-in .28s ease-out}
+@media(prefers-reduced-motion:reduce){.intent-now,.intent ol li{animation:none}}
+@media(max-width:760px){.orb-stage{height:190px}}
+/* Side-by-side windows (demo recording, laptops): keep the conversation, correction card and checklist in view. */
+@media(max-height:1100px) and (min-width:761px){main{padding:22px 28px}.intro{padding:26px 0 22px}h1{font-size:46px;margin:10px 0 12px}.lead{font-size:16px}.orb-stage{height:190px}.captions{min-height:72px;padding:18px 0 10px}.panel{padding:24px}}
+/* A real add or check-off is visible at a glance in a recording: the row arrives, or flashes as it is ticked. */
+#items li{margin:0 -10px;padding-left:10px;padding-right:10px;border-radius:10px}
+#items li.arrived{animation:itemArrive 1.1s cubic-bezier(.2,.9,.3,1.15)}
+#items li.toggled{animation:itemToggle .9s ease-out}
+@keyframes itemArrive{0%{opacity:0;transform:translateX(-12px);background:#87bfff2e}35%{opacity:1;transform:none;background:#87bfff2e}100%{background:transparent}}
+@keyframes itemToggle{0%{background:#7fd1b236}100%{background:transparent}}
+@media(prefers-reduced-motion:reduce){#items li.arrived,#items li.toggled{animation:none}}
+.captions mark.cue{background:#ffc98a24;color:#ffd7a8;border-radius:5px;padding:0 4px;box-shadow:0 0 0 1px #ffc98a40}

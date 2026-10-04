@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
@@ -16,12 +15,16 @@ import org.json.JSONObject
 
 /** The launcher's real configure/reconfigure contract, independent of an active voice call. */
 class WidgetConfigurationActivity : ComponentActivity() {
-    private val model: ThreadModel by viewModels()
+    private val model: ThreadModel by lazy { ThreadApplication.model(this) }
+    private var previousAction: ((JSONObject) -> JSONObject)? = null
+    private var configurationId = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState); enableEdgeToEdge(); setResult(Activity.RESULT_CANCELED)
         val id = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
         if (!ThreadWidget.owns(this, id)) { finish(); return }
+        configurationId = id
         model.widgetTargetId = id
+        previousAction = model.deviceAction
         model.deviceAction = { request ->
             if (request.optString("action") == "create_widget") PhoneActions(this) { model.widget = it }.execute(request)
             else PhoneActions.outcome("failed", "This screen edits a widget. Open a voice conversation for other phone actions.")
@@ -40,5 +43,12 @@ class WidgetConfigurationActivity : ComponentActivity() {
                 model.widget?.let { WidgetPreview(model, it) }
             }
         }
+    }
+    override fun onDestroy() {
+        if (model.widgetTargetId == configurationId) {
+            model.widgetTargetId = null; model.onWidgetSaved = null; model.deviceAction = previousAction
+        }
+        previousAction = null
+        super.onDestroy()
     }
 }

@@ -9,12 +9,17 @@ import re
 
 from jsonschema import Draft202012Validator
 
+from .watches import WATCH_SPECS, host_watches, fetch_news
+from .action_chains import EXTRA_SPECS, CHAIN_SPEC, authorize_values, authorize_watch, prepare_chain
+
 
 def string(limit=300): return {'type': 'string', 'minLength': 1, 'maxLength': limit}
 def integer(low, high): return {'type': 'integer', 'minimum': low, 'maximum': high}
 
 
 SPECS = {
+    **EXTRA_SPECS,
+    'run_chain': CHAIN_SPEC,
     'set_alarm': ('Set an alarm in the phone Clock app. Ask AM or PM when a time such as five is ambiguous. Hours are 24-hour. The Clock app handles persistence, ringing and repeats.',
                   {'hour': integer(0, 23), 'minute': integer(0, 59), 'label': string(120), 'days': {'type': 'array', 'maxItems': 7, 'uniqueItems': True, 'items': integer(1, 7)}}, ['hour', 'minute', 'label']),
     'set_timer': ('Start a real phone Clock timer, not a session-only web timer.', {'seconds': integer(1, 86400), 'label': string(120)}, ['seconds', 'label']),
@@ -46,6 +51,12 @@ alarms, timers, opening apps, navigation, draft calls/messages/email/calendar, v
 Use phone_web_search for opening Google searches or changing their tab, phone_media_search for YouTube/Spotify searches,
 and phone_spotify_top_track / phone_spotify_control for personal Spotify playback. A compound Google search plus a tab
 change is one final search destination. Do not just call open_app and claim you searched or played music.
+"Open YouTube and search for X" is ONE phone_media_search(provider=youtube, query=X), not open_app.
+Use phone_compose_whatsapp for WhatsApp drafts, phone_open_url for Chrome, phone_play_store_search,
+phone_directions with the requested travel mode, phone_share_text and phone_open_camera.
+Use phone_run_chain for 2–3 explicit steps. Only its final step may open another app. A latest-news-to-WhatsApp
+request is latest_news then compose_whatsapp(use_latest_news=true). The controller fills the draft from the
+actual newest returned headline and link. Read per-step receipts; never call a draft sent or replay partial work.
 Use one bounded workflow per command. Spotify credentials never go in function arguments. A needs_connection receipt
 means the user must connect in THREAD Settings; a needs_device receipt means they must choose/start a Spotify device.
 For real phone timers use phone_set_timer instead of lookup_timer. Phone actions are available only while
@@ -98,10 +109,17 @@ def authorizes_phone(name, words):
         'flashlight': r'(?:turn|switch) (?:(?:the )?(?:flashlight|torch) (?:on|off)|(?:on|off) (?:the )?(?:flashlight|torch))',
         'open_settings': r'(?:open|show) (?:the )?(?:(?:internet|wi-fi|bluetooth|display|notification|assistant|battery) )?settings',
         'create_widget': r'(?:make|create|add|build) (?:an? |the )?(?:home.screen )?widget(?: (?:for|with|from|showing) ' + target + ')?',
+        'compose_whatsapp': r'(?:(?:draft|compose|write|prepare) (?:an? |the )?(?:whatsapp )?(?:message|draft)(?: .+)?|(?:send|share) (?:it|this|the (?:news|headline|latest update)) to [\d+() -]+ on whatsapp|whatsapp [\d+() -]+ .+)',
+        'open_url': r'open (?:the (?:url|link) )?https?://\S+(?: in chrome)?',
+        'play_store_search': r'(?:search (?:the )?play store(?: for)?|find (?:an? )?app(?: called)?) .+',
+        'directions': r'(?:(?:show|open|get)(?: me)? )?(?:walking|driving|bicycling|cycling|transit|public transport) directions to .+',
+        'share_text': r'share .+ (?:to|with|in) .+',
+        'open_camera': r'(?:open|launch)(?: the)? camera(?: app)?',
+        'latest_news': r'(?:find|look up|get|fetch)(?: me)? (?:the )?(?:latest|news|latest news|latest headlines|latest updates)(?: on| about| for)? .+',
     }
     words = words.casefold().replace('\u2019', "'")
     if re.search(r"\b(?:never mind|nevermind|not yet|hold off|later|eventually|only want to know|just asking|don't|do not|cancel|wait)\b", words): return False
-    if name not in ('compose_sms', 'compose_email') and re.search(r'\b(?:if|unless|when|once|provided)\b', words): return False
+    if name not in ('compose_sms', 'compose_email', 'compose_whatsapp', 'share_text') and re.search(r'\b(?:if|unless|when|once|provided)\b', words): return False
     if re.search(r"\b(?:but|and)\s+(?:don't|do not|wait|hold off)\b", words): return False
     clauses = re.split(r'(?<=[.!?;])\s+|\n+', words)
     if any(re.match(r"(?:no\b|don't\b|do not\b|wait\b|not yet\b|hold off\b)", clause.strip()) for clause in clauses): return False
@@ -115,9 +133,13 @@ def phone_schemas():
 
 
 def schema(name):
-    _, properties, required = SPECS[name]
+    _, properties, required = (SPECS | WATCH_SPECS)[name]
     return {'type': 'object', 'properties': {**deepcopy(properties), 'base_revision': integer(0, 1_000_000), 'user_request': string(12000), 'input_token': string(100)},
             'required': [*required, 'base_revision', 'user_request', 'input_token'], 'additionalProperties': False}
+
+
+def watch_schemas():
+    return [{'name': name, 'description': spec[0], 'parametersJsonSchema': schema(name)} for name, spec in WATCH_SPECS.items()]
 
 
 class PhoneBridge:
@@ -146,7 +168,8 @@ class PhoneBridge:
         if call_id in self.outcomes: return self.outcomes[call_id]
         name = call.get('name', '').removeprefix('phone_')
         try:
-            if name not in SPECS or not call_id: raise ValueError('Unknown phone action.')
+            if name not in SPECS | WATCH_SPECS or not call_id: raise ValueError('Unknown action.')
+            if name not in WATCH_SPECS and not live.phone: raise ValueError('This action needs an Android connection.')
             live.check_action_boundary(call)
             if live.recovery_only or not live.input_epoch:
                 raise ValueError('A current user request is required for a phone action.')
@@ -159,7 +182,15 @@ class PhoneBridge:
             quote = args.pop('user_request').strip()
             latest = live.current_user_words(verified=True)
             if not quote or quote.casefold() not in latest.casefold(): raise ValueError('Phone actions need an exact quote of the latest user request.')
-            if not authorizes_phone(name, latest): raise ValueError('No explicit current command requested this phone action. Ask for the specific action; acknowledgment is not permission.')
+            if name in WATCH_SPECS:
+                authorize_watch(name, args, latest)
+            elif name == 'run_chain':
+                args['steps'] = prepare_chain(args, latest, SPECS, authorizes_phone)
+            else:
+                if not authorizes_phone(name, latest): raise ValueError('No explicit current command requested this phone action. Ask for the specific action; acknowledgment is not permission.')
+                authorize_values(name, args, latest)
+            if name == 'open_app' and re.search(r'\b(?:and|then)\b', latest, re.I):
+                raise ValueError('This asks for more than opening an app. Use media_search for an app search or run_chain for explicit steps.')
             if name == 'web_search':
                 if not re.search(r'\b(?:search|look|google)\b', latest, re.I):
                     requested = re.search(r'\b(images?|videos?|news|all)\b', latest, re.I).group(1).lower()
@@ -198,34 +229,34 @@ class PhoneBridge:
             request_id = 'phone-' + call_id
             live.check_action_boundary(call)
             live.action_token_used = live.input_token
-            pending = asyncio.get_running_loop().create_future()
-            self.pending[request_id] = pending
-            session.emit('phone_action_requested', 'Requested a native Android action.', request_id=request_id, action=name, arguments=args, input_epoch=live.input_epoch)
+            epoch, token, client_input = live.input_epoch, live.input_token, getattr(live, 'client_input_id', '')
+            def current():
+                live.check_action_lifecycle(epoch)
+                if live.block_old_calls or token != live.input_token or call_id in live.withdrawn_calls:
+                    raise ValueError('The action was withdrawn or superseded.')
+            session.emit('phone_action_requested', 'Requested a bounded action.', request_id=request_id, action=name, arguments=args, input_epoch=epoch)
             try:
-                if name.startswith('spotify_'):
+                if name in WATCH_SPECS and not live.phone:
+                    current()
+                    outcome = await host_watches().execute(name, args)
+                elif name == 'run_chain':
+                    outcome = await self.chain(args['steps'], call_id, epoch, client_input, current)
+                elif name.startswith('spotify_'):
                     from .spotify import spotify
-                    epoch = live.input_epoch
-                    def current():
-                        live.check_action_lifecycle(epoch)
-                        if call_id in live.withdrawn_calls: raise ValueError('The action was withdrawn.')
                     def progress(steps):
                         session.emit('smart_action_progress', steps[-1]['label'], steps=steps)
                     outcome = await spotify.perform(getattr(live, 'spotify_handle', ''), name, args, current, progress)
                 else:
-                    await live.client('device_action', request_id=request_id, action=name, arguments=args, input_epoch=live.input_epoch,
-                                      client_input_id=getattr(live, 'client_input_id', ''))
-                    outcome = await asyncio.wait_for(asyncio.shield(pending), 30)
-            except asyncio.TimeoutError:
-                outcome = {'status': 'unknown', 'detail': 'The phone has not confirmed this action. Check the phone before retrying.'}
-            finally:
-                self.pending.pop(request_id, None)
-                if not pending.done(): pending.cancel()
+                    current()
+                    outcome = await self.device(name, args, request_id, call_id, epoch, client_input)
+            except ValueError as exc:
+                outcome = {'status': 'cancelled', 'detail': str(exc)[:500]}
             result = {'ok': outcome['status'] in ('completed', 'handed_off', 'prepared'), **outcome,
                       'request_id': request_id, 'action': name, 'state': live.task_context()}
             self.outcomes[call_id] = result
             self.fingerprints[fingerprint] = call_id
             if name == 'web_search' and outcome['status'] == 'handed_off': self.browser_context = deepcopy(args)
-            card = {'id': request_id, 'domain': 'phone', 'arguments': args, 'source': 'THREAD on Android', 'provenance': 'device',
+            card = {'id': request_id, 'domain': 'phone', 'arguments': args, 'source': 'THREAD on Android' if live.phone else 'THREAD host Watches', 'provenance': 'device' if live.phone else 'local',
                     'status': outcome['status'], 'retrieved_at': datetime.now(timezone.utc).isoformat(),
                     'items': [{'id': request_id, 'kind': 'phone_action', 'title': name.replace('_', ' ').capitalize(), **outcome}]}
             session.workspace['phone:' + request_id] = card
@@ -236,3 +267,65 @@ class PhoneBridge:
             result = {'ok': False, 'status': 'failed', 'detail': str(exc)[:500], 'state': live.task_context()}
             self.outcomes[call_id] = result
             return result
+
+    async def device(self, name, args, request_id, call_id, epoch, client_input):
+        pending = asyncio.get_running_loop().create_future()
+        self.pending[request_id] = pending
+        try:
+            await self.live.client('device_action', request_id=request_id, call_id=call_id, action=name, arguments=args,
+                                   input_epoch=epoch, client_input_id=client_input)
+            return await asyncio.wait_for(asyncio.shield(pending), 30)
+        except asyncio.TimeoutError:
+            return {'status': 'unknown', 'detail': 'The phone has not confirmed this action. Check the phone before retrying.'}
+        finally:
+            self.pending.pop(request_id, None)
+            if not pending.done(): pending.cancel()
+
+    async def chain(self, steps, call_id, epoch, client_input, current):
+        receipts, news = [], []
+        for index, step in enumerate(steps):
+            name, args = step['action'], deepcopy(step['arguments'])
+            request_id = f'phone-{call_id}-step-{index + 1}'
+            try:
+                current()
+                if name == 'latest_news':
+                    news = await asyncio.wait_for(fetch_news(args['topic']), 15)
+                    outcome = {'status': 'completed' if news else 'failed', 'detail': f'Retrieved {len(news)} RSS headlines.' if news else 'No headlines returned; no draft was opened.', 'items': news[:3]}
+                else:
+                    if args.pop('use_latest_news', False):
+                        if not news: raise ValueError('There is no returned headline for this draft.')
+                        item = news[0]
+                        args['body'] = f"{item['title']}\n{item['source']}\n{item['link']}"
+                        if len(args['body']) > 4000: raise ValueError('The returned headline/link exceeds the draft limit.')
+                    current()
+                    outcome = await self.device(name, args, request_id, call_id, epoch, client_input)
+            except asyncio.CancelledError:
+                outcome = {'status': 'cancelled' if name == 'latest_news' else 'unknown',
+                           'detail': 'Connection ended during the lookup.' if name == 'latest_news' else 'Connection ended before the phone confirmed this step. Check the phone; do not replay it automatically.'}
+                receipts.append({'action': name, 'request_id': request_id, 'label': outcome['detail'], **outcome})
+                receipts.extend({'action': remaining['action'], 'status': 'not_submitted', 'label': 'Not started after the connection ended.'} for remaining in steps[index + 1:])
+                status = 'partial' if any(r['status'] in ('completed', 'handed_off', 'prepared') for r in receipts) else outcome['status']
+                self.publish_chain(call_id, steps, receipts, status, outcome['detail'])
+                raise
+            except ValueError as exc:
+                outcome = {'status': 'cancelled', 'detail': str(exc)[:400]}
+            except Exception:
+                outcome = {'status': 'failed', 'detail': 'This step failed; no success was confirmed.'}
+            receipts.append({'action': name, 'request_id': request_id, 'label': outcome['detail'], **outcome})
+            self.live.session.emit('smart_action_progress', outcome['detail'], steps=deepcopy(receipts))
+            self.publish_chain(call_id, steps, receipts, 'running', outcome['detail'])
+            if outcome['status'] not in ('completed', 'handed_off', 'prepared'):
+                receipts.extend({'action': remaining['action'], 'status': 'not_submitted', 'label': 'Not started after the previous step stopped.'} for remaining in steps[index + 1:])
+                status = 'partial' if any(r['status'] in ('completed', 'handed_off', 'prepared') for r in receipts) else outcome['status']
+                return {'status': status, 'detail': 'Chain stopped. ' + outcome['detail'] + ' Earlier receipts remain valid; remaining steps were not submitted.', 'steps': receipts}
+        return {'status': receipts[-1]['status'], 'detail': receipts[-1]['detail'], 'steps': receipts}
+
+    def publish_chain(self, call_id, steps, receipts, status, detail):
+        request_id = 'phone-' + call_id
+        self.live.session.workspace['phone:' + request_id] = {
+            'id': request_id, 'domain': 'phone', 'arguments': {'steps': deepcopy(steps)},
+            'source': 'THREAD on Android', 'provenance': 'device', 'status': status,
+            'retrieved_at': datetime.now(timezone.utc).isoformat(),
+            'items': [{'id': request_id, 'kind': 'phone_action', 'title': 'Action chain', 'status': status,
+                       'detail': detail, 'steps': deepcopy(receipts)}]}
+        self.live.session.publish()

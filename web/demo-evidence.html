@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THREAD · recording evidence</title>
+<style>
+  :root { color-scheme: dark; font: 17px/1.45 system-ui, sans-serif; background:#090d13; color:#edf2f7 }
+  body { max-width:1400px; margin:24px auto; padding:0 24px }
+  h1 { margin:0; font-size:32px } h2 { color:#72d9ed; font-size:21px; margin:12px 0 }
+  p { margin:8px 0 } .scope, small { color:#b7c1cf } .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px }
+  section { border-top:1px solid #435165; padding:8px 0 16px; min-width:0 }
+  pre { white-space:pre-wrap; overflow-wrap:anywhere; font:14px/1.45 ui-monospace,monospace; max-height:330px; overflow:auto }
+  button { font:inherit; padding:7px 16px; margin:12px 12px 12px 0; cursor:pointer }
+  audio { max-width:100%; height:36px } #status { color:#f2d58a } a { color:#72d9ed }
+  details pre { max-height:450px } @media(max-width:850px) { .grid { grid-template-columns:1fr } }
+</style>
+<h1>THREAD · recording evidence</h1>
+<p class="scope">Read-only observer of this take's files. Benchmark tools are mocks. No model, tool or evaluator is called by this page.</p>
+<p id="status" role="status">Not observing. Serve this page from the take directory, then start.</p>
+<button id="observe">Observe journals</button><button id="pause" disabled>Pause observer</button>
+<details><summary>Source / configuration recorded for this take</summary><pre id="identity">Not loaded.</pre></details>
+<div class="grid">
+  <section><h2>Heard fragments · live journal</h2><small>Completed input-ASR requests, not a gold transcript. Output transcription is excluded.</small><pre id="heard">No evidence loaded.</pre></section>
+  <section><h2>Planner proposals · live journal</h2><small>Raw proposed actions are not executed actions. Pending, cancelled and failed requests remain visible.</small><pre id="planner">No evidence loaded.</pre></section>
+  <section><h2>Tool boundary · live journal</h2><p id="counts">Execution count unknown until evidence arrives.</p><small>dispatch_intent is NOT proof of invocation. not_submitted is not an effect. finished records the observed outcome.</small><pre id="tools">No evidence loaded.</pre></section>
+  <section><h2>Controller · completed-run snapshot</h2><small>Holds, updates and interruption events become available only when result.json is written. This is NOT a live hold-state feed.</small><pre id="controller">Waiting for the worker to finish; no controller state inferred.</pre></section>
+</div>
+<section><h2>Original recording and received reply</h2><p class="scope">File playback, not a microphone or a synchronized room monitor. Input is the unchanged recording sent by the worker. Play the received WAV only after completion; no replacement speech.</p>
+  <p>Input file <audio controls preload="none" src="input.wav"></audio></p>
+  <p>Received output <audio id="reply" controls preload="none"></audio></p>
+</section>
+<details><summary>Full final worker result (including failures and all calls)</summary><pre id="result">Not available yet.</pre></details>
+<p class="scope">Expected layout: identity.json, input.wav, benchmark/{stt-requests,model-requests,tool-calls}.jsonl and benchmark/result.json. Refreshing this viewer never retries an action.</p>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let timer, active = false, busy = false;
+const format = value => JSON.stringify(value, null, 2);
+function parseJournal(text) {
+  // A writer can be between bytes of its last line; all complete lines must parse.
+  const lines = text.split('\n');
+  const partial = lines.pop();
+  return {rows:lines.filter(line => line.trim()).map(line => JSON.parse(line)), partial:!!partial.trim()};
+}
+function latest(rows, key) {
+  const map = new Map();
+  for (const row of rows) {
+    const id = key(row);
+    if (typeof id !== 'string' || !id) throw Error('Journal record lacks its identity; count is unknown.');
+    map.set(id, row);
+  }
+  return [...map.values()];
+}
+async function read(path, journal = false) {
+  const response = await fetch(path, {cache:'no-store'});
+  if (response.status === 404) return null;
+  if (!response.ok) throw Error(path + ': HTTP ' + response.status);
+  const text = await response.text();
+  if (text.length > 4 * 1024 * 1024) throw Error(path + ': over 4 MiB; inspect the raw file instead.');
+  return journal ? parseJournal(text) : JSON.parse(text);
+}
+async function tick() {
+  if (!active || busy) return;
+  busy = true;
+  try {
+    const [identity, stt, model, calls, result] = await Promise.all([
+      read('identity.json'), read('benchmark/stt-requests.jsonl',true),
+      read('benchmark/model-requests.jsonl',true), read('benchmark/tool-calls.jsonl',true), read('benchmark/result.json')
+    ]);
+    $('identity').textContent = identity ? format(identity) : 'No identity file. Do not claim a source match.';
+    const heard = latest(stt?.rows || [], row => row.request_id).filter(row => row.filter_silence === false);
+    $('heard').textContent = heard.length ? format(heard) : 'Waiting for input-ASR evidence.';
+    $('planner').textContent = model?.rows.length ? format(model.rows) : 'Waiting for planner evidence.';
+    $('tools').textContent = calls?.rows.length ? format(calls.rows) : 'No tool-journal evidence yet; not proof of zero effects.';
+    const finished = latest((calls?.rows || []).filter(row => row.phase === 'finished'), row => row.call?.call_id);
+    $('counts').textContent = calls ? finished.length + ' distinct finished calls in the observed journal (all functions; not a write count).' : 'Execution count unknown; no journal yet.';
+    if (result) {
+      $('controller').textContent = format({status:result.status, controller_events:result.controller_events,
+        operations:result.operations, admitted_transcripts:result.admitted_transcripts, voice_events:result.voice_events});
+      $('result').textContent = format(result);
+      $('counts').textContent += Array.isArray(result.actual_tool_calls) ? ' Final worker lists ' + result.actual_tool_calls.length + ' actual calls; inspect every outcome below.' : ' Final actual-call list missing.';
+      if (!$('reply').getAttribute('src')) $('reply').src = 'benchmark/spoken.wav';
+    } else {
+      $('controller').textContent = 'Waiting for result.json. No held, updated or cancelled state is inferred from silence.';
+      $('result').textContent = 'No final result. Completion and execution totals remain unverified.';
+      $('reply').removeAttribute('src');
+    }
+    const partial = [stt,model,calls].some(journal => journal?.partial);
+    $('status').textContent = 'Files checked ' + new Date().toLocaleTimeString() + ' · ' +
+      (result ? 'Final worker status: ' + result.status : 'Waiting / observing; no final result') +
+      (partial ? ' · trailing partial journal line withheld until complete' : '');
+  } catch (error) {
+    $('status').textContent = 'OBSERVER ERROR: ' + error.message + ' Previously shown data may be stale; inspect raw files.';
+  } finally { busy = false; if (active) timer = setTimeout(tick,2000); }
+}
+$('observe').onclick = () => { active = true; $('observe').disabled = true; $('pause').disabled = false; void tick(); };
+$('pause').onclick = () => { active = false; clearTimeout(timer); $('observe').disabled = false; $('pause').disabled = true; $('status').textContent = 'Observer paused. Shown files are a snapshot; agent execution is unaffected.'; };
+</script>
+</html>

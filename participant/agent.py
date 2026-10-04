@@ -17,8 +17,8 @@ import unicodedata
 from .authorization import (authorization_grant, command_head, contains_identifier, contains_value, count_mentions,
                             identifier_field, natural_count, spelled_runs, turn_clauses, _schema_words,
                             _verified_price_conditions)
-from .schema import (argument_question, at_path, call_key, scalar_fields, selected_printed_label, validate_args,
-                     with_declared_defaults)
+from .schema import (argument_question, at_path, call_key, scalar_fields, selected_printed_label,
+                     unstated_search_filters, validate_args, with_declared_defaults)
 from .presentation import quantitative_template_is_bound
 from .spoken import PUBLIC_TOOLS, spoken_result
 
@@ -190,7 +190,28 @@ def _said_as_phrase(value, text):
         return False
     gap = r"(?:\s+(?!" + _NEGATORS + r"\b)[\w']+){0,2}\s+"
     spoken = " ".join(str(text).casefold().replace("\u2019", "'").split())
-    return re.search(r"(?<![\w-])" + gap.join(parts) + r"(?![\w-])", spoken) is not None
+    if re.search(r"(?<![\w-])" + gap.join(parts) + r"(?![\w-])", spoken) is not None:
+        return True
+    verb_object = _verb_object_pattern(value)
+    return verb_object is not None and any(
+        re.search(verb_object, clause) and not re.search(r"\b" + _NEGATORS + r"\b", clause)
+        for clause in re.split(r"[.!?;,]", spoken))
+
+
+def _verb_object_pattern(value):
+    """"pets_allowed" said as its verb and object ("places that allow pets", "allows my
+    pet"): a two-word name ending in a participle, its verb before the noun, at most two
+    plain words apart. None for any other name."""
+    parts = [part for part in str(value).casefold().split("_") if part]
+    if len(parts) != 2 or not re.fullmatch(r"[a-z]{3,}ed", parts[1]) or not parts[0].isalpha():
+        return None
+    noun, participle = parts
+    stems = {participle[:-2], participle[:-1]}  # allowed -> allow, required -> require
+    if len(participle) > 4 and participle[-3] == participle[-4]:
+        stems.add(participle[:-3])  # permitted -> permit
+    verb = "(?:" + "|".join(sorted(re.escape(stem) for stem in stems if len(stem) > 2)) + r")(?:s|es|ing)?"
+    noun = re.escape(noun[:-1] if noun.endswith("s") and len(noun) > 3 else noun) + r"s?"
+    return r"(?<![\w-])" + verb + r"(?:\s+[\w']+){0,2}?\s+" + noun + r"(?![\w-])"
 
 
 def _affirmed_predicate(args, path, text):
@@ -210,6 +231,10 @@ def _affirmed_predicate(args, path, text):
             if re.search(r"\b(?:" + _NEGATORS + r"|without)\b", clause):
                 continue
             if any(re.search(r"\b(?:is|are|be)\b", match[0]) for match in re.finditer(pattern, clause)):
+                return True
+            # The active form affirms it too: "only places that allow pets".
+            verb_object = _verb_object_pattern(value)
+            if verb_object is not None and re.search(verb_object, clause):
                 return True
     return False
 
@@ -1135,6 +1160,17 @@ class ParticipantAgent:
         # how its facts are learned, not a lookup commanded by that condition.
         conditioned = [text for text in conditioned if _READ_COMMAND.search(text)
                        or re.match(r"\s*(?:but\s+)?if\b", text)]
+        # "Search for a coffee maker first. If you find one under $50, add two": the search
+        # itself is asked for outright; only the price threshold, folded in as a filter,
+        # comes from the condition. An unconditional read command naming every text value
+        # of the lookup makes it run. A lookup named only inside a condition still waits.
+        named = [(path, value) for path, value in values if not _NUMBER_LITERAL.fullmatch(value)]
+        opener = re.compile(r"^\s*(?:(?:so|well|um|uh|okay|ok|like|alright|right|and|you know)\b\s*,?\s*)+")
+        if conditioned and named and len(named) < len(values) and any(
+                not re.search(r"\bif\b", text) and _READ_COMMAND.search(opener.sub("", text))
+                and all(_mentions_value(tool, path, value, text) for path, value in named)
+                for text in (" ".join(parts) for parts in sentences.values())):
+            return "ok"
         for text in conditioned:
             before = re.split(r"\band\s+if\b", text, maxsplit=1)[0]
             if (before != text and not re.search(r"\bif\b", before) and _READ_COMMAND.search(before)
@@ -1171,7 +1207,9 @@ class ParticipantAgent:
                       if all(_mentions_value(tool, path, value, row["text"]) for path, value in values)]
         if len(candidates) != 1 or candidates == sorted(cited):
             return None
-        return {**deepcopy(step), "authorization": {"clauses": candidates}}
+        # Remember the original citation: the re-cited value may reattach only a command
+        # clause the proposal itself cited, never borrow an uncited one.
+        return {**deepcopy(step), "authorization": {"clauses": candidates, "recited_from": sorted(cited)}}
 
     _EXAMPLE_GUARDED_ARGS = {"destination", "query", "order_id", "card_type", "city"}
 
@@ -1397,12 +1435,35 @@ class ParticipantAgent:
             return
         name, args = step["api_name"], step.get("args", {})
         tool = self.tools.get(name)
-        # Omitted user details do not make a declared required parameter optional.
-        # Ask for the missing value instead of inventing it or passing null, in the
-        # contract's words; the validator's paths and messages are evidence only.
-        problems = validate_args(tool, args)
+        # A read-only search runs with what the user said: a required filter the user
+        # never narrowed by stays unspecified (None at dispatch), never guessed and never
+        # a blocking question. Anything else missing or unusable is asked for in the
+        # contract's words; the validator's paths and messages stay evidence only.
+        missing = unstated_search_filters(name, tool, args)
+        if missing:
+            text = " ".join(value for _, value in self._user_texts())
+            properties = tool["args"]
+            anchored = any(properties.get(key, {}).get("required") and _mentions_value(tool, key, str(value), text)
+                           for key, value in args.items() if type(value) in (str, int, float))
+            used_numbers = {Decimal(str(value)) for _, value in scalar_fields(args)
+                            if type(value) in (int, float)}
+            # Spoken numbers count in the search's own sentences: "under 15 minutes" or a later
+            # budget in another request of the turn is not an omitted bedroom count.
+            rows = turn_clauses(self._user_texts())
+            own = {row["sentence"] for row in rows
+                   if any(properties.get(key, {}).get("required") and _mentions_value(tool, key, str(value), row["text"])
+                          for key, value in args.items() if type(value) in (str, int, float))}
+            scope = " ".join(row["text"] for row in rows if row["sentence"] in own) or text
+            # Omitted by the planner is not necessarily unstated by the user.
+            # A named missing field or an unaccounted spoken number needs repair.
+            if (not anchored or any(contains_value(alias, text) for key in missing for alias in _field_aliases(key))
+                    or any(properties[key].get("type") in {"number", "integer"} for key in missing)
+                    and spoken_numbers(scope) - used_numbers):
+                missing = []
+        unstated = {f"args.{key}: missing required argument" for key in missing}
+        problems = [problem for problem in validate_args(tool, args) if problem not in unstated]
         if problems:
-            self._say("clarification_request", argument_question(tool, args),
+            self._say("clarification_request", argument_question(tool, args, skip={f"args.{key}" for key in missing}),
                       validation={"api_name": name, "problems": problems})
             return
         if depth > 3:
@@ -1441,7 +1502,8 @@ class ParticipantAgent:
                                         lookups=[op["result"] for op in current
                                                  if op.get("status") == "success" and isinstance(op.get("result"), dict)],
                                         lookups_pending=any(op.get("status") in {"pending", "cancel_requested"} for op in current),
-                                        allow_attachment=not recited)
+                                        allow_attachment=True if not recited else frozenset(
+                                            (step.get("authorization") or {}).get("recited_from") or ()))
             rounds = getattr(self.planner, "follow_up_rounds", 0)
             if (not grant and trace and trace[-1].startswith("awaiting own lookup") and isinstance(rounds, int)
                     and self._follow_up_round < rounds
@@ -1693,7 +1755,17 @@ class ParticipantAgent:
                 self._final("I could not confirm the action's outcome. I will not repeat a state-changing request without checking it.")
                 operation["result_announced"] = True
             else:
-                self._final("Sorry, I was unable to complete the lookup. " + str(result.get("error", "Tool error")))
+                # Error codes stay in tool_results; speech names what would let the lookup run.
+                step_args = (operation.get("step") or {}).get("args") or {}
+                tool = self.tools.get(operation.get("api_name")) or {}
+                unspecified = [key for key in unstated_search_filters(operation.get("api_name"), tool,
+                                                                       {k: v for k, v in step_args.items() if v is not None})
+                               if step_args.get(key) is None]
+                if unspecified:
+                    self._final("I could not get results for that search with what I have. "
+                                + argument_question(tool, {k: v for k, v in step_args.items() if v is not None}))
+                else:
+                    self._final("Sorry, that lookup did not go through, so I have no result to give you yet.")
             return
         for key, value in result.items():
             # Tool prose remains evidence in tool_results, never a new user slot.

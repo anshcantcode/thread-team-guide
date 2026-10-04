@@ -1,5 +1,7 @@
 # FDB-v3 migration — implementation and limits
 
+**Historical migration notes.** The dated profiles and “current” statements below describe September development snapshots (including base.en), not the 3 October source. For today's controller/search rule and small.en candidate, use [Architecture](../ARCHITECTURE.md), [reproduction](REPRODUCE.md) and [results](../submission/RESULTS.md). Historical claims/evidence remain intact.
+
 ## Current pipeline (27 September)
 
 Recorded audio → LiveKit room (VAD) → faster-whisper base.en (CUDA; optional

@@ -2,6 +2,44 @@
 
 This is the focused action roadmap requested on 14 September 2026. It covers commands that span apps, preserve context and survive corrections. The much broader card catalog remains in `features.md`. These are implementation targets, not claims that every integration exists.
 
+## S6 agent abilities — 3 October 2026
+
+The S6 implementation adds persistent keyless **news Watches** on Android and the local host, and
+extends the existing consumer voice/device bridge with public-intent actions and bounded chains.
+See [Watches: architecture, host API for S7, limits and S24 acceptance script](docs/WATCHES.md).
+Implementation and CPU verification are distinct from a fresh physical-phone/model run; this section
+does not transfer historical S24 evidence or a benchmark score to the changed source.
+
+| Exact voice / typed-in-conversation phrase | Tool / actual outcome |
+|---|---|
+| Every 2 hours, give me updates on Manchester City's 115 charges. | `create_watch`; phone-owned WorkManager Watch, or host-owned scheduler in a browser conversation. First check silently saves a baseline; later new reports only. |
+| List my watches. | `list_watches`; actual saved topics, cadence, active state and check timestamps. |
+| Check my watch now. | `check_watch_now`; single active Watch only. Android queues a network-constrained check and says queued. |
+| Stop watching Manchester City 115 charges. | `stop_watch`; future checks stopped, previous history kept. |
+| Open YouTube and search for Manchester City 115 charges. | One `phone_media_search`, **not** only `open_app`; YouTube results intent with web fallback. Handoff does not mean playback. |
+| Draft a WhatsApp message to [international number] saying meeting at five. | `phone_compose_whatsapp`; `wa.me` prefilled draft handoff. **You send it.** Substitute a real, explicitly supplied authorized number; unresolved contacts are not guessed. |
+| Open https://example.com/story in Chrome. | `phone_open_url`; Chrome first, web/default-handler fallback if unavailable. No page-load verification. |
+| Search Play Store for Signal. | `phone_play_store_search`; search handoff, no install or purchase. |
+| Show walking directions to Central Station. | `phone_directions`; Maps route preview with `walking`. Also supports explicit driving, bicycling and transit. |
+| Share meeting at five to WhatsApp. | `phone_share_text`; named installed app's text-sharing draft. You select the recipient and send. |
+| Open the camera. | `phone_open_camera`; camera UI handoff, no photo captured or uploaded. |
+| Find the latest on Manchester City 115 charges and send it to [international number] on WhatsApp. | `phone_run_chain`: real RSS lookup → draft containing the newest returned headline, source and link. One receipt per step; never “sent.” |
+| Set media volume to 30 percent and then open YouTube. | Two ordered native steps and receipts. Media volume uses existing read-back; opening YouTube is only a handoff. |
+| Stop. / Actually, use a different topic. (during a chain) | Existing input/correction boundary holds remaining old steps. Earlier completed effects are retained truthfully, not undone or replayed. |
+
+The entire chain is validated before any step runs. It has 2–3 steps; only its **final** step may
+open another app, because later UI handoffs cannot be guaranteed while THREAD is backgrounded.
+Failures, ambiguity, denied permission and unknown receipts stop continuation. Running action sheets
+also offer **Stop remaining steps**. External drafts cannot be read back or edited invisibly.
+Watch history is separate from a voice session and does not require the phone's Python/Gemini backend
+to run in the background. Notification permission, Doze/network delay, expiry and host-uptime limits
+are described in WATCHES.md. Browser phone-app actions remain unavailable; browser Watch tools work
+on the host, with the S7 web panel intentionally outside this task.
+
+No accessibility-service screen automation was added. It remains a separately scoped future design,
+not a hidden claim that an app launch completed its internal task. No automatic message sending,
+call placement, purchase or new paid API/key is introduced.
+
 ## Build order and scope
 
 1. Bring the reviewed controller into the Android experience: current task, retained/changed details, real action outcomes, pause/resume/stop, and a phone-side stale-command check.

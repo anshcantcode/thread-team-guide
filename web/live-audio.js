@@ -268,6 +268,8 @@ export class NativeVoice {
     }
     this.sources.clear(); this.nextTime = 0; this.outputLevel = 0;
     for (const id of affected) this.send({type:'playback', message_id:id, status, played_ms:this.played.get(id)});
+    // Only a real cut of audible playback counts as an interruption for the interface.
+    if (status === 'interrupted' && affected.size) this.callbacks.interrupted?.();
   }
   toggleMute() {
     this.confirmBarge(false);

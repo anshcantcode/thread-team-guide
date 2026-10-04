@@ -10,6 +10,7 @@ import android.net.Uri
 import android.provider.AlarmClock
 import android.provider.CalendarContract
 import android.provider.Settings
+import android.provider.MediaStore
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.OffsetDateTime
@@ -48,13 +49,26 @@ class PhoneActions(private val activity: Activity, private val widgetPreview: (J
                 }
                 "media_search" -> {
                     val query = text(args, "query", 500); val provider = text(args, "provider", 20)
-                    require(provider in listOf("youtube", "spotify"))
-                    val uri = searchUri(provider, query)
-                    val appUri = if (provider == "spotify") Uri.parse("spotify:search:" + Uri.encode(query)) else uri
-                    val preferred = Intent(Intent.ACTION_VIEW, appUri).setPackage(if (provider == "spotify") "com.spotify.music" else "com.google.android.youtube")
-                    val intent = if (preferred.resolveActivity(activity.packageManager) != null) preferred else Intent(Intent.ACTION_VIEW, uri)
-                    handoff(intent, "Opened $provider search for $query. Choose a result there; playback has not been verified.")
-                        .put("title", "${provider.replaceFirstChar { it.uppercase() }} · $query").put("query", query).put("url", uri.toString())
+                    openRoute(ActionLinks.media(provider, query), "Opened $provider search for $query. Choose a result there; playback has not been verified.")
+                        .put("title", "${provider.replaceFirstChar { it.uppercase() }} · $query").put("query", query)
+                }
+                "compose_whatsapp" -> openRoute(ActionLinks.whatsapp(number(args), text(args, "body", 4000)), "WhatsApp draft handed off — review it and tap Send yourself. Nothing was sent by THREAD.")
+                "open_url" -> openRoute(ActionLinks.chrome(text(args, "url", 4000)), "Opened the URL. The browser handles loading.")
+                "play_store_search" -> openRoute(ActionLinks.playStore(text(args, "query", 200)), "Opened Play Store search. Nothing was installed or purchased.")
+                "directions" -> openRoute(ActionLinks.directions(text(args, "destination", 500), text(args, "travel_mode", 20)), "Opened ${args.getString("travel_mode")} directions. Review and start your route in Maps.")
+                "open_camera" -> handoff(Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA), "Opened the camera. No photo was taken or shared.")
+                "share_text" -> {
+                    val app = text(args, "app", 100)
+                    val intent = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text(args, "body", 4000))
+                    val matches = activity.packageManager.queryIntentActivities(intent, 0).filter {
+                        val packageLabel = activity.packageManager.getApplicationLabel(it.activityInfo.applicationInfo).toString()
+                        packageLabel.equals(app, true) || it.loadLabel(activity.packageManager).toString().equals(app, true)
+                    }.distinctBy { it.activityInfo.packageName }
+                    when (matches.size) {
+                        0 -> outcome("failed", "No installed text-sharing app matches $app.")
+                        1 -> handoff(intent.setPackage(matches.single().activityInfo.packageName), "Opened a share draft in $app. Choose the recipient and send it yourself; nothing was sent by THREAD.")
+                        else -> outcome("ambiguous", "Several apps match $app. Say the full app name.")
+                    }
                 }
                 "open_app" -> {
                     val query = text(args, "query", 100).lowercase().trim()
@@ -127,20 +141,22 @@ class PhoneActions(private val activity: Activity, private val widgetPreview: (J
         return outcome("handed_off", detail)
     }
 
+    private fun openRoute(route: ActionLinks.Route, detail: String): JSONObject {
+        val preferred = Intent(Intent.ACTION_VIEW, Uri.parse(route.appUrl)).setPackage(route.appPackage)
+        val useApp = preferred.resolveActivity(activity.packageManager) != null
+        var destination = if (useApp) route.appPackage else "default_handler"
+        val result = try {
+            handoff(if (useApp) preferred else Intent(Intent.ACTION_VIEW, Uri.parse(route.url)), detail + if (useApp) "" else " Used the web-link fallback; finish in the browser or app.")
+        } catch (_: android.content.ActivityNotFoundException) {
+            destination = "default_handler"
+            handoff(Intent(Intent.ACTION_VIEW, Uri.parse(route.url)), detail + " Used the web-link fallback; finish there.")
+        }
+        return result.put("url", route.url).put("destination", destination)
+    }
+
     companion object {
         fun searchUri(provider: String, query: String, tab: String = "all"): Uri {
-            require(query.isNotBlank() && query.length <= 500 && '\u0000' !in query)
-            return when (provider) {
-                "google" -> {
-                    require(tab in listOf("all", "images", "videos", "news"))
-                    Uri.parse("https://www.google.com/search").buildUpon().appendQueryParameter("q", query).apply {
-                        mapOf("images" to "isch", "videos" to "vid", "news" to "nws")[tab]?.let { appendQueryParameter("tbm", it) }
-                    }.build()
-                }
-                "youtube" -> Uri.parse("https://www.youtube.com/results").buildUpon().appendQueryParameter("search_query", query).build()
-                "spotify" -> Uri.parse("https://open.spotify.com/search").buildUpon().appendPath(query).build()
-                else -> throw IllegalArgumentException("Unsupported search provider")
-            }
+            return Uri.parse(ActionLinks.search(provider, query, tab))
         }
         fun outcome(status: String, detail: String) = JSONObject().put("status", status).put("detail", detail)
         fun int(args: JSONObject, key: String, low: Int, high: Int): Int {

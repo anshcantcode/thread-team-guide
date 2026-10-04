@@ -93,9 +93,20 @@ def main():
     parser.add_argument("--local-judge", action="store_true")
     parser.add_argument("--unpaced", action="store_true", help="Explicit accelerated diagnostic, not comparable to realtime")
     parser.add_argument("--room", action="store_true", help="Loopback LiveKit WebRTC with automatic VAD")
+    # Diagnostic screening only; a full qualifying campaign never uses these.
+    parser.add_argument("--only", help="Comma-separated 0-based recording indices to run (screening; partial_diagnostic)")
+    parser.add_argument("--skip-latency", action="store_true",
+                        help="Skip the per-case latency child (strict/quality evaluation unchanged)")
     args = parser.parse_args()
     if not 1 <= args.limit <= 100:
         parser.error("Limit must be between 1 and 100")
+    if args.only is not None:
+        try:
+            args.only = sorted({int(item) for item in args.only.split(",") if item.strip()})
+        except ValueError:
+            parser.error("--only takes comma-separated integers")
+        if not args.only or any(not 0 <= item < 100 for item in args.only) or args.limit != 100:
+            parser.error("--only takes indices 0-99 and cannot be combined with --limit")
     if args.room and (args.manual or args.unpaced):
         parser.error("Room input requires automatic VAD and real-time pacing")
     assets, upstream = args.assets.resolve(), args.upstream.resolve()
@@ -149,12 +160,15 @@ def run_campaign(args, assets, upstream, manifest, state_dir):
                 "local_model_service":json.loads((state_dir / "raw/local-model-service.json").read_text(encoding="utf-8-sig"))}
     atomic_json(output / "identity.json",identity)
     report = {"run_id":run_id,"registered_at":time.time(),"status":"running","expected":100,
-              "requested":args.limit,"cases":[],"qualification":False,"paid_requests":0,
+              "requested":len(args.only) if args.only else args.limit,"cases":[],
+              "selected_indices":args.only,"qualification":False,"paid_requests":0,
               "judge":"local Qwen diagnostic" if args.local_judge else "disabled",
               "identity_sha256":file_hash(output / "identity.json")}
     atomic_json(output / "report.json",report)
     try:
-        for index,row in enumerate(manifest["recordings"][:args.limit]):
+        selected = args.only if args.only else range(args.limit)
+        for index in selected:
+            row = manifest["recordings"][index]
             case_root = output / f"case-{index:03d}"
             case_root.mkdir()
             original = assets / "evaluator-data" / row["relative_path"]
@@ -175,7 +189,7 @@ def run_campaign(args, assets, upstream, manifest, state_dir):
                     exit_code = child.returncode
                 except subprocess.TimeoutExpired:
                     exit_code = 124
-            case = {"recording":row["recording"],"input_sha256":row["sha256"],"exit_code":exit_code,
+            case = {"recording":row["recording"],"case_index":index,"input_sha256":row["sha256"],"exit_code":exit_code,
                     "started_at":started,"finished_at":time.time(),"command":command,
                     "status":"infrastructure_error","strict_pass":False}
             result_path = case_root / "inference/result.json"
@@ -208,7 +222,9 @@ def run_campaign(args, assets, upstream, manifest, state_dir):
                     if window is not None:
                         case['upstream_window']={'late_calls':len(window['late_calls']),'late_call_seconds':window['late_call_seconds'],
                             'first_output_signal_in_window':window['first_output_signal_in_window'],'duration_seconds':window['duration_seconds']}
-                    if args.room:
+                    if args.room and args.skip_latency:
+                        case['latency']={'status':'skipped','reason':'diagnostic --skip-latency; strict/quality unaffected'}
+                    elif args.room:
                         case['latency']=latency_snapshot(snapshot,evaluator,result_path,audio,args.whisper,
                             case_root/'latency.json',args.endpoint if args.local_judge else None,
                             args.model_file.name if args.local_judge else None)
@@ -224,7 +240,7 @@ def run_campaign(args, assets, upstream, manifest, state_dir):
             report["cases"].append(case)
             atomic_json(output / "report.json",report)
             print(json.dumps({"run_id":run_id,"case":index+1,"status":case["status"],"strict_pass":case["strict_pass"]}),flush=True)
-        report.update(status="complete_diagnostic" if args.limit == 100 else "partial_diagnostic",
+        report.update(status="complete_diagnostic" if args.limit == 100 and not args.only else "partial_diagnostic",
                       evaluated=sum(c["status"] == "completed" for c in report["cases"]),
                       strict_pass=sum(c["strict_pass"] for c in report["cases"]),
                       window_strict_pass=sum(c.get("window_strict_pass") is True for c in report["cases"]),

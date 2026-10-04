@@ -88,6 +88,7 @@ fun taskStatus(ui: ThreadState): String {
                 if (action.optString("detail").isNotBlank()) Text(action.optString("detail"), color = Muted, modifier = Modifier.padding(vertical = 12.dp))
                 ThreadModel.rows(action.optJSONArray("steps")).forEach { step -> Text("${statusLabel(step.optString("status"))} · ${step.optString("label")}", color = Pale, modifier = Modifier.padding(top = 8.dp)) }
                 if (action.optString("status") == "needs_connection") HapticButton("Connect Spotify", primary = true, haptics = model.haptics) { model.taskExpanded = false; model.route = "settings" }
+                if (ui.connected && action.optString("status") == "running") HapticButton("Stop remaining steps", haptics = model.haptics) { model.controlTask("stop_work") }
             }
             val operations = if (ui.activeAction == null) ThreadModel.rows(task.optJSONArray("operations")).takeLast(5) else emptyList()
             if (operations.isNotEmpty()) {

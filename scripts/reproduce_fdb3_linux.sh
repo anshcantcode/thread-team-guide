@@ -14,7 +14,7 @@
 #   THREAD_FDB3_ARCHIVE   path to fdb_v3_data_released.zip (SHA-256 checked)
 # Optional:
 #   LIVEKIT_URL/LIVEKIT_API_KEY/LIVEKIT_API_SECRET  existing server; otherwise
-#   LIVEKIT_SERVER        path to a livekit-server 1.13.x binary started in --dev mode
+#   LIVEKIT_SERVER        pinned livekit-server binary; otherwise downloaded and SHA-256 verified
 #   LLAMA_SERVER          path to a CUDA llama-server; otherwise built from the pinned commit
 #   THREAD_FDB3_JUDGE_MODE local (default) or hosted. Local uses pinned Qwen,
 #                         explicitly NOT Samsung's judge. Hosted additionally
@@ -40,6 +40,14 @@ case "${1:-}" in
   *) printf 'Unknown option: %s\n' "$1" >&2; exit 2 ;;
 esac
 [ "$#" -le 1 ] || { printf 'Expected at most one option\n' >&2; exit 2; }
+
+# This is a noninteractive batch entrypoint. Inherited terminal input can stop
+# upstream FFmpeg with SIGTTIN when a supervisor runs us in a background group.
+# Keep every child on EOF without changing upstream inference/evaluation code.
+exec </dev/null
+# Native ASR libraries can reset LC_CTYPE to C. Python's UTF-8 mode keeps
+# upstream text=True subprocess decoding stable without patching its evaluator.
+export PYTHONUTF8=1 PYTHONIOENCODING=utf-8
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WORK="${THREAD_WORK:-$ROOT/.repro-$(date -u +%Y%m%dT%H%M%SZ)}"
@@ -81,7 +89,7 @@ cleanup() {
 trap cleanup EXIT
 
 # 1. Prerequisites (never installs system packages silently).
-for tool in "$PYTHON" ffmpeg git sha256sum curl; do command -v "$tool" >/dev/null || die "missing $tool"; done
+for tool in "$PYTHON" ffmpeg git sha256sum curl tar; do command -v "$tool" >/dev/null || die "missing $tool (see docs/fdb3/REPRODUCE.md prerequisites)"; done
 "$PYTHON" -c 'import sys; assert sys.version_info[:2] == (3, 11), "Pinned dependencies require Python 3.11"'
 CONFIG_SHELL="$("$PYTHON" "$ROOT/scripts/fdb3_config.py" --shell)" || die "candidate configuration rejected"
 eval "$CONFIG_SHELL"
@@ -90,6 +98,9 @@ if [ "$PREPARE_ONLY" -eq 0 ]; then
   command -v setsid >/dev/null || die "missing setsid"
   command -v nvidia-smi >/dev/null || die "full upstream pipeline requires NVIDIA CUDA (including NeMo output ASR)"
   nvidia-smi --query-gpu=name,memory.total --format=csv,noheader >"$WORK/logs/gpu.txt"
+  if [ -z "${LLAMA_SERVER:-}" ]; then
+    for tool in cmake nvcc c++; do command -v "$tool" >/dev/null || die "missing $tool: install the CUDA build prerequisites or supply LLAMA_SERVER; a CUDA-capable driver alone is not a toolkit"; done
+  fi
 fi
 [ -n "${THREAD_FDB3_ARCHIVE:-}" ] && [ -f "$THREAD_FDB3_ARCHIVE" ] || die "set THREAD_FDB3_ARCHIVE to the released data zip"
 check_sha "$THREAD_FDB3_ARCHIVE" "$ARCHIVE_SHA256"
@@ -127,7 +138,7 @@ mkdir -p "$WORK/models"
 if [ -n "${THREAD_FDB3_MODEL_FILE:-}" ]; then
   ln -sfn "$(readlink -f "$THREAD_FDB3_MODEL_FILE")" "$WORK/models/model.gguf"
 else
-  curl -fsSL -o "$WORK/models/model.gguf" "$MODEL_URL"
+  bash "$ROOT/scripts/fdb3_download_linux.sh" "$MODEL_URL" "$WORK/models/model.gguf" "$MODEL_SHA256"
 fi
 check_sha "$WORK/models/model.gguf" "$MODEL_SHA256"
 if [ -n "${THREAD_FDB3_WHISPER_DIR:-}" ]; then
@@ -139,6 +150,21 @@ fi
 for file in "${!WHISPER_SHA256[@]}"; do check_sha "$WORK/models/whisper/$file" "${WHISPER_SHA256[$file]}"; done
 "$WORK/venv-agent/bin/python" "$ROOT/scripts/setup_speech.py" \
   --model-dir "$WORK/models/whisper" --check-only >"$WORK/whisper-identity.json"
+
+# Provision the pinned local service without requiring a pre-existing cache.
+if [ -z "${LIVEKIT_URL:-}" ]; then
+  if [ -z "${LIVEKIT_SERVER:-}" ]; then
+    [ "$(uname -m)" = x86_64 ] || die "pinned LiveKit download requires Linux x86_64"
+    mkdir "$WORK/livekit"
+    bash "$ROOT/scripts/fdb3_download_linux.sh" "$LIVEKIT_DOWNLOAD_URL" "$WORK/livekit/server.tar.gz" "$LIVEKIT_ARCHIVE_SHA256"
+    check_sha "$WORK/livekit/server.tar.gz" "$LIVEKIT_ARCHIVE_SHA256"
+    tar -xzf "$WORK/livekit/server.tar.gz" -C "$WORK/livekit"
+    LIVEKIT_SERVER="$WORK/livekit/livekit-server"
+  fi
+  check_sha "$LIVEKIT_SERVER" "$LIVEKIT_BINARY_SHA256"
+  "$LIVEKIT_SERVER" --version >"$WORK/logs/livekit-version.txt"
+  sha256sum "$LIVEKIT_SERVER" >"$WORK/logs/livekit-binary.sha256"
+fi
 
 # Validate the actual Linux imports and public contract, not only pip metadata.
 (cd "$ROOT" && "$WORK/venv-agent/bin/python" - "$WORK" <<'PY'
@@ -194,12 +220,14 @@ if [ -z "${LLAMA_SERVER:-}" ]; then
   command -v cmake >/dev/null || die "install cmake + CUDA toolkit, or set LLAMA_SERVER"
   git clone -q https://github.com/ggml-org/llama.cpp "$WORK/llama.cpp"
   git -C "$WORK/llama.cpp" checkout -q "$LLAMA_COMMIT"
-  cmake -S "$WORK/llama.cpp" -B "$WORK/llama.cpp/build" -DGGML_CUDA=ON -DCMAKE_BUILD_TYPE=Release >"$WORK/logs/llama-build.log"
+  cmake -S "$WORK/llama.cpp" -B "$WORK/llama.cpp/build" -DGGML_CUDA=ON -DCMAKE_BUILD_TYPE=Release \
+    -DLLAMA_USE_PREBUILT_UI=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF >"$WORK/logs/llama-build.log" 2>&1
   cmake --build "$WORK/llama.cpp/build" --target llama-server -j "$BUILD_JOBS" >>"$WORK/logs/llama-build.log"
   LLAMA_SERVER="$WORK/llama.cpp/build/bin/llama-server"
 fi
 "$LLAMA_SERVER" --version >"$WORK/logs/llama-version.txt" 2>&1
-grep -q "${LLAMA_COMMIT:0:9}" "$WORK/logs/llama-version.txt" || die "LLAMA_SERVER must match pinned $LLAMA_VERSION ($LLAMA_COMMIT)"
+"$PYTHON" "$ROOT/scripts/fdb3_config.py" --verify-llama "$LLAMA_SERVER" \
+  --llama-version-file "$WORK/logs/llama-version.txt" >"$WORK/llama-identity.json"
 sha256sum "$LLAMA_SERVER" >"$WORK/logs/llama-binary.sha256"
 setsid "$LLAMA_SERVER" -m "$WORK/models/model.gguf" --host 127.0.0.1 --port "$PLANNER_PORT" \
   "${LLAMA_ARGS[@]}" --slot-save-path "$WORK/slots" >"$WORK/logs/model.log" 2>&1 &

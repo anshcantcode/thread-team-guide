@@ -1,5 +1,7 @@
 # Tethered kitchen checklist and timer handoff diagnostic
 
+**Historical debug-Activity/ADB diagnostic, not today's browser recording path.** Current Kitchen setup is [here](../SETUP.md#browser-kitchen), with [the continuous demo runbook](../submission/DEMO_RUNBOOK.md). The browser extension has read/add/update checklist tools, not the timer handoff described below. The dated results here do not qualify the changed final candidate.
+
 The desktop LiveKit audio path uses the same ParticipantAgent and ControllerBridge
 as the benchmark. Its extension registry invokes a debug-only Android Activity on
 an explicitly selected, owned emulator. This is not a standalone APK voice agent.

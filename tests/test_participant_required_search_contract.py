@@ -1,6 +1,9 @@
-"""Required search arguments are contractual even when the user omitted a filter.
+"""A read-only search runs with what the user said; required filters never become guesses.
 
-Invented values and in-memory executors; no benchmark recordings or labels.
+A required filter the user never narrowed by runs unspecified (None at the executor), a
+named-but-omitted field or an unused spoken number is asked for, and a planner's invented
+value is removed rather than sent. Invented values and in-memory executors; no benchmark
+recordings or labels.
 """
 import asyncio
 from copy import deepcopy
@@ -63,7 +66,7 @@ class RequiredSearchContractTests(unittest.IsolatedAsyncioTestCase):
             events.append(agent.out_queue.get_nowait())
         return events
 
-    async def test_missing_required_scalar_never_dispatches_or_becomes_null(self):
+    async def test_unstated_required_filter_runs_unspecified_never_guessed(self):
         for missing, text, args in (
             ("desks", "Find workrooms in Clifton under 850.", {"district": "Clifton", "budget": 850}),
             ("budget", "Find workrooms in Clifton with three desks.", {"district": "Clifton", "desks": 3}),
@@ -71,43 +74,61 @@ class RequiredSearchContractTests(unittest.IsolatedAsyncioTestCase):
         ):
             with self.subTest(missing=missing):
                 events = self.dispatch(text, "search_workrooms", args)
-                self.assertFalse([event for event in events if event["action"] == "tool_call"])
-                clarification = [event for event in events if event["action"] == "clarification_request"]
-                self.assertEqual(len(clarification), 1)
-                # Spoken in the contract's words; the validator's message is evidence only.
-                self.assertEqual(clarification[0]["payload"]["text"], f"Could you tell me the {missing}?")
-                self.assertEqual(clarification[0]["payload"]["validation"],
-                                 {"api_name": "search_workrooms",
-                                  "problems": [f"args.{missing}: missing required argument"]})
+                self.assertEqual([event["payload"]["args"] for event in events if event["action"] == "tool_call"],
+                                 [args])
+                self.assertFalse([event for event in events if event["action"] == "clarification_request"])
+
+    async def test_search_narrowed_by_too_few_filters_is_asked_about(self):
+        # One of three required filters stated: too vague to be the requested search.
+        events = self.dispatch("Find workrooms in Clifton.", "search_workrooms", {"district": "Clifton"})
+        self.assertFalse([event for event in events if event["action"] == "tool_call"])
+        self.assertEqual([event["payload"]["text"] for event in events if event["action"] == "clarification_request"],
+                         ["Could you tell me the desks and the budget?"])
+
+    async def test_named_but_omitted_field_is_asked_for_in_contract_words(self):
+        events = self.dispatch("Find workrooms in Clifton with three desks within my budget.", "search_workrooms",
+                               {"district": "Clifton", "desks": 3})
+        self.assertFalse([event for event in events if event["action"] == "tool_call"])
+        clarification = [event for event in events if event["action"] == "clarification_request"]
+        self.assertEqual([event["payload"]["text"] for event in clarification], ["Could you tell me the budget?"])
+        self.assertEqual(clarification[0]["payload"]["validation"],
+                         {"api_name": "search_workrooms", "problems": ["args.budget: missing required argument"]})
+
+    async def test_unused_spoken_number_is_asked_for(self):
+        events = self.dispatch("Find workrooms in Clifton with three desks under 900.", "search_workrooms",
+                               {"district": "Clifton", "desks": 3})
+        self.assertFalse([event for event in events if event["action"] == "tool_call"])
+        self.assertEqual([event["payload"]["text"] for event in events if event["action"] == "clarification_request"],
+                         ["Could you tell me the budget?"])
 
     async def test_actual_optional_filter_can_be_omitted(self):
         events = self.dispatch("Find woven linen.", "search_materials", {"query": "woven linen"})
         self.assertEqual([event["payload"]["args"] for event in events if event["action"] == "tool_call"],
                          [{"query": "woven linen"}])
 
-    async def test_removed_invented_required_filter_requires_clarification(self):
+    async def test_removed_invented_required_filter_runs_unspecified(self):
         text = "Find workrooms in Clifton with three desks."
         context = {"tools": TOOLS, "messages": [{"event_type": "user_speech_chunk", "payload": {"text": text}}]}
         proposal = {"api_name": "search_workrooms", "args": {"district": "Clifton", "desks": 3, "budget": 4000}}
         corrected = drop_unstated_search_filters({"tool_calls": [proposal]}, context)["tool_calls"][0]
         self.assertNotIn("budget", corrected["args"])
         events = self.dispatch(text, corrected["api_name"], corrected["args"])
-        self.assertFalse([event for event in events if event["action"] == "tool_call"])
-        self.assertTrue([event for event in events if event["action"] == "clarification_request"])
+        self.assertEqual([event["payload"]["args"] for event in events if event["action"] == "tool_call"],
+                         [{"district": "Clifton", "desks": 3}])
 
-    async def test_bridge_never_invokes_backend_with_missing_required_filter(self):
+    async def test_bridge_passes_unstated_filter_as_none_and_asks_when_the_backend_needs_it(self):
         registry = Registry()
         planner = Planner({"api_name": "search_workrooms", "args": {"district": "Clifton", "desks": 3}})
         bridge = ControllerBridge(deepcopy(TOOLS), registry, planner)
         await bridge.start()
         try:
             answer = await bridge.response("Find workrooms in Clifton with three desks.", timeout=2)
-            self.assertEqual(answer, "Could you tell me the budget?")
-            self.assertEqual([event["payload"]["validation"]["problems"] for event in bridge.events
-                              if event["action"] == "clarification_request"],
-                             [["args.budget: missing required argument"]])
-            self.assertEqual(registry.calls, [])
-            self.assertEqual(bridge.calls, [])
+            # The executor receives every declared filter, the unstated one as None, never a guess.
+            self.assertEqual(registry.calls, [("search_workrooms", {"district": "Clifton", "desks": 3, "budget": None})])
+            # This backend cannot search without a budget; speech asks for it, never an error code.
+            self.assertEqual(answer, "I could not get results for that search with what I have. "
+                                     "Could you tell me the budget?")
+            self.assertNotIn("exception", answer)
         finally:
             await bridge.close()
 

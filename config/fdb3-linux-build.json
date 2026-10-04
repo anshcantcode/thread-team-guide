@@ -5,5 +5,18 @@
   "hardware": "NVIDIA GeForce RTX 4050 Laptop GPU, 6 GiB",
   "cuda_architecture": "89",
   "source_download_verified_phase1": true,
-  "linux_build_executed": false
+  "linux_build_executed": true,
+  "archive_build_receipts": {
+    "c34cf1dc8c6ded0a49d4f77ede370a69e66682e6cad50c4f651a238d1325af23": {
+      "source_commit": "56381e407c0ccfb3a6f71e668a27a901001d22ce",
+      "source_archive_sha256": "7fd19c03e7d7bb02c07e64c47e0539aeabe54f366a59be822f550b5f012a8751",
+      "scope": "2026-09-28 local CUDA 12.4 SM89 archive build; not a portable organizer binary"
+    }
+  },
+  "livekit": {
+    "version": "1.13.7",
+    "url": "https://github.com/livekit/livekit/releases/download/v1.13.7/livekit_1.13.7_linux_amd64.tar.gz",
+    "archive_sha256": "6634aeeb2fb1366b6723708ae4320b9d5408106a4c63457c5e845ae3979c90e2",
+    "binary_sha256": "7827d8be422458b7dd9fe6302764232deabab7c0193b60357bcb4649df2dadc5"
+  }
 }

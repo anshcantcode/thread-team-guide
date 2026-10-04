@@ -77,6 +77,30 @@ val Blue = Color(0xFF2378F3)
         })
 }
 
+/** The orb, driven only by observed state: receipts and corrections count real increases, never timers. */
+@Composable fun LivingSphere(model: ThreadModel, modifier: Modifier = Modifier, motionEnabled: Boolean = true) {
+    val ui = model.ui
+    val phase = orbPhaseFor(ui.connected, ui.connecting, ui.muted, ui.error != null, ui.mode, ui.activeAction != null)
+    var receipts by remember { mutableIntStateOf(0) }
+    var seenResults by remember { mutableIntStateOf(ui.results.size) }
+    LaunchedEffect(ui.results.size) { if (ui.results.size > seenResults) receipts++; seenResults = ui.results.size }
+    var corrections by remember { mutableIntStateOf(0) }
+    LaunchedEffect(ui.changedSlots) { if (ui.changedSlots.isNotEmpty()) corrections++ }
+    var failures by remember { mutableIntStateOf(0) }
+    LaunchedEffect(ui.error) { if (ui.error != null) failures++ }
+    val pleased by produceState(false, receipts) { if (receipts > 0) { value = true; kotlinx.coroutines.delay(4000); value = false } }
+    val asking = ui.connected && ui.captionRole != "user" && ui.caption.trimEnd().endsWith("?")
+    val mood = when {
+        ui.error != null -> OrbMood.Apologetic
+        pleased -> OrbMood.Pleased
+        asking -> OrbMood.Curious
+        phase == OrbPhase.Working -> OrbMood.Focused
+        else -> OrbMood.Neutral
+    }
+    ThreadOrb(phase, ui.level, modifier, mood = if (model.expressiveOrb) mood else OrbMood.Neutral,
+        interruptions = model.interruptions, receipts = receipts, failures = failures, corrections = corrections, motionEnabled = motionEnabled)
+}
+
 @Composable fun HapticButton(label: String, icon: ImageVector? = null, primary: Boolean = false, enabled: Boolean = true,
                              haptics: Boolean = true, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val view = LocalView.current
@@ -116,7 +140,10 @@ val Blue = Color(0xFF2378F3)
                         val result=selected!!
                         if(canMakeWidget(result)) IconButton(onClick={model.widget=JSONObject().put("title",title(result).take(60)).put("results",org.json.JSONArray(listOf(result)))}) { Icon(Icons.Outlined.Widgets,"Make a widget",tint=Pale,modifier=Modifier.size(21.dp)) }
                         IconButton(onClick={share(context,result)}) { Icon(Icons.Outlined.IosShare,"Share result",tint=Pale,modifier=Modifier.size(21.dp)) }
-                    } else IconButton(onClick = { changeRoute("settings") }) { Icon(Icons.Outlined.Settings, "Settings", tint = Pale, modifier = Modifier.size(23.dp)) }
+                    } else {
+                        IconButton(onClick = { model.watchId = ""; changeRoute("watches") }) { Icon(Icons.Outlined.NotificationsActive, "Watches", tint = Pale, modifier = Modifier.size(23.dp)) }
+                        IconButton(onClick = { changeRoute("settings") }) { Icon(Icons.Outlined.Settings, "Settings", tint = Pale, modifier = Modifier.size(23.dp)) }
+                    }
                 }
                 val cameraFillsVoice = model.cameraSharing && model.route == "voice" && selected == null
                 // Keep the Surface outside route transitions so navigation never recreates the camera.
@@ -133,6 +160,7 @@ val Blue = Color(0xFF2378F3)
                             "home" -> HomeScreen(model, { selected = it }, { changeRoute("voice"); start() }, { changeRoute("widgets") })
                             "library" -> LibraryScreen(model, { selected = it })
                             "history" -> HistoryScreen(model)
+                            "watches" -> WatchScreen(model)
                             "widgets" -> WidgetScreen(model)
                             "settings" -> SettingsScreen(model, permissions, { showPrivacy = true })
                         }
@@ -212,7 +240,7 @@ val Blue = Color(0xFF2378F3)
             TextButton(onClick = results) { Text("Open Library") }; Spacer(Modifier.height(20.dp))
         } else {
             if (!model.cameraSharing) Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                AcousticSphere(Modifier.fillMaxWidth().aspectRatio(1f), ui.level, ui.connected)
+                LivingSphere(model, Modifier.fillMaxWidth().aspectRatio(1f))
             }
             if (ui.connected || ui.connecting) {
                 Column(Modifier.fillMaxWidth().heightIn(min = 110.dp, max = 190.dp).verticalScroll(rememberScrollState())) {
@@ -536,6 +564,12 @@ private fun statValue(row:JSONObject,key:String):String {
 
 @Composable private fun SettingsScreen(model: ThreadModel, permissions: () -> Unit, privacy: () -> Unit) {
     val context = LocalContext.current
+    var bubbleExplanation by remember { mutableStateOf(false) }
+    if (bubbleExplanation) AlertDialog(onDismissRequest = { bubbleExplanation = false },
+        title = { Text("Floating bubble") },
+        text = { Text("Keep THREAD's orb and latest caption over other apps. Android's Display over other apps permission is required. A persistent notification provides Stop, which ends voice and removes the bubble. Turning this on does not start the microphone. Tap to talk; starting a new microphone session opens THREAD. Captions can be visible to people looking at your screen.") },
+        confirmButton = { TextButton(onClick = { bubbleExplanation = false; model.requestFloatingBubble?.invoke(true) }) { Text("Continue to permissions") } },
+        dismissButton = { TextButton(onClick = { bubbleExplanation = false }) { Text("Not now") } })
     LazyColumn(Modifier.fillMaxSize().padding(horizontal = 25.dp), contentPadding = PaddingValues(top = 25.dp, bottom = 25.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item { Text("Make yourself\nat home.", fontSize = 34.sp, lineHeight = 41.sp, color = White); Spacer(Modifier.height(15.dp)) }
         item { SectionLabel("FDB-v3 · Host connection"); Group {
@@ -567,8 +601,19 @@ private fun statValue(row:JSONObject,key:String):String {
             }
             if (model.ui.connected) Text("End the conversation to change voice.", color = Muted, fontSize = 12.sp)
         } }
+        item { SectionLabel("Floating bubble"); Group {
+            SettingSwitch("Floating bubble", "Orb and last caption over other apps. Microphone starts only when you ask to talk.", model.floatingBubble) {
+                if (it) bubbleExplanation = true else model.requestFloatingBubble?.invoke(false)
+            }
+            if (model.bubbleMessage.isNotBlank()) Text(model.bubbleMessage, color = Pale, fontSize = 12.sp)
+            TextButton(onClick = {
+                context.startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}")))
+            }) { Text("Display over other apps permission") }
+            Text("Drag to move; release to snap to an edge. Long-press to open THREAD. Drop on ? to remove it and end voice.", color = Muted, fontSize = 12.sp)
+        } }
         item { SectionLabel("Feel & feedback"); Group {
             SettingSwitch("Haptic feedback", "A light response to intentional actions", model.haptics) { model.preference("haptics", it) }
+            SettingSwitch("Expressive companion", "The sphere shows curiosity, focus and relief from real events", model.expressiveOrb) { model.preference("expressive", it) }
             HorizontalDivider(color = Line)
             SettingSwitch("Quiet acknowledgments", "A brief sound when you interrupt", model.acknowledgments) { model.preference("ack", it) }
             Text("Motion follows your Android animation settings.", color = Muted, fontSize = 12.sp, modifier = Modifier.padding(top = 12.dp))
@@ -630,6 +675,19 @@ private fun statValue(row:JSONObject,key:String):String {
             }
         }
         item { HapticButton("Preview widget", Icons.Outlined.Widgets, true, enabled = selected.isNotEmpty() && title.isNotBlank(), haptics = model.haptics, modifier = Modifier.fillMaxWidth()) { model.widget = JSONObject().put("title", title).put("results", org.json.JSONArray(model.ui.results.filter { it.optString("id") in selected })) } }
+        if (model.widgetTargetId == null) item {
+            Group {
+                Text("From your saved state", color = White, fontSize = 22.sp)
+                Text("Current task and receipts, new Watch reports, or real Kitchen checklist progress. Updates stay on this phone.", color = Muted, modifier = Modifier.padding(vertical = 10.dp))
+                listOf("Now doing" to NowDoingWidget::class.java, "Watches" to WatchesWidget::class.java, "Kitchen checklist" to KitchenProgressWidget::class.java).forEach { (label, provider) ->
+                    TextButton(onClick = {
+                        val manager = android.appwidget.AppWidgetManager.getInstance(context)
+                        if (manager.isRequestPinAppWidgetSupported) manager.requestPinAppWidget(android.content.ComponentName(context, provider), null, null)
+                        else model.showError("Add this widget from your launcher's Widgets menu.")
+                    }) { Text("Add $label") }
+                }
+            }
+        }
         if (model.widgetTargetId == null) item { HorizontalDivider(Modifier.padding(vertical = 12.dp), color = Line); Text("One tap to talk.", fontSize = 23.sp, color = White); Text("A quiet shortcut. The microphone starts only after you tap it.", color = Muted, modifier = Modifier.padding(vertical = 10.dp)); HapticButton("Add voice shortcut", Icons.Outlined.Mic, haptics = model.haptics) { android.appwidget.AppWidgetManager.getInstance(context).requestPinAppWidget(android.content.ComponentName(context, TalkWidget::class.java), null, null) } }
     }
 }

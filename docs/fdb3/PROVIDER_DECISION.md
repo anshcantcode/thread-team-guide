@@ -1,5 +1,7 @@
 # Observed local route, not a final provider selection
 
+**Historical development profiles.** The CPU/base.en/2B/4B experiments below are not the selected small.en/CUDA/seed-42 candidate. See [current reproduction configuration](REPRODUCE.md) and [the final-source results](../submission/RESULTS.md). “Current” below describes the dated experiment only.
+
 The owner authorized INR 0 on 2026-09-25. No configured key was treated as spending
 permission. The current usable diagnostic route is local Whisper base.en (CPU
 int8), existing Qwen3.5 Q4_K_M models through llama.cpp, Microsoft David Desktop SAPI,

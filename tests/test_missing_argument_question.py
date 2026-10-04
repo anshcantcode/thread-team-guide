@@ -156,7 +156,8 @@ class Registry:
 
     def call(self, name, **args):
         self.calls.append((name, deepcopy(args)))
-        return {"status": "success", "city": args["city"], "results": []}
+        # Like the public mock, pricing a listing needs the budget it was given.
+        return {"status": "success", "city": args["city"], "results": [{"id": "APT1", "price": args["max_price"] - 100}]}
 
 
 class DispatchTests(unittest.IsolatedAsyncioTestCase):
@@ -165,8 +166,9 @@ class DispatchTests(unittest.IsolatedAsyncioTestCase):
     def agent(self):
         agent = ParticipantAgent(asyncio.Queue(), asyncio.Queue())
         agent.tools = deepcopy(CONTRACT)
+        # The user states a budget the proposal leaves out: a stated value is never run unspecified.
         agent.messages = [{"event_type": "user_speech_chunk",
-                           "payload": {"text": "Find a one bedroom apartment in Tucson."}}]
+                           "payload": {"text": "Find a one bedroom apartment in Tucson under 1500."}}]
         return agent
 
     def events(self, agent):
@@ -191,18 +193,19 @@ class DispatchTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([event["payload"] for event in events if event["action"] == "clarification_request"],
                          [{"text": "Could you tell me the maximum monthly rent budget?", "validation": self.EVIDENCE}])
 
-    async def test_a_guessed_budget_is_removed_and_asked_for_without_any_call(self):
+    async def test_a_guessed_budget_is_removed_and_the_search_runs_unspecified(self):
         registry = Registry()
         planner = Planner({"api_name": "search_apartments", "args": {"city": "Tucson", "bedrooms": 1, "max_price": 5000}})
         bridge = ControllerBridge(deepcopy(CONTRACT), registry, planner)
         await bridge.start()
         try:
             answer = await bridge.response("Find a one bedroom apartment in Tucson.", timeout=2)
-            self.assertEqual(answer, "Could you tell me the maximum monthly rent budget?")
-            self.assertEqual([event["payload"]["validation"] for event in bridge.events
-                              if event["action"] == "clarification_request"], [self.EVIDENCE])
-            self.assertEqual(registry.calls, [])
-            self.assertEqual(bridge.calls, [])
+            # The guess never reaches the executor; the unstated budget is unspecified.
+            self.assertEqual(registry.calls, [("search_apartments", {"city": "Tucson", "bedrooms": 1, "max_price": None})])
+            # This backend cannot price listings without a budget, so the answer asks for it plainly.
+            self.assertEqual(answer, "I could not get results for that search with what I have. "
+                                     "Could you tell me the maximum monthly rent budget?")
+            self.assertNotRegex(answer, JARGON)
         finally:
             await bridge.close()
 

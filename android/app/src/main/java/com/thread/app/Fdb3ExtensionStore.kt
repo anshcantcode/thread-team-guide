@@ -20,6 +20,7 @@ class Fdb3ExtensionStore(private val context: Context, private val timer: (JSONO
         val args = request.getJSONObject("args")
         if (command == "cleanup") {
             check(prefs.edit().clear().commit())
+            StoredStateWidgets.changed(context)
             context.filesDir.listFiles()?.filter { it.name.startsWith("fdb3-") && it.extension == "json" }?.forEach {
                 if (runCatching { JSONObject(it.readText()).optString("session_id") == session }.getOrDefault(false)) it.delete()
             }
@@ -42,6 +43,7 @@ class Fdb3ExtensionStore(private val context: Context, private val timer: (JSONO
             val edit = prefs.edit().putString("request-$id", JSONObject().put("fingerprint", fingerprint).put("result", result).toString())
             if (withItems) edit.putString("items", items.toString())
             check(edit.commit())
+            if (withItems) StoredStateWidgets.changed(context)
             return result
         }
         fun keys(vararg allowed: String) { require(args.keys().asSequence().toSet() == allowed.toSet()) }

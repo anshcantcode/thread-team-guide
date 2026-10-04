@@ -20,6 +20,7 @@ import httpx
 
 from participant.agent import ParticipantAgent
 from participant.planner import SYSTEM, _unique_json_object
+from .fdb3_values import mock_call_args, normalize_mock_scalar_proposals
 
 UPSTREAM_COMMIT = "3e799c45a045256f47d5f1c9cda90157e2d2ec9e"
 WRITES = {"book_flight", "update_identity_doc", "modify_autopay", "update_search_filter", "add_to_cart"}
@@ -343,9 +344,8 @@ def drop_unstated_search_filters(decision, context):
     """Remove invented required search values before strict controller validation.
 
     "Search Denver, one bedroom" with a guessed max_price 5000 (or 0, or city "") runs with
-    that filter absent instead of the guess. The controller then asks for the required
-    value; omission never authorizes a null tool argument. Only read-only tools named
-    as searches, and only while at least one required filter stays stated.
+    that filter unspecified instead of the guess, like an omitted one. Only read-only tools
+    named as searches, and only while at least one required filter stays stated.
     """
     from participant.agent import _mentions_value
     from participant.schema import unstated_search_filters
@@ -377,7 +377,7 @@ def drop_unstated_search_filters(decision, context):
                 invented.add(key)
         trial = {k: v for k, v in args.items() if k not in invented}
         # Only while a stated required filter remains; the removed ones must be eligible.
-        if invented and invented <= set(unstated_search_filters(name, tool, trial)):
+        if invented and invented <= set(unstated_search_filters(name, tool, trial, majority=False)):
             step["args"] = trial
     return decision
 
@@ -467,6 +467,9 @@ def normalize_write_identifiers(decision, context, include_reads=False):
 def load_contract(runtime: Path):
     """Read only the public tool declarations, never scenario definitions."""
     tree = ast.parse((runtime / "cascaded_agent.py").read_text(encoding="utf-8"))
+    mock = ast.parse((runtime / "mock_apis.py").read_text(encoding="utf-8"))
+    mock_args = {fn.name: {p.arg: ast.unparse(p.annotation) for p in fn.args.args if p.annotation}
+                 for fn in mock.body if isinstance(fn, ast.FunctionDef)}
     cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "AssistantFnc")
     types = {"str": "string", "float": "number", "int": "integer"}
     tools = {}
@@ -479,6 +482,11 @@ def load_contract(runtime: Path):
         required = len(params) - len(fn.args.defaults)
         args = {p.arg: {"type": types[p.annotation.id], "required": i < required}
                 for i, p in enumerate(params)}
+        for name, spec in args.items():
+            if mock_args.get(fn.name, {}).get(name) in {"Any", "typing.Any"}:
+                # Keep the controller's ordinary string descriptor as the fallback;
+                # only this public mock declaration enables the FDB scalar union.
+                spec["fdb_mock_any"] = True
         for p, default in zip(params[required:], fn.args.defaults):
             value = ast.literal_eval(default)
             if value is not None:  # A None default means "absent", not a value to send.
@@ -530,6 +538,10 @@ def planner_view(context):
     current request or unresolved outcomes to squeeze them into a model window.
     """
     view = deepcopy(context)
+    for tool in view.get('tools', {}).values():
+        for spec in tool.get('args', {}).values():
+            if isinstance(spec, dict) and spec.get('fdb_mock_any') is True:
+                spec['type'] = ['string', 'number', 'boolean']
     messages = view.get('messages', [])
     start = view.get('current_turn_start', 0)
     cutoff = max(0, start - 4)
@@ -552,7 +564,9 @@ def argument_schema(descriptor, depth=0):
     if not isinstance(descriptor, dict) or depth > 6:
         return {}
     kind = descriptor.get('type')
-    schema = {'type': kind} if kind in {'string', 'number', 'integer', 'boolean', 'array', 'object'} else {}
+    schema = {'type': kind} if isinstance(kind, str) and kind in {'string', 'number', 'integer', 'boolean', 'array', 'object'} else {}
+    if descriptor.get('fdb_mock_any') is True:
+        schema['type'] = ['string', 'number', 'boolean']
     if isinstance(descriptor.get('enum'), list) and descriptor['enum']:
         schema['enum'] = deepcopy(descriptor['enum'])
     if kind == 'object' and isinstance(descriptor.get('properties'), dict):
@@ -886,6 +900,7 @@ class LocalPlanner:
         decision, dropped = parse_decision(content)
         if dropped:
             request["slots_dropped_for_repeated_keys"] = True
+        decision = normalize_mock_scalar_proposals(decision, context)
         decision = normalize_read_identifiers(decision,context)
         decision = normalize_write_identifiers(decision,context,include_reads=self.guidance >= 2 or self.arg_normalize)
         if self.guidance >= 2 or self.arg_normalize:
@@ -1103,6 +1118,17 @@ class ControllerBridge:
         # this lock during a blocking backend call: admitted effects reconcile
         # after interruption, while queued effects can still be rejected.
         operation = self.controller.operations[payload["call_id"]]
+        from participant.schema import unstated_search_filters
+        tool = self.tools.get(payload["api_name"])
+        # Representation-only conversion after the unchanged controller gate.
+        # Journal and registry both receive these exact native mock arguments.
+        payload = {**payload, "args": mock_call_args(payload["args"], tool)}
+        unstated = unstated_search_filters(payload["api_name"], tool, payload["args"])
+        if unstated:
+            # The public callables take every declared filter; an unstated one is passed as None
+            # (unspecified), in declared order, never as an invented value.
+            payload = {**payload, "args": {key: payload["args"].get(key) for key in tool["args"]
+                                           if key in payload["args"] or key in unstated}}
         with self.admission_lock:
             if (self.closing or revision <= self.blocked_through_revision or revision != self.controller.revision
                     or operation["status"] != "pending"):

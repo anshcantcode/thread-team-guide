@@ -51,13 +51,17 @@ class LocalRoom:
         finally:
             await stream.aclose()
 
-    async def play(self, path):
+    async def play(self, path, *, monitor=None):
         # AudioSource supplies actual real-time playout/backpressure.
         async for frame in audio_frames(path, paced=False):
             if self.stream_start_time is None:
                 self.stream_start_time = time.time()
             await self.source.capture_frame(frame)
+            if monitor is not None:
+                await monitor.capture_frame(frame)
         await self.source.wait_for_playout()
+        if monitor is not None:
+            await monitor.drain()
 
     async def close(self):
         if self.closed:

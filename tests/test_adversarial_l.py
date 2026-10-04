@@ -295,12 +295,12 @@ class AdversarialLTests(unittest.TestCase):
         decision = fdb3.drop_unstated_search_filters({"tool_calls": [step]}, agent._context())
         self.refused(text, decision["tool_calls"][0], agent=agent)
 
-    def test_truly_unstated_required_price_requires_clarification(self):
+    def test_truly_unstated_price_can_remain_unspecified(self):
         text = "Search homes in Bergen."
         agent = self.agent(text)
         step = proposal("search_homes", {"city": "Bergen", "max_price": 4000})
         decision = fdb3.drop_unstated_search_filters({"tool_calls": [step]}, agent._context())
-        self.refused(text, decision["tool_calls"][0], agent=agent)
+        self.accepted(text, decision["tool_calls"][0], agent=agent)
         self.assertEqual(decision["tool_calls"][0]["args"], {"city": "Bergen"})
 
     def test_partial_search_does_not_omit_identifier_named_number(self):

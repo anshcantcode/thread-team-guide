@@ -206,7 +206,18 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
         playback(id, "paused")
     }
 
+    /** Called on the audio thread when audible playback was actually cut (barge-in or typing). */
+    @Volatile var onInterrupted: (() -> Unit)? = null
     fun typed() = synchronized(lock) { interruptPlayback() }
+
+    /** An intentional tap uses the same floor-yield and playback ledger as voice barge-in.
+     * No invented transcript and no extra AudioRecord. Actual VAD owns the next utterance. */
+    fun bargeIn() = synchronized(lock) {
+        val id = currentId ?: pausedId
+        send(JSONObject().put("type", "speech_start").put("message_id", id))
+        interruptPlayback()
+        send(JSONObject().put("type", "speech_end"))
+    }
 
     /** A host-confirmed interruption can arrive before local VAD has paused audio. */
     private fun interruptPlayback() {
@@ -218,6 +229,7 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
         for (id in affected) { blocked.add(id); playback(id, "interrupted") }
         while (blocked.size > 64) blocked.remove(blocked.first())
         track?.play()
+        if (affected.isNotEmpty()) onInterrupted?.invoke()
     }
 
     private fun discard(withAck: Boolean) {
@@ -226,6 +238,7 @@ class LiveAudio(private val context: Context, private val send: (JSONObject) -> 
         track?.pause(); retainHeard(); track?.flush(); writtenFrames = 0
         queue.removeIf { it.id == id }; pausedId = null; currentId = null; continuation = null
         playback(id, "interrupted"); track?.play()
+        onInterrupted?.invoke()
         val now = SystemClock.elapsedRealtime()
         if (withAck && acknowledgments && now - lastAck >= 6000) {
             lastAck = now; ackUntil = now + 650

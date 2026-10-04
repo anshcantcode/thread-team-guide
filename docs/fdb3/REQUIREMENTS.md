@@ -1,4 +1,6 @@
-# Current requirements and proof mapping
+# Historical 28 September requirements and proof mapping
+
+**Superseded status snapshot.** Use [the current submission requirements](../submission/REQUIREMENTS.md). The owner now reports **4 October 2026**; exact cutoff/form remain unconfirmed. Source, score, configuration and incomplete gates below retain their 28 September meaning, not the final catchup source.
 
 Authority: [updated Theme 05 guide](https://docs.google.com/document/d/12RPdEbggSayVHNoFk1zPNqKOdVRQ_vio/edit),
 read through Drive again on 28 September (India time), modified 24 September.
@@ -28,7 +30,7 @@ runs are an internal objective; the guide does not require perfection to submit.
 The owner reports an email extending the deadline to **30 September**. This is
 recorded as owner-reported; the email was not independently read because Gmail
 is unconnected. Cutoff time/timezone and the final form URL remain placeholders,
-as do unknown team details. No later extension is assumed.
+as did the then-unknown team details. This is the historical deadline report; the 3 October update above supersedes it.
 
 Unknown organizer details: selected benchmark commit, judge snapshot,
 normalization formula and credit funding. Upstream remains provisionally pinned

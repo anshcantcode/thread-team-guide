@@ -1,6 +1,8 @@
 # Legacy queue-kit manifest, retained with its original valid schema.
 # Current Samsung Theme 05 FDB-v3 entry point: bash scripts/reproduce_fdb3_linux.sh
 # Current reproduction contract and prerequisites: docs/fdb3/REPRODUCE.md
+# SECRET_GEMINI_API_KEY below applies only to this legacy entry, not local FDB-v3.
+# 2026-10-03 final-source results/status: docs/submission/submission.json
 team: "ReflexAi"
 entry_point: "participant.agent:ParticipantAgent"
 python: "3.11"

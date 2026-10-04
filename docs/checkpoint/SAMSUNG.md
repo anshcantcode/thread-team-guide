@@ -1,6 +1,6 @@
 # Samsung PRISM Theme 05 requirements
 
-Checked against the organizer's linked folder on 29 September 2026. The newer Theme 05 FDB-v3 guide takes precedence over the earlier queue-kit scoring. This checkpoint is deliberately not the final submission.
+Checked against the organizer's linked folder on 29 September 2026. The newer Theme 05 FDB-v3 guide takes precedence over the earlier queue-kit scoring. This is a historical checkpoint, not the changed 3 October candidate or final submission. Deadline wording below incorporates the later owner update; the dated verification rows retain their original scope.
 
 Primary sources: [updated Theme 05 guide](https://drive.google.com/file/d/12RPdEbggSayVHNoFk1zPNqKOdVRQ_vio/view), [general submission brochure](https://drive.google.com/file/d/1SVFfMhULQUf6BX9NS1lAyjqsnCGOOPtm/view), [required AI disclosure form](https://drive.google.com/file/d/1e-RF-mUT2xbyAxUMccfnlRLOQ33MUXMl/view).
 
@@ -20,11 +20,11 @@ Primary sources: [updated Theme 05 guide](https://drive.google.com/file/d/12RPdE
 | Public or shared repository | Repository is private. Owner must grant the organizers access or choose public visibility; publication of a release alone does not grant access. |
 | Final tag `PRISM_GENAI_HACKATHON_Y2026` and all referenced assets | Not created by this checkpoint. Create only for the selected final commit and reviewed assets. |
 | College/team filenames, forms and links | Owner must supply accurate team fields and the confirmed submission link. Placeholders are not completed fields. |
-| AI tool/platform, prompts, outputs, modifications and human signature | [Disclosure draft](../fdb3/submission/AI_USAGE_DRAFT.md) retained truthfully. Human review, classification and signature remain outstanding. |
+| AI tool/platform, prompts, outputs, modifications and human signature | [AI disclosure](../submission/AI_DISCLOSURE.md) retained truthfully. Human review, classification and signature remain outstanding. |
 
 The guide describes a pinned LLM judge but the material supplied here does not establish a complete organizer judge snapshot or normalization formula. A different-model re-judge is not a forecast of the official score. The six locally observed expected-answer/public-schema conflicts require organizer adjudication; they do not prove every entrant is unable to pass.
 
-The older brochure gives 25 September as its cutoff. The owner reports a 30 September extension; the revised cutoff time, timezone and final form must be confirmed from the organizer communication. This document does not replace that confirmation.
+The older brochure gives 25 September as its cutoff. The owner now reports **4 October 2026** (3 October task update), superseding the earlier owner-reported 30 September extension. The exact cutoff time, timezone and final form must still be confirmed from organizer communication; no independent deadline verification is claimed here.
 
 Three fresh, preregistered 100/100 runs are an internal engineering target, not an extra requirement invented on behalf of Samsung. They have not been achieved.
 

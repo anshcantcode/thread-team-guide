@@ -262,7 +262,8 @@ class QuantitativeReceiptTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(call)
         agent._result({**call["payload"], "status": "error", "result": {"status": "error", "error": "not_found"}})
         final = agent.out_queue.get_nowait()
-        self.assertIn("unable to complete", final["payload"]["text"])
+        self.assertIn("did not go through", final["payload"]["text"])
+        self.assertNotIn("not_found", final["payload"]["text"])  # Error codes stay evidence, never speech.
         self.assertNotIn("Done", final["payload"]["text"])
         self.assertEqual(len(agent.operations), 1)
 

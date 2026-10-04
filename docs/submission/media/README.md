@@ -1,6 +1,6 @@
 # THREAD films
 
-The release includes two videos with different purposes.
+The earlier release includes two historical videos with different purposes. **Neither is the required new continuous final-source take.** Use [the 3–5 minute recording runbook](../DEMO_RUNBOOK.md); the new recording and link are pending. Existing movie bytes/provenance remain unchanged.
 
 | Video | Purpose and source |
 |---|---|

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THREAD Orb States</title>
+<style>
+  :root { --paper:#f8f6f1; --ink:#292924; --muted:#88877f; --line:#ddd9d0; --accent:#ce623e; --night:#0b1220; }
+  body { margin:0; font:14px/1.5 'Segoe UI', system-ui, sans-serif; background:var(--paper); color:var(--ink); }
+  .wrap { max-width:1100px; margin:0 auto; padding:20px 16px 40px; }
+  h1 { font:400 30px/1.1 Georgia, serif; margin:0 0 4px; }
+  .note { color:var(--muted); margin:0 0 16px; font-size:13px; }
+  .stages { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:760px) { .stages { grid-template-columns:1fr; } }
+  .stage { border-radius:14px; border:1px solid var(--line); height:320px; position:relative; overflow:hidden; }
+  .stage.dark { background:radial-gradient(circle at 50% 40%, #13213a, var(--night) 70%); border-color:#1d2738; }
+  .stage canvas { width:100%; height:100%; display:block; }
+  .stage span { position:absolute; left:12px; top:10px; font-size:11px; letter-spacing:.18em; color:var(--muted); }
+  .controls { margin-top:14px; display:grid; gap:10px; }
+  .row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .row b { width:72px; font-size:12px; color:var(--muted); font-weight:600; }
+  button { border:1px solid var(--line); background:#fff; border-radius:999px; padding:6px 12px; cursor:pointer; font:inherit; font-size:13px; }
+  button.on { border-color:var(--accent); color:var(--accent); }
+  input[type=range] { width:240px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>THREAD orb — live states</h1>
+  <p class="note">Design preview. In the app every state below is driven by real events (voice level, interruption, held correction, tool receipt).</p>
+  <div class="stages">
+    <div class="stage"><span>PAPER (BROWSER APP)</span><canvas id="light"></canvas></div>
+    <div class="stage dark"><span>INK (ANDROID / KITCHEN)</span><canvas id="dark"></canvas></div>
+  </div>
+  <div class="controls">
+    <div class="row" id="phases"><b>State</b></div>
+    <div class="row" id="moods"><b>Mood</b></div>
+    <div class="row"><b>Pulse</b><button data-pulse="interrupt">Interrupt (barge-in)</button><button data-pulse="done">Receipt</button><button data-pulse="error">Failure</button></div>
+    <div class="row"><b>Voice</b><input id="level" type="range" min="0" max="1" step="0.01" value="0"><label><input id="auto" type="checkbox"> simulate speech envelope</label></div>
+  </div>
+</div>
+<script type="module">
+import { createOrb, ORB_PHASES, ORB_MOODS } from './orb.js';
+const orbs = [createOrb(document.getElementById('light'), { theme: 'light', image: 'images/thread-sphere.png' }),
+              createOrb(document.getElementById('dark'), { theme: 'dark', image: 'images/thread-sphere.png' })];
+const each = (fn) => orbs.forEach(fn);
+const pick = (box, list, fn, initial) => {
+  for (const name of list) {
+    const b = document.createElement('button'); b.textContent = name; if (name === initial) b.classList.add('on');
+    b.onclick = () => { box.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); fn(name); };
+    box.appendChild(b);
+  }
+};
+pick(document.getElementById('phases'), ORB_PHASES, n => each(o => o.setPhase(n)), 'idle');
+pick(document.getElementById('moods'), ORB_MOODS, n => each(o => o.setMood(n)), 'neutral');
+document.querySelectorAll('[data-pulse]').forEach(b => b.onclick = () => each(o => o.pulse(b.dataset.pulse)));
+const level = document.getElementById('level'), auto = document.getElementById('auto');
+level.oninput = () => each(o => o.setLevel(level.value));
+let t = 0;
+setInterval(() => { if (!auto.checked) return; t += .05;
+  const syll = Math.max(0, Math.sin(t * 7.3)) * (.55 + .45 * Math.sin(t * 1.7)) * (Math.sin(t * .6) > -.3 ? 1 : .1);
+  level.value = syll.toFixed(2); each(o => o.setLevel(syll)); }, 50);
+window.__orbs = orbs;
+</script>
+</body>
+</html>

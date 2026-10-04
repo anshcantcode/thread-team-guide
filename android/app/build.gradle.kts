@@ -49,6 +49,7 @@ val stagePhoneBackend by tasks.registering(Sync::class) {
     }
 }
 android.sourceSets.getByName("main").assets.srcDir(checkpointAssets)
+android.sourceSets.getByName("test").resources.srcDir("../../tests/fixtures/watches")
 tasks.matching { it.name.contains("Assets") }.configureEach { dependsOn(stagePhoneBackend) }
 chaquopy {
     defaultConfig {
@@ -70,6 +71,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.2")
+    implementation("androidx.work:work-runtime-ktx:2.10.4")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.23.2")
     debugImplementation("androidx.compose.ui:ui-tooling")
@@ -80,4 +82,5 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }

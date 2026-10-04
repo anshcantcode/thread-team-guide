@@ -1,4 +1,4 @@
-"""Unstated required search filters require clarification, never invented values."""
+"""Unstated search filters run as unspecified, never invented; no model or benchmark data."""
 import asyncio
 from copy import deepcopy
 import unittest
@@ -33,7 +33,11 @@ class SchemaTests(unittest.TestCase):
     def test_only_search_reads_with_a_stated_filter_leave_others_unspecified(self):
         self.assertEqual(unstated_search_filters("search_homes", TOOLS["search_homes"], {"town": "Leeds", "ceiling": 900}),
                          ["rooms"])
-        self.assertEqual(unstated_search_filters("search_homes", TOOLS["search_homes"], {"rooms": 2}), ["town", "ceiling"])
+        # One of three stated is too vague to run unspecified (it is asked about), but those
+        # filters are still of a kind whose guessed values are stripped, never sent.
+        self.assertEqual(unstated_search_filters("search_homes", TOOLS["search_homes"], {"rooms": 2}), [])
+        self.assertEqual(unstated_search_filters("search_homes", TOOLS["search_homes"], {"rooms": 2}, majority=False),
+                         ["town", "ceiling"])
         # Nothing stated: ask, do not run an empty search.
         self.assertEqual(unstated_search_filters("search_homes", TOOLS["search_homes"], {}), [])
         # Identifiers are never left unspecified.
@@ -59,26 +63,20 @@ class DispatchTests(unittest.IsolatedAsyncioTestCase):
             rows.append(self.agent.out_queue.get_nowait())
         return rows
 
-    async def test_search_with_an_unstated_required_filter_asks_without_inventing_it(self):
+    async def test_search_without_an_unstated_filter_dispatches_without_inventing_it(self):
         self.agent._dispatch({"api_name": "search_homes", "args": {"town": "Leeds", "ceiling": 900}})
         events = self.actions()
-        self.assertFalse([event for event in events if event["action"] == "tool_call"])
-        clarification = [event for event in events if event["action"] == "clarification_request"]
-        self.assertEqual(len(clarification), 1)
-        self.assertEqual(clarification[0]["payload"]["text"], "Could you tell me the rooms?")
-        self.assertEqual(clarification[0]["payload"]["validation"]["problems"], ["args.rooms: missing required argument"])
+        calls = [e["payload"] for e in events if e["action"] == "tool_call"]
+        self.assertEqual([c["args"] for c in calls], [{"town": "Leeds", "ceiling": 900}])
+        self.assertFalse([e for e in events if e["action"] == "clarification_request"])
 
-    async def test_numbers_of_other_requests_cannot_supply_an_unstated_required_filter(self):
+    async def test_numbers_of_other_requests_do_not_block_an_unstated_filter(self):
         self.agent._handle({"event_type": "user_speech_chunk", "payload": {"text":
             "Find homes in Leeds under 900. Then check the drive to my office. If it's over 15 minutes, "
             "raise my ceiling to 1200.", "end_of_turn": True}})
         self.agent._dispatch({"api_name": "search_homes", "args": {"town": "Leeds", "ceiling": 900}})
-        events = self.actions()
-        self.assertFalse([event for event in events if event["action"] == "tool_call"])
-        clarification = [event for event in events if event["action"] == "clarification_request"]
-        self.assertEqual(len(clarification), 1)
-        self.assertEqual(clarification[0]["payload"]["text"], "Could you tell me the rooms?")
-        self.assertEqual(clarification[0]["payload"]["validation"]["problems"], ["args.rooms: missing required argument"])
+        self.assertEqual([e["payload"]["args"] for e in self.actions() if e["action"] == "tool_call"],
+                         [{"town": "Leeds", "ceiling": 900}])
 
     async def test_an_unused_number_in_the_search_sentence_still_needs_repair(self):
         self.agent._handle({"event_type": "user_speech_chunk", "payload": {"text":

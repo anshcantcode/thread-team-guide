@@ -108,7 +108,7 @@ def _spoken_list(items: list[str]) -> str:
     return ", ".join(items[:-1]) + ", and " + items[-1]
 
 
-def argument_question(tool: dict, args: object) -> str:
+def argument_question(tool: dict, args: object, *, skip: object = ()) -> str:
     """A short spoken request for the values validation found missing or unusable.
 
     Asks, in the declared contract's words, for each missing or ill-typed declared
@@ -117,6 +117,8 @@ def argument_question(tool: dict, args: object) -> str:
     """
     asked, invalid = [], []
     for path, kind, _ in argument_problems(tool, args):
+        if path in skip:  # Filters the search may leave unspecified.
+            continue
         phrase = _declared_words(tool, path) if kind in {"missing", "invalid"} else None
         if phrase is not None and phrase not in asked:
             asked.append(phrase)
@@ -134,16 +136,19 @@ def argument_question(tool: dict, args: object) -> str:
     return unusable + " " + question
 
 
-def unstated_search_filters(name: object, tool: dict, args: object) -> list[str]:
-    """Identify absent search filters while removing invented planner values.
+def unstated_search_filters(name: object, tool: dict, args: object, *, majority: bool = True) -> list[str]:
+    """Required filters a search leaves unstated, to run unspecified rather than invented.
 
     "Places in Austin under 2000" is a complete search even though the contract
-    also requires bedrooms: the user did not narrow by it, so the proposal must
-    ask for that required value rather than guess or dispatch None. This helper
-    never exempts a proposal from validate_args. Only read-only search tools (their
-    arguments narrow results rather than parameterize a computation), only
-    scalar non-identifier filters, and only when the user stated at least one
-    required filter. Writes never qualify.
+    also requires bedrooms: the user did not narrow by it, so it runs with that
+    filter unspecified (None) instead of a guessed number or a blocking question.
+    Only read-only tools named as searches (their arguments narrow results rather
+    than parameterize a computation), only scalar non-identifier filters, and only
+    when the user stated at least as many required filters as are left unstated: a
+    search narrowed by one of three filters is too vague to be the one asked for (and
+    is how a stray proposal looks), so it is asked about instead. Writes never qualify.
+    majority=False answers only which filters are of a kind that may stay unstated (used to
+    strip a guessed value, which is never sent whether or not the search then runs).
     """
     if (not isinstance(name, str) or not name.startswith("search") or not isinstance(tool, dict)
             or tool.get("kind") != "read_only" or not isinstance(args, dict)
@@ -155,6 +160,7 @@ def unstated_search_filters(name: object, tool: dict, args: object) -> list[str]
     missing = [key for key in required if key not in args]
     from .authorization import identifier_field
     if (not missing or not any(key in args for key in required)
+            or majority and len(missing) > len(required) - len(missing)
             or any(key == "id" or identifier_field(key, properties[key]) for key in missing)
             or any(properties[key].get("type") not in {"string", "number", "integer"} for key in missing)):
         return []

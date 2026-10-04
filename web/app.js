@@ -1,10 +1,15 @@
 import { renderWorkspace } from './workspace.js';
 import { NativeVoice } from './live-audio.js';
 import { asBase64 } from './audio.js';
+import { createOrb } from './orb.js';
+import { mountWatches } from './watches.js';
 const $ = id => document.getElementById(id);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let socket, sessionId, state, config, events = [], toastTimer, callStarted = null, callState = 'idle';
 let lastCaptionId = null, lastCaptionText = '', liveCaptions = new Map();
+let orb = null, orbMoodUntil = 0, lastResultsId = null;
+const WATCH_ACTIONS = new Set(['create_watch', 'stop_watch', 'check_watch_now', 'list_watches']);
+let watches = null;
 function toast(text) { $('toast-text').textContent = text; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').hidden = true, 11000); }
 $('toast-close').onclick = () => $('toast').hidden = true;
 function send(type, text='', data={}) {
@@ -18,12 +23,14 @@ const voice = new NativeVoice({
   threshold: () => Number($('vad-threshold').value),
   backchannel: () => $('backchannel').checked,
   latency: ms => { $('latency').textContent = `${(ms/1000).toFixed(2)} s`; },
+  interrupted: () => orb?.pulse('interrupt'),
   caption: event => {
     const {message_id:id,role,text} = event;
     liveCaptions.set(id,{id,role,text,source:'native_audio'});
     if (id !== lastCaptionId && lastCaptionText) $('previous-caption').textContent = lastCaptionText;
     lastCaptionId = id; lastCaptionText = text;
     $('caption-speaker').textContent = role === 'user' ? 'YOU' : 'THREAD';
+    if (role !== 'user' && /\?\s*$/.test(text)) orbMood('curious', 6000);
     $('caption-text').textContent = text.length > 250 ? '…' + text.slice(-235).replace(/^\S*\s/,'') : text;
     renderTranscript();
   }
@@ -31,6 +38,7 @@ const voice = new NativeVoice({
 function showVoiceState(next) {
   callState = next;
   const connected = voice.ready;
+  orb?.setPhase(orbPhase(next));
   document.body.dataset.voiceState = next;
   document.body.dataset.connected = String(connected);
   if (connected && !callStarted) callStarted = performance.now();
@@ -83,7 +91,8 @@ async function startSession(fresh=false) {
     if (event.type === 'history') { events = event.events; render(event.state); return; }
     if (event.type === 'snapshot') { render(event.state); return; }
     if (event.id) events.push(event);
-    if (event.type === 'error' || event.type === 'provider_error') toast(event.text);
+    if (event.type === 'error' || event.type === 'provider_error') { toast(event.text); orb?.pulse('error'); orbMood('apologetic', 5000); }
+    if (event.type === 'phone_action_result' && WATCH_ACTIONS.has(event.action)) watches?.refresh();
     if ($('inspector').open) renderTimeline();
   };
   socket.onclose = event => { if (socket !== current) return; void voice.stop(); toast(event.code===4001 ? 'This session is open in another tab.' : 'The local server disconnected. Reload to reconnect.'); };
@@ -91,6 +100,10 @@ async function startSession(fresh=false) {
 }
 function render(next) {
   state = next;
+  // A new result set is a real, returned outcome: acknowledge it once.
+  const resultsId = next?.results?.id ?? null;
+  if (resultsId && lastResultsId && resultsId !== lastResultsId) { orb?.pulse('done'); orbMood('pleased', 4000); }
+  lastResultsId = resultsId ?? lastResultsId;
   renderWorkspace(state);
   $('media-preview').hidden = !state.media?.id;
   if (state.media?.id && $('preview-image').dataset.mediaId !== state.media.id) { $('preview-image').src=`/api/sessions/${sessionId}/frame?v=${encodeURIComponent(state.media.id)}`; $('preview-image').dataset.mediaId=state.media.id; }
@@ -155,24 +168,25 @@ $('file').onchange=async()=>{const file=$('file').files[0];if(file)await attach(
 $('device-demo').onclick=async()=>{const r=await fetch('/static/device-fixture.png');if(r.ok)await attach(await r.blob(),'THREAD R1 · demo image');};
 window.addEventListener('pagehide',()=>{void voice.stop();});
 setInterval(()=>{if(callStarted && voice.ready){const s=Math.floor((performance.now()-callStarted)/1000);$('call-note').textContent=`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}${voice.muted?' · MIC MUTED':!voice.stream?' · KEYBOARD':''}`;}},500);
-// The acoustic sphere responds to real audio energy; its resting pose is still.
-const canvas=$('thread-canvas'),ctx=canvas.getContext('2d'),reduced=matchMedia('(prefers-reduced-motion: reduce)');
-const sphereImage=new Image();sphereImage.src='/static/images/thread-sphere.png';
-let smoothLevel=0,lastDraw=0;
-function draw(time){
-  requestAnimationFrame(draw);if(document.hidden || time-lastDraw<32)return;lastDraw=time;
-  const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2);
-  if(canvas.width!==Math.round(rect.width*dpr)||canvas.height!==Math.round(rect.height*dpr)){canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);}
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,rect.width,rect.height);
-  smoothLevel+=(voice.levels()-smoothLevel)*.16;
-  const level=reduced.matches?0:smoothLevel,side=Math.min(rect.width,rect.height)*(1+level*.045);
-  ctx.save();ctx.translate(rect.width/2,rect.height/2);
-  ctx.rotate(reduced.matches||!voice.ready?0:Math.sin(time*.00057)*.026);
-  ctx.globalAlpha=.92+level*.08;
-  if(sphereImage.complete&&sphereImage.naturalWidth)ctx.drawImage(sphereImage,-side/2,-side/2,side,side);
-  ctx.restore();
+// The acoustic sphere, alive. Every phase, pulse and mood comes from the voice layer or the session
+// (measured level, voice state, real interruption, returned results, errors), never from a timer.
+function orbPhase(next) {
+  if (!voice.ready) return next === 'connecting' ? 'connecting' : 'idle';
+  if (next === 'speaking') return 'speaking';
+  if (voice.muted || !voice.stream) return 'muted';
+  return {connected:'listening', listening:'listening', thinking:'hesitating'}[next] || 'listening';
 }
-requestAnimationFrame(draw);
+function orbMood(name, ms) { orb?.setMood(name); orbMoodUntil = performance.now() + ms; }
+orb = createOrb($('thread-canvas'), {theme:'auto', image:'/static/images/thread-sphere.png', scale:.94});
+// Standing Watches sit at the top of the workspace when the host has any; hidden otherwise (and on Android hosts).
+watches = mountWatches(document.querySelector('.context-scroll'));
+orb.setPhase(orbPhase(callState));
+(function feedOrb() {
+  requestAnimationFrame(feedOrb);
+  if (document.hidden) return;
+  orb.setLevel(voice.levels());
+  if (orbMoodUntil && performance.now() > orbMoodUntil) { orb.setMood('neutral'); orbMoodUntil = 0; }
+})();
 try{
  config=await(await fetch('/api/config')).json();$('privacy').textContent=config.privacy;$('live-model').textContent=`Gemini Live · ${config.live.model}`;
  $('gemini-setup').hidden=Boolean(config.live.configured);

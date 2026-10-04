@@ -6,4 +6,4 @@ The custom LiveKit agent is `scripts/fdb3_agent.py`. The complete Linux entry po
 
 Root `submission.yaml` retains the older queue-kit's valid module/class schema and now identifies team ReflexAi. The updated FDB-v3 guide does not use that queue manifest as its launch contract. No undocumented YAML field is substituted for the required executable LiveKit pipeline.
 
-Tag `PRISM_GENAI_HACKATHON_Y2026` names the packaged source. Human disclosure signature and organizer-form submission remain separate. Historical measurements retain their original source identities.
+The `PRISM_GENAI_HACKATHON_Y2026` tag and release identify the final source and its assets. The signed disclosure form and organizer-form submission are separate steps. Historical measurements retain their original source identities. See [submission results](../submission/RESULTS.md).

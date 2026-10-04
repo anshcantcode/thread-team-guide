@@ -16,7 +16,7 @@ flowchart LR
   K --> C
 ```
 
-The planner proposes; the controller authorizes. Public schemas determine required arguments. An omitted required search filter causes clarification rather than an invented value or `None` injected into a required numeric argument.
+The planner proposes; the controller authorizes. Public schemas determine arguments. At source `4ef667e`, a read-only `search*` may leave eligible scalar, non-identifier filters unspecified when at least as many required filters are stated as omitted. The bridge passes `None` only for those unstated filters, without changing the public tool or evaluator. Guessed filters are removed; stated-but-dropped values and insufficiently constrained searches still require clarification. This exception never authorizes a write. See `participant/schema.py::unstated_search_filters` and `ControllerBridge._invoke`.
 
 ## State and correction
 
@@ -47,7 +47,11 @@ The runtime reads the public tool contract. Evaluators read recordings, expected
 
 An omitted argument and the same explicitly supplied schema default now identify the same write effect. This closes a duplicate path while an earlier outcome remains unknown. The arguments actually sent to the tool remain unchanged; a genuinely different value is a different effect.
 
-When a public tool contract requires an argument the user did not supply, THREAD asks a natural question using the contract's description. It does not invent benchmark-specific defaults or expose internal underscore-separated field names in speech. Independent tests include alternative schemas and control cases.
+When a required argument is missing outside the limited read-only search rule above, THREAD asks a natural question using the contract's description. It does not invent benchmark-specific defaults or expose internal underscore-separated field names in speech. Independent tests include alternative schemas and control cases.
+
+## 3 October source boundary
+
+The catchup branch also repairs write authorization for supported conditional/sequenced requests and returned identifiers; it does not bypass the execution gate. These changes are outside the historical `8dd530f` measurement. Final-source results: [README results](../README.md#results).
 
 ## Read the implementation
 

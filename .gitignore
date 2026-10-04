@@ -10,6 +10,7 @@
 data/
 *.sqlite*
 .runtime/
+.demo-evidence/
 .thread-run/raw/
 .thread-run/submission-build/
 .thread-run/task-b-prep/

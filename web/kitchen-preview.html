@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kitchen Correction Preview</title><link rel="stylesheet" href="fdb3.css">
+<style>.preview-note{color:#e8a25a;font-size:12px;letter-spacing:.08em;margin:0 0 10px}</style></head>
+<body><main style="max-width:640px">
+<p class="preview-note">DESIGN PREVIEW · SCRIPTED EVENTS · NOT A LIVE SESSION</p>
+<section class="panel">
+  <div class="orb-stage" aria-hidden="true"><canvas id="orb"></canvas></div>
+  <h2>Your conversation</h2>
+  <div id="captions" class="captions" aria-live="polite">Your conversation appears here.</div>
+  <section class="intent" id="intent" aria-live="polite" hidden><p class="eyebrow">WHAT THREAD IS DOING</p>
+    <ol id="intent-history"></ol><div class="intent-now"><span id="intent-badge" class="badge"></span><p id="intent-text"></p></div>
+    <p id="intent-note" class="intent-note"></p></section>
+  <div class="buttons"><button id="play">Play the correction sequence</button></div>
+</section></main>
+<script type="module">
+import {createOrb} from './orb.js';
+import {intentView, renderIntentCard} from './fdb3-intent.js';
+const orb = createOrb(document.getElementById('orb'), {theme: 'auto', image: 'images/thread-sphere.png', scale: .92});
+let view = intentView();
+const caption = t => document.getElementById('captions').textContent = t;
+const steps = [
+  [0, () => { orb.setPhase('listening'); caption('You: Add chop the celery to my checklist…'); }],
+  [1600, () => { view.controller({stage: 'sending', api_name: 'add_checklist_item', args: {text: 'chop the celery'}, call_id: 'c1'}); orb.setPhase('working'); }],
+  [2600, () => { caption('You: …actually no — wash the spinach instead.'); orb.pulse('interrupt'); orb.setPhase('listening'); }],
+  [3000, () => { view.controller({stage: 'withdrawn', call_id: 'c1'}); orb.pulse('correction'); }],
+  [4300, () => { view.controller({stage: 'sending', api_name: 'add_checklist_item', args: {text: 'wash the spinach'}, call_id: 'c2'}); orb.setPhase('working'); }],
+  [5600, () => { view.receipt({tool: 'add_checklist_item', args: {text: 'wash the spinach'}, result: {status: 'success', detail: 'Saved “wash the spinach” on this device.'}}); orb.pulse('done'); orb.setMood('pleased'); orb.setPhase('speaking'); caption('THREAD: Done. I added wash the spinach.'); }],
+  [8200, () => { orb.setMood('neutral'); orb.setPhase('listening'); }],
+];
+document.getElementById('play').onclick = () => {
+  view = intentView(); renderIntentCard(view, document);
+  for (const [at, run] of steps) setTimeout(() => { run(); renderIntentCard(view, document); }, at);
+};
+window.__preview = {orb, get view() { return view; }};
+</script></body></html>

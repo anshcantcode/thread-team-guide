@@ -27,6 +27,8 @@ from .planner import ModelPlanner, settings
 from .protocol import InputEvent
 from .live import LiveConversation, VOICES
 from .spotify import spotify, SpotifyFailure
+from .watches import WATCH_SPECS, host_watches
+from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parent.parent
 sessions: dict[str, Session] = {}
@@ -50,12 +52,23 @@ async def lifespan(app):
                     await session.close()
                     sessions.pop(key, None)
     janitor = asyncio.create_task(expire())
+    async def watch_loop():
+        while True:
+            try: await host_watches().run_due()
+            except (OSError, ValueError): pass  # API exposes storage failure; never erase unreadable history.
+            await asyncio.sleep(30)
+    watch_task = asyncio.create_task(watch_loop()) if os.environ.get('THREAD_EMBEDDED') != 'android' else None
     yield
     for connection in list(live_connections.values()):
         try: await connection.close()
         except (RuntimeError, WebSocketDisconnect): pass
     janitor.cancel()
     await asyncio.gather(janitor, return_exceptions=True)
+    if watch_task:
+        watch_task.cancel()
+        await asyncio.gather(watch_task, return_exceptions=True)
+        try: await host_watches().close()
+        except (OSError, ValueError): pass
     await asyncio.gather(*(s.close() for s in sessions.values()))
     sessions.clear()
     connections.clear()
@@ -115,6 +128,41 @@ async def configuration():
 @app.post('/api/check')
 async def check_connection():
     return await planner.health()
+
+
+def watch_store():
+    if os.environ.get('THREAD_EMBEDDED') == 'android':
+        raise HTTPException(409, 'Phone Watches live in Android WorkManager. Use the native Watch screen or voice tools.')
+    try: return host_watches()
+    except (OSError, ValueError): raise HTTPException(503, 'Watch storage is unavailable; the original data was retained.') from None
+
+
+@app.get('/api/watches')
+async def list_watches():
+    return {'owner': 'host', 'requires_running_host': True, 'watches': watch_store().list()}
+
+
+@app.post('/api/watches')
+async def create_watch(request: Request):
+    try:
+        args = await request.json()
+        _, props, required = WATCH_SPECS['create_watch']
+        errors = list(Draft202012Validator({'type': 'object', 'properties': props, 'required': required, 'additionalProperties': False}).iter_errors(args))
+        if errors: raise ValueError(errors[0].message[:200])
+        return await watch_store().execute('create_watch', args)
+    except (ValueError, TypeError, KeyError) as exc: raise HTTPException(400, str(exc)[:300]) from None
+
+
+@app.delete('/api/watches/{watch_id}')
+async def stop_watch(watch_id: str):
+    try: return await watch_store().execute('stop_watch', {'id': watch_id})
+    except ValueError as exc: raise HTTPException(400, str(exc)) from None
+
+
+@app.post('/api/watches/{watch_id}/check')
+async def check_watch_now(watch_id: str):
+    try: return await watch_store().execute('check_watch_now', {'id': watch_id})
+    except ValueError as exc: raise HTTPException(400, str(exc)) from None
 
 
 @app.post('/api/spotify/connect')

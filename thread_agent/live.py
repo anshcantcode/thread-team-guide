@@ -27,7 +27,8 @@ from .planner import settings, ProviderError, provider_trace
 from .android_backend import record_voice_metrics
 from .protocol import InputEvent, Interpretation
 from .capabilities import BUILTINS, validate
-from .phone import PhoneBridge, PHONE_INSTRUCTIONS, phone_schemas
+from .phone import PhoneBridge, PHONE_INSTRUCTIONS, phone_schemas, watch_schemas
+from .watches import WATCH_SPECS, WATCH_INSTRUCTIONS
 from PIL import Image, UnidentifiedImageError
 
 ENDPOINT = 'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent'
@@ -193,6 +194,7 @@ class LiveConversation:
         self.noise_continuation = None
         self.recovery_only = False
         self.phone = PhoneBridge(self) if android else None
+        self.watch_bridge = self.phone or PhoneBridge(self)
         self.client_input_id = ''
         self.camera_stream = ''
         self.camera_token = uid('camera')
@@ -270,7 +272,7 @@ class LiveConversation:
         async with self.browser_lock:
             if kind == 'device_action':
                 self.check_action_lifecycle(data.get('input_epoch'))
-                if str(data.get('request_id', '')).removeprefix('phone-') in self.withdrawn_calls:
+                if (data.get('call_id') or str(data.get('request_id', '')).removeprefix('phone-')) in self.withdrawn_calls:
                     raise ValueError('The provider withdrew this action before it reached the phone.')
             await self.browser.send_json({'type': kind, **data})
 
@@ -284,7 +286,7 @@ class LiveConversation:
         return {'setup': {'model': 'models/' + settings()['live_model'],
                          'generationConfig': {'responseModalities': ['AUDIO'],
                                               'speechConfig': {'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': self.voice}}}},
-                         'systemInstruction': {'parts': [{'text': INSTRUCTIONS + (PHONE_INSTRUCTIONS + '\nOptional live camera images are transient visual context, never action authorization. Use only frames received after the latest THREAD turn marker for current visual claims. After a correction or interruption, wait for a new frame before claiming what is visible now. Camera sharing metadata is silent context, not a request to speak. When sharing stops, earlier images are historical and cannot establish the current scene.' if self.phone else '') + '\nSESSION CONTEXT\n' + json.dumps(context)}]},
+                         'systemInstruction': {'parts': [{'text': INSTRUCTIONS + WATCH_INSTRUCTIONS + (PHONE_INSTRUCTIONS + '\nOptional live camera images are transient visual context, never action authorization. Use only frames received after the latest THREAD turn marker for current visual claims. After a correction or interruption, wait for a new frame before claiming what is visible now. Camera sharing metadata is silent context, not a request to speak. When sharing stops, earlier images are historical and cannot establish the current scene.' if self.phone else '') + '\nSESSION CONTEXT\n' + json.dumps(context)}]},
                          'inputAudioTranscription': {}, 'outputAudioTranscription': {},
                          'realtimeInputConfig': {'automaticActivityDetection': {
                              'startOfSpeechSensitivity': 'START_SENSITIVITY_LOW',
@@ -292,7 +294,7 @@ class LiveConversation:
                              'prefixPaddingMs': 160, 'silenceDurationMs': 900},
                              'activityHandling': 'START_OF_ACTIVITY_INTERRUPTS'},
                          'contextWindowCompression': {'slidingWindow': {}},
-                         'tools': [{'functionDeclarations': [tool_schema(s.manifests), *(read_schema(name,domain) for name,domain in READ_FUNCTIONS.items()), *(phone_schemas() if self.phone else [])]}] + ([{'googleSearch': {}}] if settings()['live_search'] else [])}}
+                         'tools': [{'functionDeclarations': [tool_schema(s.manifests), *(read_schema(name,domain) for name,domain in READ_FUNCTIONS.items()), *watch_schemas(), *(phone_schemas() if self.phone else [])]}] + ([{'googleSearch': {}}] if settings()['live_search'] else [])}}
 
     async def run(self):
         key = settings()['key']
@@ -893,9 +895,10 @@ class LiveConversation:
     async def handle_tool(self, call):
         if call.get('id') in self.calls: return self.calls[call['id']]
         if self.phone and call.get('id') in self.phone.outcomes: return self.phone.outcomes[call['id']]
+        if call.get('id') in self.watch_bridge.outcomes: return self.watch_bridge.outcomes[call['id']]
         self.executing_tool = True
         try:
-            writing = call.get('name', '').startswith('phone_') or (call.get('name') == 'update_task' and call.get('args', {}).get('intent') in ('commit', 'additional_action', 'cancel'))
+            writing = call.get('name') in WATCH_SPECS or call.get('name', '').startswith('phone_') or (call.get('name') == 'update_task' and call.get('args', {}).get('intent') in ('commit', 'additional_action', 'cancel'))
             if writing:
                 if call.get('args', {}).get('input_token') != self.input_token:
                     return {'ok': False, 'error': 'This action has no current turn token.', 'state': self.task_context()}
@@ -905,7 +908,8 @@ class LiveConversation:
                 except (ValueError, ProviderError) as exc:
                     self.session.emit('authorization_rejected', str(exc)[:300], call_id=call.get('id'))
                     return {'ok': False, 'error': str(exc)[:300], 'state': self.task_context(), 'instruction': 'Keep the action held. Ask for a repeated or typed explicit request; do not report success.'}
-            result = await self.phone.execute(call) if call.get('name', '').startswith('phone_') and self.phone else self.apply_tool(call)
+            result = (await self.watch_bridge.execute(call) if call.get('name') in WATCH_SPECS else
+                      await self.phone.execute(call) if call.get('name', '').startswith('phone_') and self.phone else self.apply_tool(call))
             # Coalesce quick fixture results with their tool response. A slow service
             # gets at most 250 ms here, then finishes independently of conversation.
             pending = [o['task'] for o in self.session.operations.values()

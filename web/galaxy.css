@@ -29,3 +29,35 @@ body[data-connected=true] #voice-title,body[data-connected=true] .stage-subtitle
 @media(max-width:900px){.studio{grid-template-columns:1fr}.voice-stage{height:100svh;min-height:680px}.context-rail{height:auto;min-height:420px;border-left:0;border-top:1px solid #283648}.context-scroll{overflow:visible}.context-header{height:80px}.thread-visual{height:42vh}.connection-status{position:static;transform:none;margin-left:auto;font-size:10px}.stage-header{padding:0 24px}.brand>span{font-size:12px}.settings-button{margin-left:0}.context-footer{position:static}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .weather-condition{color:#c1cfe2}.weather-facts b{color:#eef4ff}.weather-facts{border-color:#34475e;font-size:11px}.forecast-symbol{color:#bfd5f5}.forecast>div{font-size:11px}.forecast em{font-size:10px}.weather-stamp{font-size:10px}.weather-glyph.cloud i{background:#dcecff;box-shadow:0 6px 14px #08122240}
+/* Standing Watches: a quiet instrument panel at the top of the workspace. */
+.watch-strip{margin:0 0 24px;padding:14px 16px 4px;border:1px solid #23324a;border-radius:18px;background:radial-gradient(120% 90% at 0 0,#16243a 0,#0f1826 55%,#0d141e 100%);box-shadow:inset 0 1px 0 #ffffff08,0 18px 40px -28px #000}
+.watch-strip>header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;padding-bottom:10px}
+.watch-strip>header .eyebrow{color:#c8d8f0;font-size:10px;letter-spacing:.2em;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.watch-strip>header .eyebrow:before{content:'';width:6px;height:6px;border-radius:50%;background:#7fd1b2;box-shadow:0 0 0 0 #7fd1b266;animation:watchPing 2.8s ease-out infinite}
+.watch-strip>header small{font-size:10px;color:#7f93b0}
+.watch{position:relative;padding:12px 0 10px;border-top:1px solid #1c293b}
+.watch-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.watch-top b{font-size:13px;font-weight:550;color:#e3ecf8;overflow-wrap:anywhere}
+.watch-new{flex-shrink:0;font-size:10px;color:#ffcf96;background:#e8a25a1f;border:1px solid #e8a25a55;border-radius:99px;padding:2px 9px;animation:watchArrive .6s cubic-bezier(.2,.9,.3,1.3)}
+.watch.has-new .watch-top b{text-shadow:0 0 18px #e8a25a55}
+.watch-meta{margin:4px 0 0;font-size:10px;color:#7f93b0;letter-spacing:.02em}
+.watch-headline{margin:9px 0 0;font-size:12px;line-height:1.5;color:#c9d6e8}
+.watch-headline a{color:#dbe7f7;text-decoration:none;background:linear-gradient(#b7d8ff55,#b7d8ff55) 0 100%/0 1px no-repeat;transition:background-size .25s}
+.watch-headline a:hover{background-size:100% 1px}
+.watch-headline small{display:block;margin-top:3px;font-size:10px;color:#8fa2bf}
+.watch-headline.muted{color:#7f93b0;font-style:italic}
+.watch-actions{display:flex;gap:16px;margin-top:8px}
+.watch-actions button{font-size:10px;color:#9fb6d6;padding:2px 0;letter-spacing:.04em}
+.watch-actions button:hover{color:#e3ecf8}
+.watch-actions button[data-act=stop]:hover{color:#f0a48a}
+.watch-actions button:disabled{opacity:.45;cursor:default}
+.watch.checking:after{content:'';position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg,transparent,#7fd1b2,transparent);background-size:40% 100%;background-repeat:no-repeat;animation:watchScan 1.1s linear infinite}
+@keyframes watchPing{0%{box-shadow:0 0 0 0 #7fd1b266}70%{box-shadow:0 0 0 8px #7fd1b200}100%{box-shadow:0 0 0 0 #7fd1b200}}
+@keyframes watchArrive{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes watchScan{from{background-position:-40% 0}to{background-position:140% 0}}
+@media(prefers-reduced-motion:reduce){.watch-strip>header .eyebrow:before,.watch-new,.watch.checking:after{animation:none}}
+/* Live correction: the replaced value stays visible, struck through, then quietens. */
+.slot.changed dd{color:#ffcf96}.slot dd del{color:#8fa2bf;text-decoration-color:#ff9a8a;text-decoration-thickness:1.5px;margin-right:4px;animation:corrQuiet 9s ease-out forwards}
+.slot.changed{animation:corrArrive .5s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes corrQuiet{0%,55%{opacity:1}100%{opacity:.55}}@keyframes corrArrive{from{transform:translateY(-3px);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.slot dd del,.slot.changed{animation:none}}
