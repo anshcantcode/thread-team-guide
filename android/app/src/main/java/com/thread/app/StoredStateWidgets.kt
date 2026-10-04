@@ -86,8 +86,10 @@ object StoredStateWidgets {
         val intent = open(context, kind).setData(Uri.parse("thread://stored-widget/${kind.name}/$id"))
         val open = PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         views.setOnClickPendingIntent(R.id.widget_root, open)
-        val template = PendingIntent.getActivity(context, id, Intent(intent).apply { removeExtra("watch_id") }.setAction("com.thread.app.STORED_ROW_${kind.name}"),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+        // Row fill-ins need a mutable template, so name the target activity explicitly on the template itself.
+        val target = if (kind == StoredWidgetKind.KITCHEN) Fdb3Activity::class.java else MainActivity::class.java
+        val rowIntent = Intent(intent).apply { removeExtra("watch_id") }.setAction("com.thread.app.STORED_ROW_${kind.name}").setClass(context, target)
+        val template = PendingIntent.getActivity(context, id, rowIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
         views.setPendingIntentTemplate(R.id.widget_list, template)
         val collection = RemoteViews.RemoteCollectionItems.Builder().setHasStableIds(false).setViewTypeCount(1)
         rows.forEachIndexed { index, row ->
